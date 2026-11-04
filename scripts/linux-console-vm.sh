@@ -5,8 +5,8 @@
 # no Hangul glyphs, 8 colors, VT-switching Alt+arrows, lost Shift/Ctrl on arrows.
 #
 #   scripts/linux-console-vm.sh start [--window]  boot the VM (--window: show a QEMU window)
-#   scripts/linux-console-vm.sh setup             log in, network, copy dist/evlog-linux-amd64
-#   scripts/linux-console-vm.sh run [evlog args]  run evlog on VT7 (default: -label linux-console -mouse=off)
+#   scripts/linux-console-vm.sh setup             log in, network, copy dist/{evlog,wmdemo}-linux-amd64
+#   scripts/linux-console-vm.sh run [PROG [ARGS]] run PROG (evlog|wmdemo, default evlog) on VT7
 #   scripts/linux-console-vm.sh shot FILE.png     screenshot of the console
 #   scripts/linux-console-vm.sh stop              power off
 #
@@ -50,22 +50,29 @@ cmd_start() {
 }
 
 cmd_setup() {
-	[[ -f "$ROOT/dist/evlog-linux-amd64" ]] || (cd "$ROOT" && make evlog-linux)
+	(cd "$ROOT" && make evlog-linux wmdemo-linux >/dev/null)
 	"${VMCTL[@]}" login
 	python3 -I -m http.server "$HTTP_PORT" --bind 127.0.0.1 --directory "$ROOT/dist" >/dev/null 2>&1 &
 	local http_pid=$!
 	trap 'kill $http_pid 2>/dev/null' RETURN
 	sleep 1
-	# The marker is computed in the guest so the echoed command line cannot match it.
-	"${VMCTL[@]}" serial "ip link set eth0 up; udhcpc -i eth0 -q -n >/dev/null 2>&1; for i in 1 2 3 4 5 6 7 8 9 10; do wget -q -O /root/evlog http://10.0.2.2:$HTTP_PORT/evlog-linux-amd64 && break; sleep 1; done; [ -s /root/evlog ] && chmod +x /root/evlog && echo EVLOG_\$((40+2))" \
-		--expect 'EVLOG_42' --timeout 90 >/dev/null || die "could not copy evlog into the VM"
-	echo "evlog copied to /root/evlog. Next: $0 run"
+	local prog
+	for prog in evlog wmdemo; do
+		# The marker is computed in the guest so the echoed command line cannot match it.
+		"${VMCTL[@]}" serial "ip link set eth0 up; ip -4 addr show eth0 | grep -q inet || udhcpc -i eth0 -q -n >/dev/null 2>&1; for i in 1 2 3 4 5 6 7 8 9 10; do wget -q -O /root/$prog http://10.0.2.2:$HTTP_PORT/$prog-linux-amd64 && break; sleep 1; done; [ -s /root/$prog ] && chmod +x /root/$prog && echo COPY_\$((40+2))" \
+			--expect 'COPY_42' --timeout 90 >/dev/null || die "could not copy $prog into the VM"
+	done
+	echo "evlog and wmdemo copied to /root. Next: $0 run [evlog|wmdemo]"
 }
 
 cmd_run() {
-	local args="${*:--label linux-console -mouse=off}"
-	"${VMCTL[@]}" serial "openvt -c 7 -s -- env -i TERM=linux HOME=/root sh -c 'cd /root && ./evlog $args'" >/dev/null
-	echo "evlog running on VT7. Logs: /root/evlog-*.log inside the VM"
+	local prog="${1:-evlog}"
+	shift || true
+	local args="$*"
+	[[ "$prog" == evlog && -z "$args" ]] && args="-label linux-console -mouse=off"
+	"${VMCTL[@]}" serial "openvt -c 7 -f -s -- env -i TERM=linux HOME=/root sh -c 'cd /root && ./$prog $args'; echo RUN_\$((40+2))" \
+		--expect 'RUN_42' --timeout 30 >/dev/null || die "could not start $prog"
+	echo "$prog running on VT7"
 }
 
 cmd_shot() {
