@@ -16,6 +16,7 @@ const (
 	StyleMenu
 	StyleMenuSelected
 	StyleMenuHotkey
+	StyleMenuSelectedHotkey
 	StyleMenuDisabled
 	StyleDialog
 	StyleDialogButton

@@ -68,7 +68,7 @@ func (h *harness) draw() *wm.Canvas {
 
 func (h *harness) win(n int) *wm.Window {
 	for _, w := range h.d.M.Windows() {
-		if w.Name() == "빈 창 "+string(rune('0'+n)) {
+		if w.Name() == "Window "+string(rune('0'+n)) {
 			return w
 		}
 	}
@@ -118,7 +118,7 @@ func TestMouseOnlyWindowOperations(t *testing.T) {
 		t.Fatal("minimize failed")
 	}
 	c := h.draw()
-	if !strings.Contains(c.Row(h.d.H-1), "[빈 창 1]") {
+	if !strings.Contains(c.Row(h.d.H-1), "[Window 1]") {
 		t.Fatalf("taskbar = %q", c.Row(h.d.H-1))
 	}
 	h.click(2, h.d.H-1)
@@ -153,7 +153,7 @@ func TestRightClickAndCtrlClickOpenWindowMenu(t *testing.T) {
 	if !h.d.MenuOpen() || h.d.M.Top() != w1 {
 		t.Fatal("right click should raise and open the window menu")
 	}
-	h.rune('x', 0) // hotkey 최대화
+	h.rune('x', 0) // hotkey: Maximize
 	if h.d.MenuOpen() || !w1.Maximized {
 		t.Fatal("menu hotkey should maximize")
 	}
@@ -174,11 +174,11 @@ func TestRightClickAndCtrlClickOpenWindowMenu(t *testing.T) {
 func TestLauncherFromTopBar(t *testing.T) {
 	h := newHarness(t, 0)
 	h.draw()
-	h.click(2, 0) // "≡ 메뉴"
+	h.click(2, 0) // "≡ Menu"
 	if !h.d.MenuOpen() {
 		t.Fatal("launcher should open")
 	}
-	// First item is "새 창": click it.
+	// First item is "New window": click it.
 	h.wait()
 	h.click(4, 2)
 	if h.d.MenuOpen() || len(h.d.M.Windows()) != 1 {
@@ -195,7 +195,7 @@ func TestKeyboardOnlyWindowOperations(t *testing.T) {
 	h := newHarness(t, 0)
 
 	h.key("F9", 0)
-	h.key("Enter", 0) // 새 창
+	h.key("Enter", 0) // New window
 	h.rune('n', term.ModCtrl)
 	h.rune('n', term.ModCtrl)
 	if len(h.d.M.Windows()) != 3 {
@@ -246,7 +246,7 @@ func TestKeyboardOnlyWindowOperations(t *testing.T) {
 
 	// Restore from the launcher's window list.
 	h.key("F9", 0)
-	for i := 0; i < 20 && !strings.Contains(h.d.menu.Items[h.d.menu.Selected].Label, "(최소화)"); i++ {
+	for i := 0; i < 20 && !strings.Contains(h.d.menu.Items[h.d.menu.Selected].Label, "(minimized)"); i++ {
 		h.key("Down", 0)
 	}
 	h.key("Enter", 0)
@@ -265,7 +265,7 @@ func TestKeyboardOnlyWindowOperations(t *testing.T) {
 	if !h.d.DialogOpen() {
 		t.Fatal("Ctrl+Q should ask")
 	}
-	h.key("Right", 0) // 취소
+	h.key("Right", 0) // Cancel
 	h.key("Enter", 0)
 	if h.d.Quit || h.d.DialogOpen() {
 		t.Fatal("cancel should keep running")
@@ -273,7 +273,7 @@ func TestKeyboardOnlyWindowOperations(t *testing.T) {
 	h.rune('q', term.ModCtrl)
 	h.key("Enter", 0)
 	if !h.d.Quit {
-		t.Fatal("Enter on 종료 should quit")
+		t.Fatal("Enter on Quit should quit")
 	}
 }
 
@@ -281,13 +281,13 @@ func TestHelpWindowSingleInstance(t *testing.T) {
 	h := newHarness(t, 0)
 	h.key("F1", 0)
 	h.key("F1", 0)
-	if len(h.d.M.Windows()) != 1 || h.d.M.Focused().Name() != "도움말" {
+	if len(h.d.M.Windows()) != 1 || h.d.M.Focused().Name() != "Help" {
 		t.Fatal("help should open once")
 	}
 	c := h.draw()
 	found := false
 	for y := 0; y < c.H; y++ {
-		if strings.Contains(c.Row(y), "Shift+F10  창 메뉴") {
+		if strings.Contains(c.Row(y), "Shift+F10  Window menu") {
 			found = true
 		}
 	}
@@ -300,12 +300,12 @@ func TestBarsShowHostClockAndWindows(t *testing.T) {
 	h := newHarness(t, 2)
 	c := h.draw()
 	top := c.Row(0)
-	for _, want := range []string{"≡ 메뉴", "빈 창 1", "빈 창 2", "dev-server", "09:30"} {
+	for _, want := range []string{"≡ Menu", "Window 1", "Window 2", "dev-server", "09:30"} {
 		if !strings.Contains(top, want) {
 			t.Errorf("top bar missing %q: %q", want, top)
 		}
 	}
-	if !strings.Contains(c.Row(h.d.H-1), "F9 메뉴") {
+	if !strings.Contains(c.Row(h.d.H-1), "F9 Menu") {
 		t.Errorf("taskbar = %q", c.Row(h.d.H-1))
 	}
 }
@@ -315,7 +315,7 @@ func TestNextWakeIsClockMinuteOrToast(t *testing.T) {
 	if got := h.d.NextWake(); !got.Equal(time.Date(2026, 11, 4, 9, 31, 0, 0, time.UTC)) {
 		t.Fatalf("wake = %v", got)
 	}
-	h.d.Notify("저장했습니다", false)
+	h.d.Notify("Saved", false)
 	if got := h.d.NextWake(); !got.Equal(h.d.Now.Add(4 * time.Second)) {
 		t.Fatalf("wake with toast = %v", got)
 	}
@@ -335,7 +335,7 @@ func TestEventsReachFocusedApp(t *testing.T) {
 	}
 	h.d.Handle(term.PasteEvent{Text: "한글\n두 줄"})
 	c = h.draw()
-	if !strings.Contains(c.Row(w.Rect.Y+3), "붙여넣기 6자") {
+	if !strings.Contains(c.Row(w.Rect.Y+3), "paste, 6 chars") {
 		t.Fatalf("paste not delivered: %q", c.Row(w.Rect.Y+3))
 	}
 }

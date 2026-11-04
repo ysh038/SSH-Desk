@@ -19,7 +19,7 @@ func main() {
 		err = s.Init()
 	}
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "터미널을 초기화할 수 없습니다:", err)
+		fmt.Fprintln(os.Stderr, "tuidesk: cannot initialize the terminal:", err)
 		os.Exit(1)
 	}
 	s.EnableMouse(tcell.MouseDragEvents)
@@ -32,7 +32,7 @@ func main() {
 	d := desktop.New(w, h, host, time.Now())
 	d.OpenWindow(d.NewApp(1))
 	d.OpenWindow(d.NewApp(2))
-	d.Notify("F9 메뉴 · F1 도움말 · Ctrl+Q 종료", false)
+	d.Notify("F9 Menu · F1 Help · Ctrl+Q Quit", false)
 
 	tui.NewLoop(s, d).Run()
 	s.Fini()

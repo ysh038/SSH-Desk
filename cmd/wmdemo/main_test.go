@@ -57,7 +57,7 @@ func TestDragOverlappingWindowsWithMouse(t *testing.T) {
 	a, s := newSimApp(t, 100, 30)
 	a.draw()
 
-	// Window 1 (파일 관리자) is underneath window 2. Grab its title at (6,3).
+	// Window 1 (Files) is underneath window 2. Grab its title at (6,3).
 	mouse(a, 6, 3, tcell.Button1)
 	mouse(a, 7, 3, tcell.Button1)
 	mouse(a, 20, 18, tcell.Button1)
@@ -70,7 +70,7 @@ func TestDragOverlappingWindowsWithMouse(t *testing.T) {
 	if top := a.m.Top(); top.ID != 1 {
 		t.Fatalf("top window = %d, want 1", top.ID)
 	}
-	if row := screenRow(s, 18); !strings.Contains(row, "파일 관리자") {
+	if row := screenRow(s, 18); !strings.Contains(row, "Files") {
 		t.Fatalf("title not drawn at new position: %q", row)
 	}
 

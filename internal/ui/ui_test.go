@@ -198,3 +198,21 @@ func TestThumbRange(t *testing.T) {
 		t.Fatalf("fits %d %d", s, l)
 	}
 }
+
+func TestMenuHotkeyHighlightedInPlace(t *testing.T) {
+	m := NewMenu([]MenuItem{{Label: "Maximize", Hotkey: 'x', Action: "max"}, {Label: "새 창", Hotkey: 'n', Action: "new"}})
+	w, h := m.Size()
+	m.Rect = wm.Rect{X: 0, Y: 0, W: w, H: h}
+	c := wm.NewCanvas(40, 5)
+	m.Draw(c)
+	if row := c.Row(1); !strings.Contains(row, "Maximize") || strings.Contains(row, "(X)") {
+		t.Fatalf("row1 = %q", row)
+	}
+	// 'x' is the 3rd letter: label starts at column 2 (frame + padding).
+	if got := c.At(4, 1); got.Rune != 'x' || got.Style != wm.StyleMenuSelectedHotkey {
+		t.Fatalf("hotkey cell = %+v", got)
+	}
+	if row := c.Row(2); !strings.Contains(row, "새 창(N)") {
+		t.Fatalf("label without the letter keeps the suffix: %q", row)
+	}
+}

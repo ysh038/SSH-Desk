@@ -55,8 +55,23 @@ func (m *Menu) Size() (w, h int) {
 	return w + 4, len(m.Items) + 2
 }
 
+// hotkeyIndex is the rune index of the hotkey letter inside the label, or -1.
+func hotkeyIndex(it MenuItem) int {
+	if it.Hotkey == 0 {
+		return -1
+	}
+	for i, r := range []rune(it.Label) {
+		if unicode.ToLower(r) == unicode.ToLower(it.Hotkey) {
+			return i
+		}
+	}
+	return -1
+}
+
+// label is the text shown for an item: the hotkey letter is highlighted in
+// place when the label contains it, otherwise appended as "(K)".
 func (m *Menu) label(it MenuItem) string {
-	if it.Hotkey != 0 {
+	if it.Hotkey != 0 && hotkeyIndex(it) < 0 {
 		return it.Label + "(" + string(unicode.ToUpper(it.Hotkey)) + ")"
 	}
 	return it.Label
@@ -182,6 +197,20 @@ func (m *Menu) Draw(c *wm.Canvas) {
 		row := s.Sub(wm.Rect{X: 1, Y: y, W: inner, H: 1})
 		row.Clear(st)
 		row.Text(1, 0, m.label(it), st)
+		if hi := hotkeyIndex(it); hi >= 0 && !it.Disabled {
+			hs := wm.StyleMenuHotkey
+			if i == m.Selected {
+				hs = wm.StyleMenuSelectedHotkey
+			}
+			x := 1
+			for j, r := range []rune(it.Label) {
+				if j == hi {
+					row.Set(x, 0, r, hs)
+					break
+				}
+				x += term.RuneWidth(r)
+			}
+		}
 		if it.Shortcut != "" {
 			row.Text(inner-1-term.Width(it.Shortcut), 0, it.Shortcut, st)
 		}

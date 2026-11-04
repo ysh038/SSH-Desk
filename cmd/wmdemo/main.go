@@ -37,29 +37,29 @@ func newApp(s tcell.Screen) *app {
 	a.det.MultiClickInterval = 500_000_000 // 500ms, see compat-matrix finding 7
 	a.styles = stylesFor(s.Colors())
 
-	a.m.Add(&wm.Window{ID: 1, Title: "파일 관리자", Rect: wm.Rect{X: 3, Y: 3, W: 40, H: 12}, Body: []string{
+	a.m.Add(&wm.Window{ID: 1, Title: "Files", Rect: wm.Rect{X: 3, Y: 3, W: 40, H: 12}, Body: []string{
 		" [d] nginx/",
-		" [d] 백업/",
+		" [d] backup/",
 		"    nginx.conf          2.1K",
 		"    한글 파일명.txt       512",
 		"    access.log         18.4M",
 	}})
-	a.m.Add(&wm.Window{ID: 2, Title: "메모장 - nginx.conf", Rect: wm.Rect{X: 22, Y: 7, W: 44, H: 12}, Body: []string{
+	a.m.Add(&wm.Window{ID: 2, Title: "Editor - nginx.conf", Rect: wm.Rect{X: 22, Y: 7, W: 44, H: 12}, Body: []string{
 		" server {",
 		"     listen 80;",
-		"     server_name example.com;  # 예시",
+		"     server_name example.com;  # example",
 		"     location / {",
 		"         proxy_pass http://app;",
 		"     }",
 		" }",
 	}})
-	a.m.Add(&wm.Window{ID: 3, Title: "도움말", Rect: wm.Rect{X: 50, Y: 2, W: 34, H: 10}, Body: []string{
-		" 마우스: 제목줄을 끌어 이동",
-		"         창을 누르면 맨 앞으로",
-		" 키보드: Tab/F6 다음 창",
-		"         Shift+Tab 이전 창",
-		"         방향키 앞 창 이동",
-		" 종료:   F10 또는 Ctrl+Q",
+	a.m.Add(&wm.Window{ID: 3, Title: "Help", Rect: wm.Rect{X: 50, Y: 2, W: 34, H: 10}, Body: []string{
+		" Mouse: drag a title bar to move",
+		"        click a window to raise",
+		" Keys:  Tab/F6 next window",
+		"        Shift+Tab previous window",
+		"        arrows move front window",
+		" Quit:  F10 or Ctrl+Q",
 	}})
 	return a
 }
@@ -175,14 +175,14 @@ func (a *app) draw() {
 	c := a.canvas
 	full := wm.Rect{X: 0, Y: 0, W: c.W, H: c.H}
 	c.Fill(wm.Rect{X: 0, Y: 0, W: c.W, H: 1}, ' ', wm.StyleBar)
-	c.Text(full, 1, 0, "tuidesk wmdemo │ 제목줄 드래그로 이동 · Tab/Shift+Tab 창 전환 · 방향키 이동 · F10 종료", wm.StyleBar)
+	c.Text(full, 1, 0, "tuidesk wmdemo │ drag title to move · Tab/Shift+Tab switch · arrows move · F10 quit", wm.StyleBar)
 	a.m.Draw(c)
 
-	status := "준비"
+	status := "ready"
 	if f := a.m.Focused(); f != nil {
-		status = fmt.Sprintf("앞 창: %s  위치 (%d,%d)", f.Title, f.Rect.X, f.Rect.Y)
+		status = fmt.Sprintf("front: %s  at (%d,%d)", f.Title, f.Rect.X, f.Rect.Y)
 		if a.m.Dragging() {
-			status = "이동 중 · " + status
+			status = "moving · " + status
 		}
 	}
 	c.Fill(wm.Rect{X: 0, Y: c.H - 1, W: c.W, H: 1}, ' ', wm.StyleBar)
@@ -206,7 +206,7 @@ func main() {
 		err = s.Init()
 	}
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "터미널을 초기화할 수 없습니다:", err)
+		fmt.Fprintln(os.Stderr, "wmdemo: cannot initialize the terminal:", err)
 		os.Exit(1)
 	}
 	s.EnableMouse(tcell.MouseDragEvents)

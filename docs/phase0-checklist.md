@@ -59,7 +59,7 @@ chmod +x ~/evlog && ~/evlog -label iterm2
 | M1 | 아무 곳이나 왼쪽 클릭 | `⇒ Click single Left (x,y)` | 로그 없음 |
 | M2 | 같은 자리 빠르게 2번, 3번 클릭 | `Click double`, `Click triple` | single만 반복 |
 | M3 | 우클릭 | `⇒ Click single Right` | 터미널 자체 메뉴가 뜸 |
-| M4 | 왼쪽 버튼 누른 채 끌기 | `DragStart` → `[드래그 중] (연속 N회)` → `DragEnd` | 터미널이 글자 선택(파란 영역)만 함 |
+| M4 | 왼쪽 버튼 누른 채 끌기 | `DragStart` → `[dragging] (xN)` → `DragEnd` | 터미널이 글자 선택(파란 영역)만 함 |
 | M5 | 휠 위/아래, 트랙패드 가로 스크롤 | `Wheel Up/Down/Left/Right` | 터미널 스크롤백이 움직임 |
 | M6 | Shift+클릭, Option+클릭, Ctrl+클릭, Cmd+클릭 | `mod=Shift` 등 | mod가 `-`이거나, 클릭이 안 옴, Ctrl+클릭이 우클릭으로 바뀜 |
 | M7 | F4로 `motion(1003)`으로 바꾼 뒤 버튼 없이 움직이기 | 3줄의 포인터 좌표가 따라 바뀜 | 좌표 고정 |
@@ -87,15 +87,15 @@ chmod +x ~/evlog && ~/evlog -label iterm2
 ### 클립보드·붙여넣기
 | ID | 할 일 | 정상 |
 |---|---|---|
-| C1 | F2 누른 뒤 맥의 메모장 등에 Cmd+V | `tuidesk OSC52 테스트 HH:MM:SS`가 붙여넣어짐 |
-| C2 | F5 (OSC52 읽기) | `CLIP OSC52 읽기 응답`이 오면 지원. 대부분 미지원/확인창이 정상 |
-| P1 | 여러 줄 텍스트를 복사해 evlog 창에서 Cmd+V | `PASTE ▶ 시작` … `■ 끝: N줄`이 원문 줄 수와 일치 |
+| C1 | F2 누른 뒤 맥의 메모장 등에 Cmd+V | `tuidesk OSC52 test HH:MM:SS`가 붙여넣어짐 |
+| C2 | F5 (OSC52 읽기) | `CLIP   OSC52 read reply`가 오면 지원. 대부분 미지원/확인창이 정상 |
+| P1 | 여러 줄 텍스트를 복사해 evlog 창에서 Cmd+V | `PASTE > bracketed paste start` … `< end: … N lines`가 원문 줄 수와 일치 |
 | P2 | 한글이 섞인 여러 줄 붙여넣기 | 로그 파일의 `paste begin/end` 사이 내용이 원문과 같음 |
 
 ### 기타
 | ID | 할 일 | 정상 |
 |---|---|---|
-| E1 | 다른 앱을 눌렀다가 다시 터미널로 | `FOCUS 창 포커스 잃음/얻음` |
+| E1 | 다른 앱을 눌렀다가 다시 터미널로 | `FOCUS window lost focus` / `window gained focus` |
 | E2 | 터미널 창 크기 변경 | `RESIZE WxH`, 화면 다시 그려짐 |
 | E3 | (선택) 서버에서 `tmux` 안에서 같은 테스트 | 매트릭스의 tmux 칸에 기록. OSC52는 tmux `set-clipboard on` 필요할 수 있음 |
 

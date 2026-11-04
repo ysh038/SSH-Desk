@@ -18,7 +18,7 @@ type App struct {
 // New returns empty window number n.
 func New(n int) *App { return &App{N: n} }
 
-func (a *App) Title() string       { return fmt.Sprintf("빈 창 %d", a.N) }
+func (a *App) Title() string       { return fmt.Sprintf("Window %d", a.N) }
 func (a *App) MinSize() (int, int) { return 14, 3 }
 func (a *App) Close() error        { return nil }
 
@@ -26,11 +26,11 @@ func (a *App) Close() error        { return nil }
 func (a *App) HandleEvent(ev term.Event) bool {
 	switch ev := ev.(type) {
 	case term.KeyEvent:
-		a.last = "키 " + ev.Key.String()
+		a.last = "key " + ev.Key.String()
 	case term.MouseEvent:
 		a.last = ev.Gesture.String()
 	case term.PasteEvent:
-		a.last = fmt.Sprintf("붙여넣기 %d자", len([]rune(ev.Text)))
+		a.last = fmt.Sprintf("paste, %d chars", len([]rune(ev.Text)))
 		return true
 	}
 	return false
@@ -39,9 +39,9 @@ func (a *App) HandleEvent(ev term.Event) bool {
 func (a *App) Draw(s wm.Surface, focused bool) {
 	w, h := s.Size()
 	s.Text(1, 0, a.Title(), wm.StyleBody)
-	s.Text(1, 1, fmt.Sprintf("크기 %d×%d", w, h), wm.StyleBodyDim)
+	s.Text(1, 1, fmt.Sprintf("Size %dx%d", w, h), wm.StyleBodyDim)
 	if a.last != "" {
-		s.Text(1, 2, "마지막 입력: "+a.last, wm.StyleBodyDim)
+		s.Text(1, 2, "Last input: "+a.last, wm.StyleBodyDim)
 	}
 }
 

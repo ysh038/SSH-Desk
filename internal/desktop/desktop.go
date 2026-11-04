@@ -35,7 +35,7 @@ type Desktop struct {
 	Host string
 	Now  time.Time
 	M    *wm.Manager
-	// NewApp creates the app for "새 창" (window number n).
+	// NewApp creates the app for "New window" (window number n).
 	NewApp func(n int) wm.App
 	Quit   bool
 
@@ -135,7 +135,7 @@ func (d *Desktop) Handle(ev term.Event) {
 
 func (d *Desktop) askQuit() {
 	d.closeMenu()
-	d.dialog = ui.NewDialog("quit", "종료", "tuidesk를 종료할까요?\n열린 창은 모두 닫힙니다.", "종료", "취소")
+	d.dialog = ui.NewDialog("quit", "Quit", "Quit tuidesk?\nAll open windows will be closed.", "Quit", "Cancel")
 	d.dialog.Center(d.Area())
 }
 
@@ -169,35 +169,35 @@ func (d *Desktop) openMenu(items []ui.MenuItem, target *wm.Window, x, y int) {
 
 func (d *Desktop) openLauncher(x, y int) {
 	items := []ui.MenuItem{
-		{Label: "새 창", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
-		{Label: "도움말", Hotkey: 'h', Shortcut: "F1", Action: "help"},
+		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
+		{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
 	}
 	if wins := d.M.Windows(); len(wins) > 0 {
 		items = append(items, ui.MenuItem{Separator: true})
 		for _, w := range wins {
 			label := w.Name()
 			if w.Minimized {
-				label += " (최소화)"
+				label += " (minimized)"
 			}
 			items = append(items, ui.MenuItem{Label: label, Action: "raise:" + strconv.Itoa(w.ID)})
 		}
 	}
-	items = append(items, ui.MenuItem{Separator: true}, ui.MenuItem{Label: "종료", Hotkey: 'q', Shortcut: "Ctrl+Q", Action: "quit"})
+	items = append(items, ui.MenuItem{Separator: true}, ui.MenuItem{Label: "Quit", Hotkey: 'q', Shortcut: "Ctrl+Q", Action: "quit"})
 	d.openMenu(items, nil, x, y)
 }
 
 func (d *Desktop) openWindowMenu(w *wm.Window, x, y int) {
-	maxLabel := "최대화"
+	maxLabel := "Maximize"
 	if w.Maximized {
-		maxLabel = "이전 크기로"
+		maxLabel = "Restore"
 	}
 	d.openMenu([]ui.MenuItem{
-		{Label: "이동", Hotkey: 'm', Shortcut: "F7", Action: "move", Disabled: w.Maximized},
-		{Label: "크기 조절", Hotkey: 's', Shortcut: "F8", Action: "resize", Disabled: w.Maximized},
+		{Label: "Move", Hotkey: 'm', Shortcut: "F7", Action: "move", Disabled: w.Maximized},
+		{Label: "Size", Hotkey: 's', Shortcut: "F8", Action: "resize", Disabled: w.Maximized},
 		{Label: maxLabel, Hotkey: 'x', Action: "maximize"},
-		{Label: "최소화", Hotkey: 'n', Action: "minimize"},
+		{Label: "Minimize", Hotkey: 'n', Action: "minimize"},
 		{Separator: true},
-		{Label: "닫기", Hotkey: 'c', Shortcut: "Ctrl+W", Action: "close"},
+		{Label: "Close", Hotkey: 'c', Shortcut: "Ctrl+W", Action: "close"},
 	}, w, x, y)
 }
 
@@ -270,7 +270,7 @@ func (d *Desktop) run(action string, target *wm.Window) {
 func (d *Desktop) closeWindow(w *wm.Window) {
 	if w.App != nil {
 		if err := w.App.Close(); err != nil {
-			d.Notify("창을 닫을 수 없습니다: "+err.Error(), true)
+			d.Notify("Cannot close window: "+err.Error(), true)
 			return
 		}
 	}
@@ -282,17 +282,17 @@ func (d *Desktop) closeWindow(w *wm.Window) {
 }
 
 var helpLines = []string{
-	"마우스",
-	"  제목줄 드래그: 이동   오른쪽 아래 ┘ 드래그: 크기",
-	"  [_] 최소화  [^] 최대화  [x] 닫기  제목줄 더블클릭: 최대화",
-	"  우클릭 또는 Ctrl+클릭: 창 메뉴",
+	"Mouse",
+	"  Drag title bar: move       Drag bottom-right corner: resize",
+	"  [_] minimize  [^] maximize  [x] close  Double-click title: maximize",
+	"  Right click or Ctrl+click: window menu",
 	"",
-	"키보드",
-	"  F9  메뉴(런처)        F6 / Shift+F6  다음/이전 창",
-	"  Shift+F10  창 메뉴    F7 이동 모드   F8 크기 모드",
-	"  Ctrl+N  새 창         Ctrl+W 창 닫기 Ctrl+Q 종료",
-	"  Tab / Shift+Tab: 창 전환(앱이 쓰지 않을 때)",
-	"  이동·크기 모드: 방향키, Enter 또는 Esc로 끝",
+	"Keyboard",
+	"  F9         Menu            F6 / Shift+F6  Next / previous window",
+	"  Shift+F10  Window menu     F7 Move mode   F8 Size mode",
+	"  Ctrl+N     New window      Ctrl+W Close   Ctrl+Q Quit",
+	"  Tab / Shift+Tab: switch windows (when the app does not use Tab)",
+	"  Move/size mode: arrow keys, Enter or Esc to finish",
 }
 
 func (d *Desktop) showHelp() {
@@ -300,8 +300,8 @@ func (d *Desktop) showHelp() {
 		d.M.Raise(d.help)
 		return
 	}
-	d.help = d.OpenWindow(&blank.Text{Name: "도움말", Lines: helpLines})
-	d.M.ResizeTo(d.help, 62, len(helpLines)+2)
+	d.help = d.OpenWindow(&blank.Text{Name: "Help", Lines: helpLines})
+	d.M.ResizeTo(d.help, 74, len(helpLines)+2)
 }
 
 // ---- keyboard ----
@@ -526,7 +526,7 @@ func (d *Desktop) drawTopBar(c *wm.Canvas) {
 	if d.menu != nil && d.menuTarget == nil {
 		st = wm.StyleBarActive
 	}
-	add(" ≡ 메뉴 ", "launcher", st)
+	add(" ≡ Menu ", "launcher", st)
 	for _, w := range d.M.Windows() {
 		if w.Minimized {
 			continue
@@ -550,10 +550,10 @@ func (d *Desktop) drawTaskbar(c *wm.Canvas) {
 
 	switch d.mode {
 	case ModeMove:
-		s.Text(1, 0, "이동 모드: 방향키로 이동 · Enter/Esc 끝", wm.StyleBarActive)
+		s.Text(1, 0, "MOVE: arrow keys move the window · Enter/Esc to finish", wm.StyleBarActive)
 		return
 	case ModeResize:
-		s.Text(1, 0, "크기 모드: 방향키로 크기 조절 · Enter/Esc 끝", wm.StyleBarActive)
+		s.Text(1, 0, "SIZE: arrow keys resize the window · Enter/Esc to finish", wm.StyleBarActive)
 		return
 	}
 
@@ -571,7 +571,7 @@ func (d *Desktop) drawTaskbar(c *wm.Canvas) {
 		d.taskItems = append(d.taskItems, barItem{r: wm.Rect{X: x, Y: y, W: lw, H: 1}, action: "raise:" + strconv.Itoa(w.ID)})
 		x += lw + 1
 	}
-	hint := " F9 메뉴 · F6 창 전환 · Shift+F10 창 메뉴 · F1 도움말 "
+	hint := " F9 Menu · F6 Next window · Shift+F10 Window menu · F1 Help "
 	if hx := d.W - term.Width(hint); hx > x {
 		s.Text(hx, 0, hint, wm.StyleBar)
 	}
