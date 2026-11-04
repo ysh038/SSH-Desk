@@ -125,3 +125,12 @@ func (c *Canvas) Row(y int) string {
 	}
 	return string(out)
 }
+
+// CopyFrom makes c an exact copy of o (resizing if needed).
+func (c *Canvas) CopyFrom(o *Canvas) {
+	if c.W != o.W || c.H != o.H {
+		c.W, c.H = o.W, o.H
+		c.cells = make([]Cell, len(o.cells))
+	}
+	copy(c.cells, o.cells)
+}

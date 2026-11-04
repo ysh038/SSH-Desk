@@ -2,13 +2,21 @@ GO      ?= go
 LDFLAGS := -s -w
 DIST    := dist
 
-.PHONY: test vet evlog evlog-linux wmdemo wmdemo-linux clean
+.PHONY: test vet tuidesk tuidesk-linux evlog evlog-linux wmdemo wmdemo-linux clean
 
 test:
 	$(GO) test ./...
 
 vet:
 	$(GO) vet ./...
+
+tuidesk:
+	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/tuidesk ./cmd/tuidesk
+
+# Static Linux binaries of the desktop (lite build).
+tuidesk-linux:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/tuidesk-linux-amd64 ./cmd/tuidesk
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/tuidesk-linux-arm64 ./cmd/tuidesk
 
 # Local (macOS) build of the Phase 0 event logger.
 evlog:

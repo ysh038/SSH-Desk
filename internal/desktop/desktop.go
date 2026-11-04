@@ -593,3 +593,6 @@ func clip(s string, w int) string {
 	}
 	return string(out) + "…"
 }
+
+// Done reports whether the user chose to quit.
+func (d *Desktop) Done() bool { return d.Quit }
