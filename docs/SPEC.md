@@ -256,10 +256,10 @@ MVP = Phase 0 ~ 3.
 
 ### Phase 0 — 기술 검증 스파이크
 - [x] 마우스/키 이벤트를 화면에 로그로 찍는 최소 tcell 앱 (`cmd/evlog`)
-- [ ] 지원 대상(9.0)에서 확인: Terminal.app → ssh → Ubuntu(클릭, 드래그, 우클릭, 휠, 수정키+클릭, 한글 폭, OSC52, bracketed paste) / 리눅스 콘솔(키 입력, 16색, 화면 깨짐 여부). 참고 터미널은 1차 결과만 기록
-- [ ] 결과를 `docs/compat-matrix.md`에 표로 정리
-- [ ] tcell 직접 vs Bubble Tea v2 창 관리자 프로토타입 비교 후 결정 기록(`docs/adr/0001-ui-framework.md`)
-- 완료 기준: 두 개 이상의 겹치는 창을 마우스로 옮길 수 있는 데모
+- [x] 지원 대상(9.0)에서 확인: Terminal.app → ssh → Ubuntu(클릭, 드래그, 우클릭, 휠, 수정키+클릭, 한글 폭, OSC52, bracketed paste) / 리눅스 콘솔(키 입력, 16색, 화면 깨짐 여부). 참고 터미널은 1차 결과만 기록 — Terminal.app의 휠·수정키+클릭·더블클릭은 미확인, Phase 1에서 재확인
+- [x] 결과를 `docs/compat-matrix.md`에 표로 정리
+- [x] tcell 직접 vs Bubble Tea v2 창 관리자 프로토타입 비교 후 결정 기록(`docs/adr/0001-ui-framework.md`) — tcell 직접 채택. Bubble Tea는 프로토타입 없이 검토(ADR에 사유)
+- 완료 기준: 두 개 이상의 겹치는 창을 마우스로 옮길 수 있는 데모 — ✅ `cmd/wmdemo` (시뮬레이션 테스트 + 리눅스 콘솔 VM 확인, 2026-11-04)
 
 ### Phase 1 — 데스크톱 셸 + 창 관리자
 - [ ] 컴포지터(z-order, 클리핑, 더티 영역 렌더링)
@@ -316,7 +316,7 @@ MVP = Phase 0 ~ 3.
 ## 13. 미결정 사항
 
 - 제품 이름
-- UI 프레임워크 최종 결정(Phase 0 결과)
+- ~~UI 프레임워크 최종 결정(Phase 0 결과)~~ → tcell 직접 + 자체 컴포지터 (ADR 0001)
 - 아이콘 보기에서 Nerd Font 사용 여부(사용자 맥에 폰트 설치 필요)
 - 같은 서버 다중 사용자 사용 시 설정/휴지통 분리 정책
 - root로 실행했을 때의 정책(경고만 / 차단)
