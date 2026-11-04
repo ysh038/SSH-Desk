@@ -156,6 +156,10 @@ type Detector struct {
 	// DragThreshold is the Chebyshev distance in cells the pointer must move
 	// with a button held before a drag starts.
 	DragThreshold int
+	// RightDrag enables drags with the right button. It is off by default:
+	// the right button only opens context menus, and a hand wobble of a few
+	// cells during a right click must not turn it into a drag.
+	RightDrag bool
 
 	held             Button
 	downX, downY     int
@@ -208,6 +212,9 @@ func (d *Detector) Feed(in MouseInput) []Gesture {
 		out = append(out, g(GesturePress))
 
 	case d.held != ButtonNone && in.Button == d.held:
+		if d.held == ButtonRight && !d.RightDrag {
+			break // motion is ignored; release becomes a click at the press position
+		}
 		if !d.dragging && chebyshev(in.X-d.downX, in.Y-d.downY) >= d.DragThreshold {
 			d.dragging = true
 			out = append(out, g(GestureDragStart), g(GestureDrag))

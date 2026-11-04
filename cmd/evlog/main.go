@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/gdamore/tcell/v2"
@@ -261,18 +262,33 @@ func (a *app) handleKey(ev *tcell.EventKey) {
 	if ev.Key() == tcell.KeyRune {
 		runeInfo = fmt.Sprintf("%q U+%04X", r, r)
 	}
-	a.logLine("KEY    %s key=%-4d rune=%s mod=%s", term.PadRight(ev.Name(), 14), ev.Key(), runeInfo, mods(ev.Modifiers()))
+	mod := toMod(ev.Modifiers())
+	isCtrlC := ev.Key() == tcell.KeyCtrlC
+	norm := ""
+	if ev.Key() == tcell.KeyRune {
+		// Korean IME: Ctrl+C arrives as Ctrl+ㅊ. Match shortcuts by physical key.
+		if sr := term.ShortcutRune(r, mod); sr != r {
+			norm = fmt.Sprintf("  → 단축키 %s+%c (두벌식 정규화)", mod&^term.ModShift, unicode.ToUpper(sr))
+			if sr == 'c' && mod&term.ModCtrl != 0 {
+				isCtrlC = true
+			}
+		}
+	}
+	a.logLine("KEY    %s key=%-4d rune=%s mod=%s%s", term.PadRight(ev.Name(), 14), ev.Key(), runeInfo, mod, norm)
 
-	switch ev.Key() {
-	case tcell.KeyF10:
-		a.quit = true
-	case tcell.KeyCtrlC:
+	if isCtrlC {
 		if time.Since(a.quitArmed) < 1500*time.Millisecond {
 			a.quit = true
 			return
 		}
 		a.quitArmed = time.Now()
 		a.logLine("INFO   한 번 더 Ctrl+C를 누르면 종료합니다")
+		return
+	}
+
+	switch ev.Key() {
+	case tcell.KeyF10:
+		a.quit = true
 	case tcell.KeyF2:
 		payload := "tuidesk OSC52 테스트 " + time.Now().Format("15:04:05")
 		a.s.SetClipboard([]byte(payload))
@@ -359,8 +375,6 @@ func toMod(m tcell.ModMask) term.Mod {
 	}
 	return out
 }
-
-func mods(m tcell.ModMask) string { return toMod(m).String() }
 
 func buttonNames(b tcell.ButtonMask) string {
 	if b == tcell.ButtonNone {

@@ -225,3 +225,37 @@ func TestModString(t *testing.T) {
 		}
 	}
 }
+
+func TestRightClickWithWobbleIsClick(t *testing.T) {
+	// Seen in iTerm2 over ssh: right press at (111,36), released at (107,35).
+	d := NewDetector()
+	gs := feedAll(d,
+		MouseInput{X: 111, Y: 36, Button: ButtonRight, Time: at(0)},
+		MouseInput{X: 110, Y: 36, Button: ButtonRight, Time: at(20)},
+		MouseInput{X: 107, Y: 35, Button: ButtonRight, Time: at(100)},
+		MouseInput{X: 107, Y: 35, Button: ButtonNone, Time: at(120)},
+	)
+	want := []GestureKind{GesturePress, GestureRelease, GestureClick}
+	got := kinds(gs)
+	if len(got) != len(want) || got[0] != want[0] || got[1] != want[1] || got[2] != want[2] {
+		t.Fatalf("kinds = %v, want %v", got, want)
+	}
+	c := gs[2]
+	if c.Button != ButtonRight || c.X != 111 || c.Y != 36 {
+		t.Fatalf("click = %+v, want right click at press position", c)
+	}
+}
+
+func TestRightDragWhenEnabled(t *testing.T) {
+	d := NewDetector()
+	d.RightDrag = true
+	gs := feedAll(d,
+		MouseInput{X: 1, Y: 1, Button: ButtonRight, Time: at(0)},
+		MouseInput{X: 4, Y: 1, Button: ButtonRight, Time: at(10)},
+		MouseInput{X: 4, Y: 1, Button: ButtonNone, Time: at(20)},
+	)
+	got := kinds(gs)
+	if len(got) != 5 || got[1] != GestureDragStart || got[4] != GestureDragEnd {
+		t.Fatalf("kinds = %v", got)
+	}
+}
