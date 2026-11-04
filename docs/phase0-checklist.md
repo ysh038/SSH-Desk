@@ -1,7 +1,7 @@
 # Phase 0 터미널 호환성 확인 체크리스트
 
 `evlog`는 터미널이 보내는 키·마우스·붙여넣기·포커스 이벤트를 화면과 로그 파일에 그대로 찍어 주는 확인용 프로그램입니다.
-각 터미널(Warp, iTerm2, Ghostty, Terminal.app)에서 **ssh로 Ubuntu 서버에 접속한 상태**로 아래 항목을 확인하고, 결과를 [compat-matrix.md](compat-matrix.md)에 채웁니다.
+지원 대상은 두 가지입니다(SPEC 9.0). ① 맥 **Terminal.app에서 ssh로 Ubuntu 서버에 접속한 상태**, ② 서버의 **리눅스 기본 콘솔**. 아래 항목을 확인하고 결과를 [compat-matrix.md](compat-matrix.md)에 채웁니다. 다른 터미널은 참고용입니다.
 
 ## 0. 준비
 
@@ -98,6 +98,23 @@ chmod +x ~/evlog && ~/evlog -label iterm2
 | E1 | 다른 앱을 눌렀다가 다시 터미널로 | `FOCUS 창 포커스 잃음/얻음` |
 | E2 | 터미널 창 크기 변경 | `RESIZE WxH`, 화면 다시 그려짐 |
 | E3 | (선택) 서버에서 `tmux` 안에서 같은 테스트 | 매트릭스의 tmux 칸에 기록. OSC52는 tmux `set-clipboard on` 필요할 수 있음 |
+
+## 2-1. 리눅스 콘솔에서 확인 (키보드 전용)
+
+서버에 모니터와 키보드를 직접 연결하거나 IPMI/KVM 원격 콘솔로 로그인한 뒤 실행합니다.
+
+```bash
+cd ~/sanghoon && ./evlog -label linux-console -mouse=off
+```
+
+| ID | 할 일 | 정상 |
+|---|---|---|
+| L1 | 화면 전체 | 상단 바, 박스, 로그 영역이 무너지지 않음. 박스 선(─│┌┐└┘)이 선으로 보임 |
+| L2 | 박스 안 한글 | 깨지거나 ◆로 보이는 것이 예상 결과. 다른 줄까지 밀리는지만 기록 |
+| L3 | K1~K5 키 항목 | 맥 터미널과 같은 이름으로 찍히는지. 특히 Shift+방향키, Ctrl+방향키, Ctrl+Space, F1~F12 |
+| L4 | 헤더의 색 수 | 로그 파일 헤더의 `colors=` 값(8 또는 16 예상) |
+
+리눅스 콘솔에는 한글 입력기가 없으므로 K7은 건너뜁니다.
 
 ## 3. 결과 전달
 
