@@ -339,6 +339,10 @@ func (m *Manager) PointerDrag(x, y int) {
 // PointerUp ends a move or resize.
 func (m *Manager) PointerUp() { m.grab, m.grabActive = nil, false }
 
+// Grabbing reports whether a press armed a move or resize (even before the
+// pointer has moved).
+func (m *Manager) Grabbing() bool { return m.grab != nil }
+
 // Dragging reports whether a window is currently being moved or resized.
 func (m *Manager) Dragging() bool { return m.grabActive }
 
