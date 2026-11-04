@@ -4,3 +4,5 @@ evlog-*.log
 /evlog
 .DS_Store
 !docs/compat-logs/*.log
+.cache/
+__pycache__/

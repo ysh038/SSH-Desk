@@ -103,6 +103,20 @@ chmod +x ~/evlog && ~/evlog -label iterm2
 
 서버에 모니터와 키보드를 직접 연결하거나 IPMI/KVM 원격 콘솔로 로그인한 뒤 실행합니다.
 
+서버 콘솔에 접근할 수 없으면 맥에서 QEMU VM으로 같은 환경을 만들 수 있습니다. `brew install qemu`가 필요합니다.
+
+```bash
+scripts/linux-console-vm.sh start --window
+```
+
+```bash
+scripts/linux-console-vm.sh setup && scripts/linux-console-vm.sh run
+```
+
+`--window`를 붙이면 QEMU 창이 열려서 직접 키를 눌러 볼 수 있습니다. 창에서 evlog 화면(VT7)이 안 보이면 Ctrl+Alt+F7을 누르세요. 끝나면 `scripts/linux-console-vm.sh stop`으로 끕니다.
+
+서버 콘솔에서 직접 실행할 때는 아래 명령을 씁니다.
+
 ```bash
 cd ~/sanghoon && ./evlog -label linux-console -mouse=off
 ```

@@ -1,0 +1,58 @@
+# tuidesk evlog 2026-11-04T07:15:56Z
+# label=linux-console host=localhost os=linux/amd64 ssh=false
+# TERM="linux"
+# COLORTERM=""
+# TERM_PROGRAM=""
+# TERM_PROGRAM_VERSION=""
+# LC_TERMINAL=""
+# LC_TERMINAL_VERSION=""
+# LANG=""
+# LC_ALL=""
+# LC_CTYPE=""
+# RUNEWIDTH_EASTASIAN=""
+# TMUX=""
+# STY=""
+# colors=8 size=160x50 mouse=off dblclick=400ms ambiguousWide=false
+07:15:56.506 RESIZE 160x50
+07:16:17.717 KEY    Rune[a]        key=256  rune='a' U+0061 mod=-
+07:16:17.875 KEY    Rune[A]        key=256  rune='A' U+0041 mod=-
+07:16:18.033 KEY    Ctrl+S         key=83   rune=- mod=Ctrl
+07:16:18.183 KEY    Ctrl+Q         key=81   rune=- mod=Ctrl
+07:16:18.337 KEY    Ctrl+Z         key=90   rune=- mod=Ctrl
+07:16:18.493 KEY    Ctrl+Y         key=89   rune=- mod=Ctrl
+07:16:18.646 KEY    Ctrl+F         key=70   rune=- mod=Ctrl
+07:16:18.799 KEY    Backspace      key=8    rune=- mod=-
+07:16:18.950 KEY    Ctrl+Space     key=64   rune=- mod=Ctrl
+07:16:19.105 KEY    Alt+Rune[a]    key=256  rune='a' U+0061 mod=Alt
+07:16:37.490 KEY    F1             key=279  rune=- mod=-
+07:16:37.643 KEY    F2             key=280  rune=- mod=-
+07:16:37.644 OSC52  클립보드로 전송: "tuidesk OSC52 테스트 07:16:37" → 맥에서 아무 곳에 Cmd+V로 확인
+07:16:37.798 KEY    F5             key=283  rune=- mod=-
+07:16:37.798 OSC52  클립보드 읽기 요청 보냄 (응답이 없으면 미지원/차단)
+07:16:37.955 KEY    F6             key=284  rune=- mod=-
+07:16:38.109 KEY    F7             key=285  rune=- mod=-
+07:16:38.264 KEY    F8             key=286  rune=- mod=-
+07:16:38.420 KEY    F9             key=287  rune=- mod=-
+07:16:38.574 KEY    F11            key=289  rune=- mod=-
+07:16:38.730 KEY    F12            key=290  rune=- mod=-
+07:16:38.896 KEY    F20            key=298  rune=- mod=-
+07:16:39.041 KEY    Up             key=257  rune=- mod=-
+07:16:39.206 KEY    Up             key=257  rune=- mod=-
+07:16:39.360 KEY    Up             key=257  rune=- mod=-
+07:16:39.503 KEY    Left           key=260  rune=- mod=-
+07:16:39.672 KEY    Left           key=260  rune=- mod=-
+07:16:39.822 KEY    Left           key=260  rune=- mod=-
+07:16:39.981 KEY    Right          key=259  rune=- mod=-
+07:16:40.123 KEY    Home           key=268  rune=- mod=-
+07:16:40.277 KEY    End            key=269  rune=- mod=-
+07:16:40.431 KEY    PgUp           key=266  rune=- mod=-
+07:16:40.585 KEY    PgDn           key=267  rune=- mod=-
+07:16:40.737 KEY    Insert         key=270  rune=- mod=-
+07:16:40.890 KEY    Delete         key=271  rune=- mod=-
+07:16:41.106 KEY    Esc            key=27   rune=- mod=-
+07:16:41.197 KEY    Tab            key=9    rune=- mod=-
+07:16:41.363 KEY    Tab            key=9    rune=- mod=-
+07:16:41.508 KEY    Backspace      key=8    rune=- mod=-
+07:16:41.663 KEY    Enter          key=13   rune=- mod=-
+07:16:41.828 KEY    Backspace      key=8    rune=- mod=-
+07:16:54.798 KEY    F10            key=288  rune=- mod=-

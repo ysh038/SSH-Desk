@@ -235,7 +235,8 @@ cwd = "{selected_dir}"
 - 8/16색 → 테마에 16색 폴백을 둔다.
 - **한글 글꼴 없음**: 커널 콘솔 글꼴은 글리프 수가 적어 한글을 표시하지 못한다. 한글 파일명이나 본문이 깨지거나 ◆로 보인다. `TERM=linux`를 감지하면 대체 표시를 쓴다(방식은 13장 미결정).
 - OSC52, bracketed paste 없음 → 내부 클립보드만 쓴다.
-- Shift/Ctrl+방향키 등 일부 조합 키가 구분되지 않을 수 있다 → 단축키마다 F키 또는 단일 키 대체 수단을 둔다.
+- 키 제약(QEMU VT로 확인, `docs/compat-matrix.md` 발견 5): Shift/Ctrl+방향키와 Shift+Tab은 수정키가 사라진다. Alt+←/→와 Alt+F1~F12는 가상 콘솔 전환 키다. Shift+F10은 F20으로 들어온다. Ctrl+H는 Backspace와 구분되지 않는다. → 키맵은 리눅스 콘솔에서 되는 조합만으로 모든 기능을 쓸 수 있게 설계한다.
+- 테스트 환경: `scripts/linux-console-vm.sh`(맥에서 QEMU로 Alpine VM을 띄워 커널 VT를 재현).
 
 | 리스크 | 영향 | 대응 |
 |---|---|---|
