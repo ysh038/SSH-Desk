@@ -30,7 +30,7 @@ Cursor 내장 터미널(xterm.js 기반, `TERM_PROGRAM=vscode`)은 참고용 열
 |---|---|---|---|---|---|---|---|---|
 | M1 | 왼쪽 클릭 | ❓ | L✅ S✅ | ❓ | L✅ | S⚠️ | ❓ | Cursor: 누름만 오고 뗌(release)이 안 옴 — 발견 1 |
 | M2 | 더블/트리플 클릭 | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | 더블클릭 판별 로그 없음(시도 안 했거나 실패 — 재확인) |
-| M3 | 우클릭 | ❓ | S✅ | ❓ | L✅ | S⚠️ | ❓ | iTerm2 S: 우클릭 누름·뗌 모두 앱에 도착(1칸 움직여 드래그로 판별됨 — 발견 3). Terminal.app L: Click까지 정상. Cursor: 누름만 옴 |
+| M3 | 우클릭 | ❓ | S❌ | ❓ | L✅ | S⚠️ | ❓ | iTerm2(기본 설정): 우클릭 시 iTerm2 메뉴가 뜨고 앱에 전달되지 않음 — 발견 4. Terminal.app L: Click까지 정상. Cursor: 누름만 옴 |
 | M4 | 드래그(1002) | ❓ | L✅ S✅ | ❓ | L✅ | S✅ | ❓ | Cursor: (1,1)→(199,25) 드래그 정상 |
 | M5 | 휠(세로/가로) | ❓ | L✅ | ❓ | ❓ | ❓ | ❓ | iTerm2: Wheel Up/Down 정상, 가로 휠 미확인 |
 | M6 | 수정키+클릭 (Shift/Option/Ctrl/Cmd) | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | 모든 로그 mod=- (시도 여부 확인 필요) |
@@ -62,7 +62,7 @@ Cursor 내장 터미널(xterm.js 기반, `TERM_PROGRAM=vscode`)은 참고용 열
 - 로컬: 클릭, 드래그, 휠, 포커스가 모두 정상입니다. 클릭할 때 누름(press)과 뗌(release)이 70~120ms 간격으로 들어옵니다.
 - 서버(`evlog-iterm2-20261104-154809.log`): 클릭, 드래그, 우클릭(누름과 뗌)이 모두 정상이고, 로컬 결과와 같습니다.
 - ssh로 접속하면 `COLORTERM`이 서버에 전달되지 않아 256색으로 동작합니다. 로컬에서는 트루컬러로 동작했습니다. 테마는 256색 기준으로 만들고, 트루컬러는 가능한 환경에서만 쓰도록 합니다.
-- **우클릭하면 iTerm2 자체 메뉴가 뜨는 경우가 있었습니다**(사용자 관찰). 서버 로그에는 우클릭이 한 번만 앱에 전달되었으므로, 나머지 우클릭은 iTerm2가 가로채 메뉴를 띄운 것으로 보입니다. iTerm2 설정 › Pointer의 우클릭 동작과 Profiles › Terminal의 마우스 리포팅 설정을 확인한 뒤 다시 테스트해야 합니다. 그 결과에 따라 설정 가이드를 쓰거나 대체 키(Shift+F10)를 우선 안내합니다.
+- **우클릭은 앱에 전달되지 않습니다(기본 설정).** 우클릭하면 iTerm2 자체 메뉴가 뜨고, evlog 화면 로그에도 찍히지 않습니다(사용자 확인). 로그에 남은 `btn=Right` 1건은 일반 우클릭이 아닌 다른 입력으로 보입니다. 대응은 발견 4에 정리했습니다.
 - 서버에서도 한글 입력 상태에서는 Ctrl+C가 `Ctrl+ㅊ`로 5번 들어왔습니다. 이 때문에 evlog가 종료되지 않았고, 입력기를 영문으로 바꾼 뒤에야 종료할 수 있었습니다(발견 2가 실제로 사용을 막은 사례).
 
 ### Cursor 내장 터미널
@@ -84,7 +84,12 @@ Cursor 내장 터미널(xterm.js 기반, `TERM_PROGRAM=vscode`)은 참고용 열
 2. **한글 입력 상태의 Ctrl 단축키.** tcell은 시작할 때 확장 키 프로토콜(kitty CSI-u, xterm modifyOtherKeys)을 켭니다. 이 때문에 iTerm2에서 한글 입력기가 켜져 있으면 Ctrl+C가 `Ctrl+ㅊ`(U+314A)로 들어옵니다.
    - 대응(적용함): `internal/term/keymap.go`의 `ShortcutRune`이 Ctrl/Alt와 함께 들어온 두벌식 자모를 QWERTY 키로 바꿉니다(ㅊ→c, ㄴ→s, ㅋ→z 등). Ctrl/Alt 없이 입력한 한글은 바꾸지 않습니다. evlog에도 적용해서, 한글 입력 상태에서 Ctrl+C 두 번으로 종료할 수 있습니다.
 3. **우클릭이 드래그로 판별됨.** 우클릭할 때 손이 1칸만 움직여도 `DragStart Right`로 처리되었습니다(드래그 시작 기준 1칸). 대응(적용함): 우클릭은 드래그로 판별하지 않고, 뗄 때 누른 위치의 클릭으로 처리합니다(`Detector.RightDrag` 기본값 false). SPEC에서 우클릭의 용도는 컨텍스트 메뉴뿐이기 때문입니다.
-4. 서버 기본 로케일은 `LANG=en_US.UTF-8`이었습니다. 한글 표시(T1)는 서버 환경에서 아직 확인하지 못했습니다.
+4. **iTerm2 우클릭 = 터미널 메뉴.** iTerm2 문서([Pointer](https://iterm2.com/documentation-preferences-pointer.html), [Profiles › Terminal](https://iterm2.com/documentation-preferences-profiles-terminal.html))에 따르면 관련 설정은 다음과 같습니다. 다만 우클릭의 기본 동작이 무엇인지는 문서에 나와 있지 않습니다.
+   - Pointer › General › *Ctrl-click reported to apps, does not open menu*: 켜면 Ctrl+클릭이 메뉴 대신 앱으로 전달됩니다.
+   - Pointer › Bindings: 우클릭에 *Open Context Menu* 동작이 묶여 있는지 확인하고, 있으면 지우거나 다른 동작으로 바꿉니다.
+   - Profiles › Terminal › *Enable mouse reporting*, *Report mouse clicks & drags*: 둘 다 켜져 있어야 합니다. Option을 누르고 있으면 리포팅이 잠시 꺼집니다.
+   - **앱 쪽 대응(Phase 1)**: 컨텍스트 메뉴를 여는 방법을 세 가지로 둡니다. (1) 우클릭 (2) **Ctrl+왼쪽 클릭**(맥에서 익숙한 우클릭 대용이고, 위 iTerm2 옵션을 켜면 앱에 전달됨) (3) Shift+F10 또는 메뉴 키. 이렇게 하면 터미널 설정을 바꾸지 않아도 키보드로 메뉴를 열 수 있습니다.
+5. 서버 기본 로케일은 `LANG=en_US.UTF-8`이었습니다. 한글 표시(T1)는 서버 환경에서 아직 확인하지 못했습니다.
 
 ## 미리 정한 기술적 결정
 
