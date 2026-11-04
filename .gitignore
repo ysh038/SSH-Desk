@@ -1,0 +1,5 @@
+dist/
+evlog-*.log
+/tuidesk
+/evlog
+.DS_Store
