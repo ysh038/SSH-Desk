@@ -101,6 +101,23 @@ func TestKeyboardMovesFrontWindow(t *testing.T) {
 	}
 }
 
+func TestShiftTabFocusesPreviousWindow(t *testing.T) {
+	a, _ := newSimApp(t, 100, 30)
+	start := a.m.Focused()
+	a.handle(tcell.NewEventKey(tcell.KeyTab, 0, tcell.ModNone))
+	if a.m.Focused() == start {
+		t.Fatal("Tab should change focus")
+	}
+	a.handle(tcell.NewEventKey(tcell.KeyBacktab, 0, tcell.ModShift))
+	if a.m.Focused() != start || a.m.Top() != start {
+		t.Fatalf("Shift+Tab should return to %q, got %q", start.Title, a.m.Focused().Title)
+	}
+	a.handle(tcell.NewEventKey(tcell.KeyBacktab, 0, tcell.ModShift))
+	if a.m.Focused() == start {
+		t.Fatal("second Shift+Tab should move further back")
+	}
+}
+
 func TestQuitWithKoreanIME(t *testing.T) {
 	a, _ := newSimApp(t, 100, 30)
 	a.handle(tcell.NewEventKey(tcell.KeyRune, 'ㅂ', tcell.ModCtrl)) // Ctrl+Q typed with the Korean IME on

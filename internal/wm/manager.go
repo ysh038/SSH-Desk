@@ -91,6 +91,19 @@ func (m *Manager) FocusNext() {
 	}
 }
 
+// FocusPrev is the reverse of FocusNext: the top window goes to the bottom
+// and the one below it becomes the focused top window.
+func (m *Manager) FocusPrev() {
+	n := len(m.wins)
+	if n < 2 {
+		return
+	}
+	top := m.wins[n-1]
+	copy(m.wins[1:], m.wins[:n-1])
+	m.wins[0] = top
+	m.focus = m.wins[n-1]
+}
+
 // HitTest returns the topmost window under (x, y) and which part was hit.
 func (m *Manager) HitTest(x, y int) (*Window, Part) {
 	for i := len(m.wins) - 1; i >= 0; i-- {

@@ -2,7 +2,8 @@
 // that can be moved with the mouse (title bar drag) or the keyboard.
 //
 // Mouse: drag a title bar to move, click a window to bring it to the front.
-// Keyboard: Tab or F6 = next window, arrow keys = move the front window,
+// Keyboard: Tab or F6 = next window, Shift+Tab = previous window,
+// arrow keys = move the front window,
 // F10 or Ctrl+Q = quit.
 package main
 
@@ -52,10 +53,11 @@ func newApp(s tcell.Screen) *app {
 		"     }",
 		" }",
 	}})
-	a.m.Add(&wm.Window{ID: 3, Title: "도움말", Rect: wm.Rect{X: 50, Y: 2, W: 34, H: 9}, Body: []string{
+	a.m.Add(&wm.Window{ID: 3, Title: "도움말", Rect: wm.Rect{X: 50, Y: 2, W: 34, H: 10}, Body: []string{
 		" 마우스: 제목줄을 끌어 이동",
 		"         창을 누르면 맨 앞으로",
 		" 키보드: Tab/F6 다음 창",
+		"         Shift+Tab 이전 창",
 		"         방향키 앞 창 이동",
 		" 종료:   F10 또는 Ctrl+Q",
 	}})
@@ -111,6 +113,8 @@ func (a *app) handleKey(ev *tcell.EventKey) {
 	switch ev.Key() {
 	case tcell.KeyTab, tcell.KeyF6:
 		a.m.FocusNext()
+	case tcell.KeyBacktab:
+		a.m.FocusPrev()
 	case tcell.KeyUp:
 		a.m.MoveBy(f, 0, -1)
 	case tcell.KeyDown:
@@ -171,7 +175,7 @@ func (a *app) draw() {
 	c := a.canvas
 	full := wm.Rect{X: 0, Y: 0, W: c.W, H: c.H}
 	c.Fill(wm.Rect{X: 0, Y: 0, W: c.W, H: 1}, ' ', wm.StyleBar)
-	c.Text(full, 1, 0, "tuidesk wmdemo │ 제목줄 드래그로 이동 · Tab 다음 창 · 방향키 이동 · F10 종료", wm.StyleBar)
+	c.Text(full, 1, 0, "tuidesk wmdemo │ 제목줄 드래그로 이동 · Tab/Shift+Tab 창 전환 · 방향키 이동 · F10 종료", wm.StyleBar)
 	a.m.Draw(c)
 
 	status := "준비"

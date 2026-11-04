@@ -177,3 +177,41 @@ func TestDrawOverlapAndHangulTitles(t *testing.T) {
 		}
 	}
 }
+
+func ids(m *Manager) []int {
+	var out []int
+	for _, w := range m.Windows() {
+		out = append(out, w.ID)
+	}
+	return out
+}
+
+func TestFocusPrevCyclesBackwards(t *testing.T) {
+	m := newTestManager()
+	m.Add(&Window{ID: 3, Title: "C", Rect: Rect{40, 3, 10, 5}})
+	var order []int
+	for i := 0; i < 3; i++ {
+		m.FocusPrev()
+		order = append(order, m.Focused().ID)
+		if m.Top() != m.Focused() {
+			t.Fatal("focused window must be on top")
+		}
+	}
+	if order[0] != 2 || order[1] != 1 || order[2] != 3 {
+		t.Fatalf("order = %v", order)
+	}
+}
+
+func TestFocusPrevUndoesFocusNext(t *testing.T) {
+	m := newTestManager()
+	m.Add(&Window{ID: 3, Title: "C", Rect: Rect{40, 3, 10, 5}})
+	before := ids(m)
+	m.FocusNext()
+	m.FocusPrev()
+	after := ids(m)
+	for i := range before {
+		if before[i] != after[i] {
+			t.Fatalf("stack %v -> %v", before, after)
+		}
+	}
+}
