@@ -1,0 +1,1230 @@
+# tuidesk evlog 2026-11-04T14:48:13+09:00
+# label=iterm2-local host=yusanghun-ui-MacBookPro.local os=darwin/arm64 ssh=false
+# TERM="xterm-256color"
+# COLORTERM="truecolor"
+# TERM_PROGRAM="iTerm.app"
+# TERM_PROGRAM_VERSION="3.7.6"
+# LC_TERMINAL="iTerm2"
+# LC_TERMINAL_VERSION="3.7.6"
+# LANG="ko_KR.UTF-8"
+# LC_ALL=""
+# LC_CTYPE=""
+# RUNEWIDTH_EASTASIAN=""
+# TMUX=""
+# STY=""
+# colors=16777216 size=275x72 mouse=drag(1002) dblclick=400ms ambiguousWide=false
+14:48:13.216 RESIZE 275x72
+14:48:25.224 MOUSE  ( 29, 14) btn=Left         mod=-
+14:48:25.342 MOUSE  ( 29, 14) btn=none         mod=-
+14:48:25.342   ⇒    Click single Left (29,14)
+14:48:27.120 MOUSE  ( 25, 21) btn=Left         mod=-
+14:48:27.193 MOUSE  ( 25, 21) btn=none         mod=-
+14:48:27.193   ⇒    Click single Left (25,21)
+14:48:29.204 MOUSE  (  2,  2) btn=Left         mod=-
+14:48:29.278 MOUSE  (  2,  2) btn=none         mod=-
+14:48:29.278   ⇒    Click single Left (2,2)
+14:48:29.820 MOUSE  (  2,  2) btn=Left         mod=-
+14:48:29.915 MOUSE  (  2,  2) btn=none         mod=-
+14:48:29.915   ⇒    Click single Left (2,2)
+14:48:30.824 MOUSE  (212, 10) btn=Left         mod=-
+14:48:30.893 MOUSE  (212, 10) btn=none         mod=-
+14:48:30.893   ⇒    Click single Left (212,10)
+14:48:31.127 MOUSE  (198, 17) btn=Left         mod=-
+14:48:31.185 MOUSE  (198, 17) btn=none         mod=-
+14:48:31.185   ⇒    Click single Left (198,17)
+14:48:31.402 MOUSE  (132, 27) btn=Left         mod=-
+14:48:31.402 MOUSE  (131, 27) btn=Left         mod=-
+14:48:31.402   ⇒    DragStart Left (132,27)->(131,27)
+14:48:31.416 MOUSE  (130, 27) btn=Left         mod=-  [드래그 중]
+14:48:31.443 MOUSE  (130, 27) btn=none         mod=-
+14:48:31.443   ⇒    DragEnd Left (132,27)->(130,27)
+14:48:32.044 MOUSE  ( 78, 44) btn=Left         mod=-
+14:48:32.124 MOUSE  ( 78, 44) btn=none         mod=-
+14:48:32.124   ⇒    Click single Left (78,44)
+14:48:32.768 MOUSE  ( 71, 38) btn=Left         mod=-
+14:48:32.850 MOUSE  ( 71, 38) btn=none         mod=-
+14:48:32.850   ⇒    Click single Left (71,38)
+14:48:33.402 MOUSE  ( 50, 35) btn=Left         mod=-
+14:48:33.449 MOUSE  ( 50, 36) btn=Left         mod=-
+14:48:33.449   ⇒    DragStart Left (50,35)->(50,36)
+14:48:33.460 MOUSE  ( 51, 36) btn=Left         mod=-  [드래그 중]
+14:48:33.469 MOUSE  ( 52, 37) btn=Left         mod=-  [드래그 중]
+14:48:33.477 MOUSE  ( 53, 37) btn=Left         mod=-  [드래그 중]
+14:48:33.485 MOUSE  ( 54, 38) btn=Left         mod=-  [드래그 중]
+14:48:33.493 MOUSE  ( 56, 39) btn=Left         mod=-  [드래그 중]
+14:48:33.501 MOUSE  ( 60, 42) btn=Left         mod=-  [드래그 중]
+14:48:33.510 MOUSE  ( 63, 43) btn=Left         mod=-  [드래그 중]
+14:48:33.518 MOUSE  ( 65, 44) btn=Left         mod=-  [드래그 중]
+14:48:33.535 MOUSE  ( 71, 46) btn=Left         mod=-  [드래그 중]
+14:48:33.543 MOUSE  ( 74, 47) btn=Left         mod=-  [드래그 중]
+14:48:33.551 MOUSE  ( 77, 48) btn=Left         mod=-  [드래그 중]
+14:48:33.560 MOUSE  ( 81, 49) btn=Left         mod=-  [드래그 중]
+14:48:33.568 MOUSE  ( 87, 51) btn=Left         mod=-  [드래그 중]
+14:48:33.585 MOUSE  ( 90, 52) btn=Left         mod=-  [드래그 중]
+14:48:33.601 MOUSE  ( 93, 52) btn=Left         mod=-  [드래그 중]
+14:48:33.610 MOUSE  ( 99, 54) btn=Left         mod=-  [드래그 중]
+14:48:33.618 MOUSE  (104, 55) btn=Left         mod=-  [드래그 중]
+14:48:33.626 MOUSE  (106, 55) btn=Left         mod=-  [드래그 중]
+14:48:33.635 MOUSE  (108, 55) btn=Left         mod=-  [드래그 중]
+14:48:33.643 MOUSE  (111, 56) btn=Left         mod=-  [드래그 중]
+14:48:33.652 MOUSE  (112, 56) btn=Left         mod=-  [드래그 중]
+14:48:33.668 MOUSE  (115, 56) btn=Left         mod=-  [드래그 중]
+14:48:33.676 MOUSE  (116, 56) btn=Left         mod=-  [드래그 중]
+14:48:33.693 MOUSE  (117, 56) btn=Left         mod=-  [드래그 중]
+14:48:33.710 MOUSE  (118, 56) btn=Left         mod=-  [드래그 중]
+14:48:33.718 MOUSE  (119, 57) btn=Left         mod=-  [드래그 중]
+14:48:33.735 MOUSE  (120, 57) btn=Left         mod=-  [드래그 중]
+14:48:33.752 MOUSE  (121, 57) btn=Left         mod=-  [드래그 중]
+14:48:33.760 MOUSE  (122, 57) btn=Left         mod=-  [드래그 중]
+14:48:33.768 MOUSE  (123, 57) btn=Left         mod=-  [드래그 중]
+14:48:33.776 MOUSE  (124, 57) btn=Left         mod=-  [드래그 중]
+14:48:33.785 MOUSE  (126, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.793 MOUSE  (127, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.801 MOUSE  (129, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.810 MOUSE  (131, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.818 MOUSE  (132, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.826 MOUSE  (134, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.835 MOUSE  (136, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.843 MOUSE  (138, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.851 MOUSE  (140, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.860 MOUSE  (142, 58) btn=Left         mod=-  [드래그 중]
+14:48:33.868 MOUSE  (146, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.876 MOUSE  (148, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.885 MOUSE  (150, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.893 MOUSE  (152, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.902 MOUSE  (154, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.910 MOUSE  (156, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.918 MOUSE  (158, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.926 MOUSE  (161, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.936 MOUSE  (163, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.943 MOUSE  (165, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.952 MOUSE  (166, 59) btn=Left         mod=-  [드래그 중]
+14:48:33.968 MOUSE  (169, 60) btn=Left         mod=-  [드래그 중]
+14:48:33.976 MOUSE  (170, 60) btn=Left         mod=-  [드래그 중]
+14:48:33.985 MOUSE  (171, 60) btn=Left         mod=-  [드래그 중]
+14:48:33.993 MOUSE  (172, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.002 MOUSE  (174, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.010 MOUSE  (175, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.018 MOUSE  (177, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.027 MOUSE  (178, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.035 MOUSE  (179, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.043 MOUSE  (181, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.051 MOUSE  (182, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.060 MOUSE  (183, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.068 MOUSE  (184, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.076 MOUSE  (185, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.085 MOUSE  (187, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.093 MOUSE  (188, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.101 MOUSE  (189, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.110 MOUSE  (190, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.118 MOUSE  (191, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.126 MOUSE  (193, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.135 MOUSE  (194, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.151 MOUSE  (195, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.160 MOUSE  (196, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.168 MOUSE  (199, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.176 MOUSE  (200, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.185 MOUSE  (201, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.193 MOUSE  (202, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.202 MOUSE  (203, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.210 MOUSE  (204, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.218 MOUSE  (205, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.226 MOUSE  (206, 61) btn=Left         mod=-  [드래그 중]
+14:48:34.235 MOUSE  (207, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.243 MOUSE  (208, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.260 MOUSE  (209, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.268 MOUSE  (210, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.285 MOUSE  (211, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.301 MOUSE  (212, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.310 MOUSE  (213, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.326 MOUSE  (214, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.335 MOUSE  (215, 59) btn=Left         mod=-  [드래그 중]
+14:48:34.351 MOUSE  (216, 59) btn=Left         mod=-  [드래그 중]
+14:48:34.368 MOUSE  (218, 59) btn=Left         mod=-  [드래그 중]
+14:48:34.393 MOUSE  (220, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.402 MOUSE  (221, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.410 MOUSE  (222, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.418 MOUSE  (223, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.426 MOUSE  (224, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.435 MOUSE  (225, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.451 MOUSE  (226, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.460 MOUSE  (227, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.468 MOUSE  (228, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.476 MOUSE  (230, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.493 MOUSE  (231, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.502 MOUSE  (232, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.510 MOUSE  (233, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.518 MOUSE  (234, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.535 MOUSE  (236, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.544 MOUSE  (237, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.551 MOUSE  (238, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.560 MOUSE  (239, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.568 MOUSE  (240, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.585 MOUSE  (241, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.593 MOUSE  (242, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.610 MOUSE  (243, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.618 MOUSE  (244, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.626 MOUSE  (245, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.635 MOUSE  (246, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.643 MOUSE  (247, 57) btn=Left         mod=-  [드래그 중]
+14:48:34.660 MOUSE  (249, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.677 MOUSE  (250, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.693 MOUSE  (252, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.710 MOUSE  (253, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.726 MOUSE  (254, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.743 MOUSE  (255, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.768 MOUSE  (256, 58) btn=Left         mod=-  [드래그 중]
+14:48:34.801 MOUSE  (257, 59) btn=Left         mod=-  [드래그 중]
+14:48:34.826 MOUSE  (258, 59) btn=Left         mod=-  [드래그 중]
+14:48:34.843 MOUSE  (258, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.860 MOUSE  (259, 60) btn=Left         mod=-  [드래그 중]
+14:48:34.893 MOUSE  (259, 61) btn=Left         mod=-  [드래그 중]
+14:48:35.018 MOUSE  (259, 62) btn=Left         mod=-  [드래그 중]
+14:48:35.126 MOUSE  (258, 62) btn=Left         mod=-  [드래그 중]
+14:48:35.144 MOUSE  (258, 63) btn=Left         mod=-  [드래그 중]
+14:48:35.185 MOUSE  (257, 63) btn=Left         mod=-  [드래그 중]
+14:48:35.210 MOUSE  (256, 63) btn=Left         mod=-  [드래그 중]
+14:48:35.218 MOUSE  (255, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.235 MOUSE  (254, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.243 MOUSE  (253, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.251 MOUSE  (252, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.260 MOUSE  (250, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.268 MOUSE  (249, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.276 MOUSE  (245, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.285 MOUSE  (244, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.293 MOUSE  (242, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.301 MOUSE  (240, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.310 MOUSE  (238, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.318 MOUSE  (236, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.327 MOUSE  (234, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.335 MOUSE  (232, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.343 MOUSE  (229, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.351 MOUSE  (226, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.360 MOUSE  (223, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.368 MOUSE  (221, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.377 MOUSE  (219, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.393 MOUSE  (217, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.402 MOUSE  (213, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.410 MOUSE  (211, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.418 MOUSE  (209, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.426 MOUSE  (204, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.435 MOUSE  (202, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.443 MOUSE  (199, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.452 MOUSE  (197, 65) btn=Left         mod=-  [드래그 중]
+14:48:35.460 MOUSE  (193, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.468 MOUSE  (190, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.476 MOUSE  (187, 64) btn=Left         mod=-  [드래그 중]
+14:48:35.485 MOUSE  (183, 63) btn=Left         mod=-  [드래그 중]
+14:48:35.493 MOUSE  (180, 63) btn=Left         mod=-  [드래그 중]
+14:48:35.502 MOUSE  (177, 63) btn=Left         mod=-  [드래그 중]
+14:48:35.510 MOUSE  (175, 63) btn=Left         mod=-  [드래그 중]
+14:48:35.518 MOUSE  (169, 62) btn=Left         mod=-  [드래그 중]
+14:48:35.526 MOUSE  (167, 62) btn=Left         mod=-  [드래그 중]
+14:48:35.535 MOUSE  (165, 62) btn=Left         mod=-  [드래그 중]
+14:48:35.543 MOUSE  (163, 61) btn=Left         mod=-  [드래그 중]
+14:48:35.551 MOUSE  (161, 61) btn=Left         mod=-  [드래그 중]
+14:48:35.560 MOUSE  (159, 61) btn=Left         mod=-  [드래그 중]
+14:48:35.568 MOUSE  (157, 61) btn=Left         mod=-  [드래그 중]
+14:48:35.577 MOUSE  (155, 60) btn=Left         mod=-  [드래그 중]
+14:48:35.585 MOUSE  (152, 60) btn=Left         mod=-  [드래그 중]
+14:48:35.593 MOUSE  (150, 59) btn=Left         mod=-  [드래그 중]
+14:48:35.601 MOUSE  (149, 59) btn=Left         mod=-  [드래그 중]
+14:48:35.610 MOUSE  (148, 59) btn=Left         mod=-  [드래그 중]
+14:48:35.618 MOUSE  (147, 58) btn=Left         mod=-  [드래그 중]
+14:48:35.635 MOUSE  (146, 58) btn=Left         mod=-  [드래그 중]
+14:48:35.643 MOUSE  (145, 57) btn=Left         mod=-  [드래그 중]
+14:48:35.651 MOUSE  (144, 57) btn=Left         mod=-  [드래그 중]
+14:48:35.660 MOUSE  (143, 56) btn=Left         mod=-  [드래그 중]
+14:48:35.676 MOUSE  (142, 55) btn=Left         mod=-  [드래그 중]
+14:48:35.685 MOUSE  (141, 55) btn=Left         mod=-  [드래그 중]
+14:48:35.693 MOUSE  (141, 54) btn=Left         mod=-  [드래그 중]
+14:48:35.702 MOUSE  (140, 54) btn=Left         mod=-  [드래그 중]
+14:48:35.710 MOUSE  (140, 53) btn=Left         mod=-  [드래그 중]
+14:48:35.718 MOUSE  (139, 53) btn=Left         mod=-  [드래그 중]
+14:48:35.726 MOUSE  (138, 52) btn=Left         mod=-  [드래그 중]
+14:48:35.743 MOUSE  (137, 51) btn=Left         mod=-  [드래그 중]
+14:48:35.752 MOUSE  (136, 51) btn=Left         mod=-  [드래그 중]
+14:48:35.760 MOUSE  (136, 50) btn=Left         mod=-  [드래그 중]
+14:48:35.776 MOUSE  (135, 50) btn=Left         mod=-  [드래그 중]
+14:48:35.801 MOUSE  (134, 49) btn=Left         mod=-  [드래그 중]
+14:48:35.944 MOUSE  (135, 49) btn=Left         mod=-  [드래그 중]
+14:48:35.952 MOUSE  (136, 50) btn=Left         mod=-  [드래그 중]
+14:48:35.968 MOUSE  (138, 51) btn=Left         mod=-  [드래그 중]
+14:48:35.976 MOUSE  (140, 51) btn=Left         mod=-  [드래그 중]
+14:48:35.985 MOUSE  (142, 52) btn=Left         mod=-  [드래그 중]
+14:48:35.993 MOUSE  (144, 53) btn=Left         mod=-  [드래그 중]
+14:48:36.001 MOUSE  (146, 54) btn=Left         mod=-  [드래그 중]
+14:48:36.010 MOUSE  (149, 55) btn=Left         mod=-  [드래그 중]
+14:48:36.018 MOUSE  (152, 55) btn=Left         mod=-  [드래그 중]
+14:48:36.026 MOUSE  (154, 56) btn=Left         mod=-  [드래그 중]
+14:48:36.035 MOUSE  (161, 57) btn=Left         mod=-  [드래그 중]
+14:48:36.051 MOUSE  (168, 58) btn=Left         mod=-  [드래그 중]
+14:48:36.060 MOUSE  (172, 59) btn=Left         mod=-  [드래그 중]
+14:48:36.068 MOUSE  (175, 59) btn=Left         mod=-  [드래그 중]
+14:48:36.076 MOUSE  (178, 60) btn=Left         mod=-  [드래그 중]
+14:48:36.085 MOUSE  (181, 60) btn=Left         mod=-  [드래그 중]
+14:48:36.093 MOUSE  (184, 61) btn=Left         mod=-  [드래그 중]
+14:48:36.101 MOUSE  (188, 61) btn=Left         mod=-  [드래그 중]
+14:48:36.110 MOUSE  (191, 61) btn=Left         mod=-  [드래그 중]
+14:48:36.118 MOUSE  (196, 62) btn=Left         mod=-  [드래그 중]
+14:48:36.126 MOUSE  (198, 62) btn=Left         mod=-  [드래그 중]
+14:48:36.135 MOUSE  (200, 63) btn=Left         mod=-  [드래그 중]
+14:48:36.143 MOUSE  (202, 63) btn=Left         mod=-  [드래그 중]
+14:48:36.151 MOUSE  (204, 63) btn=Left         mod=-  [드래그 중]
+14:48:36.160 MOUSE  (206, 63) btn=Left         mod=-  [드래그 중]
+14:48:36.168 MOUSE  (207, 63) btn=Left         mod=-  [드래그 중]
+14:48:36.176 MOUSE  (209, 64) btn=Left         mod=-  [드래그 중]
+14:48:36.185 MOUSE  (210, 64) btn=Left         mod=-  [드래그 중]
+14:48:36.193 MOUSE  (211, 64) btn=Left         mod=-  [드래그 중]
+14:48:36.210 MOUSE  (213, 64) btn=Left         mod=-  [드래그 중]
+14:48:36.218 MOUSE  (214, 64) btn=Left         mod=-  [드래그 중]
+14:48:36.227 MOUSE  (215, 64) btn=Left         mod=-  [드래그 중]
+14:48:36.235 MOUSE  (215, 65) btn=Left         mod=-  [드래그 중]
+14:48:36.243 MOUSE  (216, 65) btn=Left         mod=-  [드래그 중]
+14:48:36.252 MOUSE  (217, 65) btn=Left         mod=-  [드래그 중]
+14:48:36.260 MOUSE  (218, 65) btn=Left         mod=-  [드래그 중]
+14:48:36.268 MOUSE  (220, 65) btn=Left         mod=-  [드래그 중]
+14:48:36.285 MOUSE  (222, 65) btn=Left         mod=-  [드래그 중]
+14:48:36.293 MOUSE  (223, 66) btn=Left         mod=-  [드래그 중]
+14:48:36.310 MOUSE  (225, 66) btn=Left         mod=-  [드래그 중]
+14:48:36.318 MOUSE  (226, 66) btn=Left         mod=-  [드래그 중]
+14:48:36.326 MOUSE  (227, 66) btn=Left         mod=-  [드래그 중]
+14:48:36.335 MOUSE  (230, 66) btn=Left         mod=-  [드래그 중]
+14:48:36.351 MOUSE  (233, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.360 MOUSE  (234, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.368 MOUSE  (236, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.376 MOUSE  (237, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.393 MOUSE  (238, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.401 MOUSE  (239, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.410 MOUSE  (241, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.418 MOUSE  (242, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.443 MOUSE  (243, 67) btn=Left         mod=-  [드래그 중]
+14:48:36.469 MOUSE  (243, 67) btn=none         mod=-
+14:48:36.469   ⇒    DragEnd Left (50,35)->(243,67)
+14:48:38.850 MOUSE  ( 77, 23) btn=Left         mod=-
+14:48:38.916 MOUSE  ( 78, 23) btn=Left         mod=-
+14:48:38.916   ⇒    DragStart Left (77,23)->(78,23)
+14:48:38.943 MOUSE  ( 79, 24) btn=Left         mod=-  [드래그 중]
+14:48:38.952 MOUSE  ( 81, 25) btn=Left         mod=-  [드래그 중]
+14:48:38.961 MOUSE  ( 82, 25) btn=Left         mod=-  [드래그 중]
+14:48:38.969 MOUSE  ( 83, 26) btn=Left         mod=-  [드래그 중]
+14:48:38.977 MOUSE  ( 85, 27) btn=Left         mod=-  [드래그 중]
+14:48:38.985 MOUSE  ( 86, 27) btn=Left         mod=-  [드래그 중]
+14:48:38.994 MOUSE  ( 88, 28) btn=Left         mod=-  [드래그 중]
+14:48:39.001 MOUSE  ( 91, 29) btn=Left         mod=-  [드래그 중]
+14:48:39.010 MOUSE  ( 93, 30) btn=Left         mod=-  [드래그 중]
+14:48:39.018 MOUSE  ( 99, 32) btn=Left         mod=-  [드래그 중]
+14:48:39.027 MOUSE  (102, 33) btn=Left         mod=-  [드래그 중]
+14:48:39.043 MOUSE  (108, 35) btn=Left         mod=-  [드래그 중]
+14:48:39.051 MOUSE  (112, 36) btn=Left         mod=-  [드래그 중]
+14:48:39.060 MOUSE  (116, 37) btn=Left         mod=-  [드래그 중]
+14:48:39.068 MOUSE  (119, 38) btn=Left         mod=-  [드래그 중]
+14:48:39.076 MOUSE  (123, 39) btn=Left         mod=-  [드래그 중]
+14:48:39.085 MOUSE  (127, 40) btn=Left         mod=-  [드래그 중]
+14:48:39.094 MOUSE  (131, 41) btn=Left         mod=-  [드래그 중]
+14:48:39.102 MOUSE  (139, 43) btn=Left         mod=-  [드래그 중]
+14:48:39.110 MOUSE  (143, 44) btn=Left         mod=-  [드래그 중]
+14:48:39.118 MOUSE  (147, 45) btn=Left         mod=-  [드래그 중]
+14:48:39.126 MOUSE  (151, 46) btn=Left         mod=-  [드래그 중]
+14:48:39.135 MOUSE  (155, 47) btn=Left         mod=-  [드래그 중]
+14:48:39.143 MOUSE  (159, 48) btn=Left         mod=-  [드래그 중]
+14:48:39.152 MOUSE  (162, 48) btn=Left         mod=-  [드래그 중]
+14:48:39.160 MOUSE  (166, 49) btn=Left         mod=-  [드래그 중]
+14:48:39.169 MOUSE  (169, 50) btn=Left         mod=-  [드래그 중]
+14:48:39.176 MOUSE  (172, 51) btn=Left         mod=-  [드래그 중]
+14:48:39.185 MOUSE  (175, 51) btn=Left         mod=-  [드래그 중]
+14:48:39.193 MOUSE  (180, 52) btn=Left         mod=-  [드래그 중]
+14:48:39.202 MOUSE  (183, 53) btn=Left         mod=-  [드래그 중]
+14:48:39.210 MOUSE  (185, 54) btn=Left         mod=-  [드래그 중]
+14:48:39.218 MOUSE  (188, 54) btn=Left         mod=-  [드래그 중]
+14:48:39.227 MOUSE  (190, 55) btn=Left         mod=-  [드래그 중]
+14:48:39.235 MOUSE  (192, 55) btn=Left         mod=-  [드래그 중]
+14:48:39.243 MOUSE  (194, 55) btn=Left         mod=-  [드래그 중]
+14:48:39.251 MOUSE  (197, 56) btn=Left         mod=-  [드래그 중]
+14:48:39.260 MOUSE  (198, 56) btn=Left         mod=-  [드래그 중]
+14:48:39.268 MOUSE  (199, 57) btn=Left         mod=-  [드래그 중]
+14:48:39.277 MOUSE  (200, 57) btn=Left         mod=-  [드래그 중]
+14:48:39.285 MOUSE  (202, 57) btn=Left         mod=-  [드래그 중]
+14:48:39.293 MOUSE  (203, 57) btn=Left         mod=-  [드래그 중]
+14:48:39.301 MOUSE  (204, 57) btn=Left         mod=-  [드래그 중]
+14:48:39.318 MOUSE  (205, 58) btn=Left         mod=-  [드래그 중]
+14:48:39.327 MOUSE  (206, 58) btn=Left         mod=-  [드래그 중]
+14:48:39.426 MOUSE  (206, 58) btn=none         mod=-
+14:48:39.426   ⇒    DragEnd Left (77,23)->(206,58)
+14:48:42.478 MOUSE  (148, 33) btn=Left         mod=-
+14:48:42.545 MOUSE  (148, 33) btn=none         mod=-
+14:48:42.545   ⇒    Click single Left (148,33)
+14:48:44.412 MOUSE  ( 13,  8) btn=Left         mod=-
+14:48:44.486 MOUSE  ( 13,  8) btn=none         mod=-
+14:48:44.486   ⇒    Click single Left (13,8)
+14:48:44.954 MOUSE  ( 10,  8) btn=Left         mod=-
+14:48:45.023 MOUSE  ( 10,  8) btn=none         mod=-
+14:48:45.023   ⇒    Click single Left (10,8)
+14:48:46.066 MOUSE  ( 11,  8) btn=Left         mod=-
+14:48:46.148 MOUSE  ( 11,  8) btn=none         mod=-
+14:48:46.148   ⇒    Click single Left (11,8)
+14:48:49.769 MOUSE  ( 17,  6) btn=Left         mod=-
+14:48:49.883 MOUSE  ( 17,  6) btn=none         mod=-
+14:48:49.883   ⇒    Click single Left (17,6)
+14:48:50.198 MOUSE  ( 15,  5) btn=Left         mod=-
+14:48:50.294 MOUSE  ( 15,  5) btn=none         mod=-
+14:48:50.294   ⇒    Click single Left (15,5)
+14:48:50.527 MOUSE  ( 15,  4) btn=Left         mod=-
+14:48:50.602 MOUSE  ( 15,  4) btn=none         mod=-
+14:48:50.602   ⇒    Click single Left (15,4)
+14:48:51.353 MOUSE  (  8,  5) btn=Left         mod=-
+14:48:51.435 MOUSE  (  9,  5) btn=Left         mod=-
+14:48:51.435   ⇒    DragStart Left (8,5)->(9,5)
+14:48:51.460 MOUSE  ( 10,  5) btn=Left         mod=-  [드래그 중]
+14:48:51.485 MOUSE  ( 11,  5) btn=Left         mod=-  [드래그 중]
+14:48:51.493 MOUSE  ( 12,  5) btn=Left         mod=-  [드래그 중]
+14:48:51.510 MOUSE  ( 13,  5) btn=Left         mod=-  [드래그 중]
+14:48:51.518 MOUSE  ( 14,  5) btn=Left         mod=-  [드래그 중]
+14:48:51.535 MOUSE  ( 15,  5) btn=Left         mod=-  [드래그 중]
+14:48:51.551 MOUSE  ( 16,  5) btn=Left         mod=-  [드래그 중]
+14:48:51.576 MOUSE  ( 17,  5) btn=Left         mod=-  [드래그 중]
+14:48:51.585 MOUSE  ( 17,  6) btn=Left         mod=-  [드래그 중]
+14:48:51.657 MOUSE  ( 17,  6) btn=none         mod=-
+14:48:51.657   ⇒    DragEnd Left (8,5)->(17,6)
+14:48:52.477 MOUSE  (108, 41) btn=Left         mod=-
+14:48:52.564 MOUSE  (108, 41) btn=none         mod=-
+14:48:52.564   ⇒    Click single Left (108,41)
+14:48:52.869 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:52.869   ⇒    Wheel Down (109,40)
+14:48:52.877 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:52.877   ⇒    Wheel Down (109,40)
+14:48:52.893 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:52.894   ⇒    Wheel Down (110,40)
+14:48:52.910 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:52.910   ⇒    Wheel Down (110,40)
+14:48:52.919 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:52.919   ⇒    Wheel Down (110,40)
+14:48:52.935 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:52.935   ⇒    Wheel Down (110,40)
+14:48:52.937 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:52.937   ⇒    Wheel Down (110,40)
+14:48:52.957 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:52.957   ⇒    Wheel Down (110,40)
+14:48:52.978 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:52.978   ⇒    Wheel Down (110,40)
+14:48:53.132 MOUSE  (110, 39) btn=WheelDown    mod=-
+14:48:53.132   ⇒    Wheel Down (110,39)
+14:48:53.146 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.146   ⇒    Wheel Down (110,40)
+14:48:53.152 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.152   ⇒    Wheel Down (110,40)
+14:48:53.160 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.160   ⇒    Wheel Down (110,40)
+14:48:53.177 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.177   ⇒    Wheel Down (110,40)
+14:48:53.186 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.186   ⇒    Wheel Down (110,40)
+14:48:53.202 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.202   ⇒    Wheel Down (110,40)
+14:48:53.218 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.218   ⇒    Wheel Down (110,40)
+14:48:53.220 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.220   ⇒    Wheel Down (110,40)
+14:48:53.227 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.227   ⇒    Wheel Down (110,40)
+14:48:53.235 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.235   ⇒    Wheel Down (110,40)
+14:48:53.244 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.244   ⇒    Wheel Down (110,40)
+14:48:53.260 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.260   ⇒    Wheel Down (110,40)
+14:48:53.269 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.269   ⇒    Wheel Down (110,40)
+14:48:53.277 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.277   ⇒    Wheel Down (110,40)
+14:48:53.293 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.293   ⇒    Wheel Down (110,40)
+14:48:53.301 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.301   ⇒    Wheel Down (110,40)
+14:48:53.336 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.336   ⇒    Wheel Down (110,40)
+14:48:53.393 MOUSE  (110, 40) btn=WheelDown    mod=-
+14:48:53.393   ⇒    Wheel Down (110,40)
+14:48:53.410 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.410   ⇒    Wheel Down (109,40)
+14:48:53.418 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.418   ⇒    Wheel Down (109,40)
+14:48:53.419 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.419   ⇒    Wheel Down (109,40)
+14:48:53.435 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.435   ⇒    Wheel Down (109,40)
+14:48:53.443 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.443   ⇒    Wheel Down (109,40)
+14:48:53.451 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.451   ⇒    Wheel Down (109,40)
+14:48:53.468 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.468   ⇒    Wheel Down (109,40)
+14:48:53.476 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.476   ⇒    Wheel Down (109,40)
+14:48:53.485 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.485   ⇒    Wheel Down (109,40)
+14:48:53.493 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.493   ⇒    Wheel Down (109,40)
+14:48:53.502 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.502   ⇒    Wheel Down (109,40)
+14:48:53.503 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.503   ⇒    Wheel Down (109,40)
+14:48:53.518 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.518   ⇒    Wheel Down (109,40)
+14:48:53.527 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.527   ⇒    Wheel Down (109,40)
+14:48:53.535 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.535   ⇒    Wheel Down (109,40)
+14:48:53.548 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.548   ⇒    Wheel Down (109,40)
+14:48:53.560 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.560   ⇒    Wheel Down (109,40)
+14:48:53.568 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.568   ⇒    Wheel Down (109,40)
+14:48:53.577 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.577   ⇒    Wheel Down (109,40)
+14:48:53.585 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.585   ⇒    Wheel Down (109,40)
+14:48:53.594 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.594   ⇒    Wheel Down (109,40)
+14:48:53.610 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.610   ⇒    Wheel Down (109,40)
+14:48:53.618 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.618   ⇒    Wheel Down (109,40)
+14:48:53.627 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.627   ⇒    Wheel Down (109,40)
+14:48:53.644 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.644   ⇒    Wheel Down (109,40)
+14:48:53.652 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.652   ⇒    Wheel Down (109,40)
+14:48:53.674 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.674   ⇒    Wheel Down (109,40)
+14:48:53.697 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.697   ⇒    Wheel Down (109,40)
+14:48:53.718 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.718   ⇒    Wheel Down (109,40)
+14:48:53.727 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.727   ⇒    Wheel Down (109,40)
+14:48:53.735 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.735   ⇒    Wheel Down (109,40)
+14:48:53.743 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.743   ⇒    Wheel Down (109,40)
+14:48:53.781 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.781   ⇒    Wheel Down (109,40)
+14:48:53.999 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:53.999   ⇒    Wheel Down (109,40)
+14:48:54.010 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.010   ⇒    Wheel Down (109,40)
+14:48:54.019 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.019   ⇒    Wheel Down (109,40)
+14:48:54.035 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.036   ⇒    Wheel Down (109,40)
+14:48:54.044 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.044   ⇒    Wheel Down (109,40)
+14:48:54.060 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.060   ⇒    Wheel Down (109,40)
+14:48:54.062 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.062   ⇒    Wheel Down (109,40)
+14:48:54.069 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.069   ⇒    Wheel Down (109,40)
+14:48:54.083 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.083   ⇒    Wheel Down (109,40)
+14:48:54.093 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.093   ⇒    Wheel Down (109,40)
+14:48:54.112 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.112   ⇒    Wheel Down (109,40)
+14:48:54.127 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.127   ⇒    Wheel Down (109,40)
+14:48:54.135 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.135   ⇒    Wheel Down (109,40)
+14:48:54.157 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.157   ⇒    Wheel Down (109,40)
+14:48:54.168 MOUSE  (109, 40) btn=WheelDown    mod=-
+14:48:54.168   ⇒    Wheel Down (109,40)
+14:48:54.285 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.285   ⇒    Wheel Down (108,40)
+14:48:54.302 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.302   ⇒    Wheel Down (108,40)
+14:48:54.310 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.310   ⇒    Wheel Down (108,40)
+14:48:54.318 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.318   ⇒    Wheel Down (108,40)
+14:48:54.335 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.335   ⇒    Wheel Down (108,40)
+14:48:54.336 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.336   ⇒    Wheel Down (108,40)
+14:48:54.351 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.352   ⇒    Wheel Down (108,40)
+14:48:54.360 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.360   ⇒    Wheel Down (108,40)
+14:48:54.361 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.361   ⇒    Wheel Down (108,40)
+14:48:54.368 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.368   ⇒    Wheel Down (108,40)
+14:48:54.385 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.385   ⇒    Wheel Down (108,40)
+14:48:54.394 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.394   ⇒    Wheel Down (108,40)
+14:48:54.401 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.401   ⇒    Wheel Down (108,40)
+14:48:54.410 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.410   ⇒    Wheel Down (108,40)
+14:48:54.418 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.418   ⇒    Wheel Down (108,40)
+14:48:54.427 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.427   ⇒    Wheel Down (108,40)
+14:48:54.440 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.440   ⇒    Wheel Down (108,40)
+14:48:54.452 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.452   ⇒    Wheel Down (108,40)
+14:48:54.460 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.460   ⇒    Wheel Down (108,40)
+14:48:54.476 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.476   ⇒    Wheel Down (108,40)
+14:48:54.485 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.485   ⇒    Wheel Down (108,40)
+14:48:54.493 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.493   ⇒    Wheel Down (108,40)
+14:48:54.510 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.510   ⇒    Wheel Down (108,40)
+14:48:54.519 MOUSE  (108, 40) btn=WheelDown    mod=-
+14:48:54.519   ⇒    Wheel Down (108,40)
+14:48:54.535 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.535   ⇒    Wheel Down (106,40)
+14:48:54.543 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.543   ⇒    Wheel Down (106,40)
+14:48:54.551 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.551   ⇒    Wheel Down (106,40)
+14:48:54.568 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.568   ⇒    Wheel Down (107,40)
+14:48:54.570 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.570   ⇒    Wheel Down (107,40)
+14:48:54.577 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.577   ⇒    Wheel Down (107,40)
+14:48:54.593 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.593   ⇒    Wheel Down (107,40)
+14:48:54.601 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.602   ⇒    Wheel Down (107,40)
+14:48:54.610 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.610   ⇒    Wheel Down (107,40)
+14:48:54.627 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.627   ⇒    Wheel Down (107,40)
+14:48:54.635 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.635   ⇒    Wheel Down (107,40)
+14:48:54.643 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.644   ⇒    Wheel Down (107,40)
+14:48:54.660 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.660   ⇒    Wheel Down (107,40)
+14:48:54.661 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.661   ⇒    Wheel Down (107,40)
+14:48:54.668 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.668   ⇒    Wheel Down (107,40)
+14:48:54.685 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.685   ⇒    Wheel Down (107,40)
+14:48:54.693 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.693   ⇒    Wheel Down (107,40)
+14:48:54.702 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.702   ⇒    Wheel Down (107,40)
+14:48:54.710 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.710   ⇒    Wheel Down (107,40)
+14:48:54.726 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.726   ⇒    Wheel Down (107,40)
+14:48:54.728 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.728   ⇒    Wheel Down (107,40)
+14:48:54.743 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.743   ⇒    Wheel Down (107,40)
+14:48:54.752 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.752   ⇒    Wheel Down (107,40)
+14:48:54.760 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.760   ⇒    Wheel Down (107,40)
+14:48:54.776 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.776   ⇒    Wheel Down (107,40)
+14:48:54.785 MOUSE  (107, 40) btn=WheelDown    mod=-
+14:48:54.785   ⇒    Wheel Down (107,40)
+14:48:54.793 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.793   ⇒    Wheel Down (106,40)
+14:48:54.818 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.818   ⇒    Wheel Down (106,40)
+14:48:54.827 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.827   ⇒    Wheel Down (106,40)
+14:48:54.835 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.835   ⇒    Wheel Down (106,40)
+14:48:54.844 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.844   ⇒    Wheel Down (106,40)
+14:48:54.852 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.852   ⇒    Wheel Down (106,41)
+14:48:54.860 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.860   ⇒    Wheel Down (106,41)
+14:48:54.861 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.861   ⇒    Wheel Down (106,41)
+14:48:54.868 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.868   ⇒    Wheel Down (106,41)
+14:48:54.885 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.885   ⇒    Wheel Down (106,41)
+14:48:54.893 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.893   ⇒    Wheel Down (106,41)
+14:48:54.901 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.901   ⇒    Wheel Down (106,41)
+14:48:54.918 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.918   ⇒    Wheel Down (106,41)
+14:48:54.926 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.926   ⇒    Wheel Down (106,41)
+14:48:54.935 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.935   ⇒    Wheel Down (106,41)
+14:48:54.944 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.944   ⇒    Wheel Down (106,41)
+14:48:54.952 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.952   ⇒    Wheel Down (106,41)
+14:48:54.960 MOUSE  (106, 41) btn=WheelDown    mod=-
+14:48:54.960   ⇒    Wheel Down (106,41)
+14:48:54.977 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.977   ⇒    Wheel Down (106,40)
+14:48:54.985 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.985   ⇒    Wheel Down (106,40)
+14:48:54.993 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:54.993   ⇒    Wheel Down (106,40)
+14:48:55.010 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:55.010   ⇒    Wheel Down (106,40)
+14:48:55.019 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:55.019   ⇒    Wheel Down (106,40)
+14:48:55.020 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:55.020   ⇒    Wheel Down (106,40)
+14:48:55.035 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:55.035   ⇒    Wheel Down (106,40)
+14:48:55.043 MOUSE  (106, 40) btn=WheelDown    mod=-
+14:48:55.043   ⇒    Wheel Down (106,40)
+14:48:55.077 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.077   ⇒    Wheel Down (104,41)
+14:48:55.085 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.085   ⇒    Wheel Down (104,41)
+14:48:55.094 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.094   ⇒    Wheel Down (104,41)
+14:48:55.102 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.102   ⇒    Wheel Down (104,41)
+14:48:55.110 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.110   ⇒    Wheel Down (104,41)
+14:48:55.118 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.118   ⇒    Wheel Down (104,41)
+14:48:55.127 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.127   ⇒    Wheel Down (104,41)
+14:48:55.135 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.135   ⇒    Wheel Down (104,41)
+14:48:55.143 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.143   ⇒    Wheel Down (104,41)
+14:48:55.160 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.160   ⇒    Wheel Down (104,41)
+14:48:55.168 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.168   ⇒    Wheel Down (104,41)
+14:48:55.169 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.169   ⇒    Wheel Down (104,41)
+14:48:55.185 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.185   ⇒    Wheel Down (104,41)
+14:48:55.193 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.193   ⇒    Wheel Down (104,41)
+14:48:55.201 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.201   ⇒    Wheel Down (104,41)
+14:48:55.218 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.218   ⇒    Wheel Down (104,41)
+14:48:55.227 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.227   ⇒    Wheel Down (104,41)
+14:48:55.243 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.243   ⇒    Wheel Down (104,41)
+14:48:55.252 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.256   ⇒    Wheel Down (104,41)
+14:48:55.261 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.261   ⇒    Wheel Down (104,41)
+14:48:55.268 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.268   ⇒    Wheel Down (104,41)
+14:48:55.285 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.285   ⇒    Wheel Down (104,41)
+14:48:55.293 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.293   ⇒    Wheel Down (104,41)
+14:48:55.301 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.301   ⇒    Wheel Down (104,41)
+14:48:55.310 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.310   ⇒    Wheel Down (104,41)
+14:48:55.318 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.318   ⇒    Wheel Down (104,41)
+14:48:55.320 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.320   ⇒    Wheel Down (104,41)
+14:48:55.335 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.335   ⇒    Wheel Down (104,41)
+14:48:55.352 MOUSE  (103, 41) btn=WheelDown    mod=-
+14:48:55.352   ⇒    Wheel Down (103,41)
+14:48:55.365 MOUSE  (103, 41) btn=WheelDown    mod=-
+14:48:55.365   ⇒    Wheel Down (103,41)
+14:48:55.385 MOUSE  (103, 41) btn=WheelDown    mod=-
+14:48:55.385   ⇒    Wheel Down (103,41)
+14:48:55.401 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.401   ⇒    Wheel Down (104,41)
+14:48:55.403 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.403   ⇒    Wheel Down (104,41)
+14:48:55.410 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.410   ⇒    Wheel Down (104,41)
+14:48:55.427 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.427   ⇒    Wheel Down (104,41)
+14:48:55.435 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.435   ⇒    Wheel Down (104,41)
+14:48:55.443 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.443   ⇒    Wheel Down (104,41)
+14:48:55.460 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.460   ⇒    Wheel Down (104,41)
+14:48:55.461 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.461   ⇒    Wheel Down (104,41)
+14:48:55.468 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.468   ⇒    Wheel Down (104,41)
+14:48:55.485 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.485   ⇒    Wheel Down (104,41)
+14:48:55.493 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.494   ⇒    Wheel Down (104,41)
+14:48:55.502 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.502   ⇒    Wheel Down (104,41)
+14:48:55.518 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.518   ⇒    Wheel Down (104,41)
+14:48:55.527 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.527   ⇒    Wheel Down (104,41)
+14:48:55.535 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.535   ⇒    Wheel Down (104,41)
+14:48:55.543 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.543   ⇒    Wheel Down (104,41)
+14:48:55.552 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.552   ⇒    Wheel Down (104,41)
+14:48:55.568 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.568   ⇒    Wheel Down (104,41)
+14:48:55.576 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.576   ⇒    Wheel Down (104,41)
+14:48:55.585 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.585   ⇒    Wheel Down (104,41)
+14:48:55.602 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.602   ⇒    Wheel Down (104,41)
+14:48:55.610 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.610   ⇒    Wheel Down (104,41)
+14:48:55.619 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.619   ⇒    Wheel Down (104,41)
+14:48:55.627 MOUSE  (104, 41) btn=WheelDown    mod=-
+14:48:55.627   ⇒    Wheel Down (104,41)
+14:48:55.635 MOUSE  (103, 41) btn=WheelDown    mod=-
+14:48:55.635   ⇒    Wheel Down (103,41)
+14:48:55.643 MOUSE  (103, 41) btn=WheelDown    mod=-
+14:48:55.643   ⇒    Wheel Down (103,41)
+14:48:55.660 MOUSE  (103, 41) btn=WheelDown    mod=-
+14:48:55.660   ⇒    Wheel Down (103,41)
+14:48:55.668 MOUSE  (103, 41) btn=WheelDown    mod=-
+14:48:55.668   ⇒    Wheel Down (103,41)
+14:48:55.677 MOUSE  (101, 42) btn=WheelDown    mod=-
+14:48:55.677   ⇒    Wheel Down (101,42)
+14:48:55.693 MOUSE  (100, 42) btn=WheelDown    mod=-
+14:48:55.693   ⇒    Wheel Down (100,42)
+14:48:55.702 MOUSE  (101, 42) btn=WheelDown    mod=-
+14:48:55.702   ⇒    Wheel Down (101,42)
+14:48:55.710 MOUSE  (101, 42) btn=WheelDown    mod=-
+14:48:55.710   ⇒    Wheel Down (101,42)
+14:48:55.726 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.726   ⇒    Wheel Down (102,42)
+14:48:55.735 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.735   ⇒    Wheel Down (102,42)
+14:48:55.743 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.743   ⇒    Wheel Down (102,42)
+14:48:55.752 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.752   ⇒    Wheel Down (102,42)
+14:48:55.760 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.760   ⇒    Wheel Down (102,42)
+14:48:55.768 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.768   ⇒    Wheel Down (102,42)
+14:48:55.776 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.776   ⇒    Wheel Down (102,42)
+14:48:55.785 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.785   ⇒    Wheel Down (102,42)
+14:48:55.802 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.802   ⇒    Wheel Down (102,42)
+14:48:55.810 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.810   ⇒    Wheel Down (102,42)
+14:48:55.818 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.818   ⇒    Wheel Down (102,42)
+14:48:55.820 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.820   ⇒    Wheel Down (102,42)
+14:48:55.836 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.836   ⇒    Wheel Down (102,42)
+14:48:55.844 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.844   ⇒    Wheel Down (102,42)
+14:48:55.853 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.853   ⇒    Wheel Down (102,42)
+14:48:55.868 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.868   ⇒    Wheel Down (102,42)
+14:48:55.877 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.877   ⇒    Wheel Down (102,42)
+14:48:55.885 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.885   ⇒    Wheel Down (102,42)
+14:48:55.898 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.898   ⇒    Wheel Down (102,42)
+14:48:55.910 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.910   ⇒    Wheel Down (102,42)
+14:48:55.918 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.918   ⇒    Wheel Down (102,42)
+14:48:55.927 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.927   ⇒    Wheel Down (102,42)
+14:48:55.935 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.935   ⇒    Wheel Down (102,42)
+14:48:55.943 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.943   ⇒    Wheel Down (102,42)
+14:48:55.960 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.960   ⇒    Wheel Down (102,42)
+14:48:55.977 MOUSE  (102, 42) btn=WheelDown    mod=-
+14:48:55.977   ⇒    Wheel Down (102,42)
+14:48:55.985 MOUSE  (102, 41) btn=WheelDown    mod=-
+14:48:55.985   ⇒    Wheel Down (102,41)
+14:48:55.994 MOUSE  (102, 41) btn=WheelDown    mod=-
+14:48:55.994   ⇒    Wheel Down (102,41)
+14:48:56.002 MOUSE  (103, 41) btn=WheelDown    mod=-
+14:48:56.002   ⇒    Wheel Down (103,41)
+14:48:56.010 MOUSE  (103, 40) btn=WheelDown    mod=-
+14:48:56.010   ⇒    Wheel Down (103,40)
+14:48:56.027 MOUSE  (103, 39) btn=WheelDown    mod=-
+14:48:56.027   ⇒    Wheel Down (103,39)
+14:48:56.035 MOUSE  (103, 39) btn=WheelDown    mod=-
+14:48:56.035   ⇒    Wheel Down (103,39)
+14:48:56.043 MOUSE  (103, 39) btn=WheelDown    mod=-
+14:48:56.043   ⇒    Wheel Down (103,39)
+14:48:56.060 MOUSE  (103, 39) btn=WheelDown    mod=-
+14:48:56.060   ⇒    Wheel Down (103,39)
+14:48:56.061 MOUSE  (103, 39) btn=WheelDown    mod=-
+14:48:56.061   ⇒    Wheel Down (103,39)
+14:48:56.069 MOUSE  (103, 39) btn=WheelDown    mod=-
+14:48:56.069   ⇒    Wheel Down (103,39)
+14:48:56.093 MOUSE  (103, 39) btn=WheelDown    mod=-
+14:48:56.093   ⇒    Wheel Down (103,39)
+14:48:56.102 MOUSE  (103, 38) btn=WheelDown    mod=-
+14:48:56.102   ⇒    Wheel Down (103,38)
+14:48:56.127 MOUSE  (104, 38) btn=WheelDown    mod=-
+14:48:56.127   ⇒    Wheel Down (104,38)
+14:48:56.360 MOUSE  (212, 41) btn=WheelUp      mod=-
+14:48:56.360   ⇒    Wheel Up (212,41)
+14:48:56.362 MOUSE  (212, 41) btn=WheelUp      mod=-
+14:48:56.362   ⇒    Wheel Up (212,41)
+14:48:56.377 MOUSE  (213, 41) btn=WheelUp      mod=-
+14:48:56.377   ⇒    Wheel Up (213,41)
+14:48:56.385 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.385   ⇒    Wheel Up (214,41)
+14:48:56.394 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.394   ⇒    Wheel Up (214,41)
+14:48:56.402 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.402   ⇒    Wheel Up (214,41)
+14:48:56.410 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.411   ⇒    Wheel Up (214,41)
+14:48:56.418 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.418   ⇒    Wheel Up (214,41)
+14:48:56.432 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.432   ⇒    Wheel Up (214,41)
+14:48:56.436 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.436   ⇒    Wheel Up (214,41)
+14:48:56.444 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.444   ⇒    Wheel Up (214,41)
+14:48:56.460 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.460   ⇒    Wheel Up (214,41)
+14:48:56.468 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.468   ⇒    Wheel Up (214,41)
+14:48:56.477 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.477   ⇒    Wheel Up (214,41)
+14:48:56.493 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.493   ⇒    Wheel Up (214,41)
+14:48:56.502 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.502   ⇒    Wheel Up (214,41)
+14:48:56.510 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.510   ⇒    Wheel Up (214,41)
+14:48:56.518 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.518   ⇒    Wheel Up (214,41)
+14:48:56.535 MOUSE  (214, 41) btn=WheelUp      mod=-
+14:48:56.535   ⇒    Wheel Up (214,41)
+14:48:56.560 MOUSE  (215, 42) btn=WheelUp      mod=-
+14:48:56.560   ⇒    Wheel Up (215,42)
+14:48:56.635 MOUSE  (219, 42) btn=WheelUp      mod=-
+14:48:56.635   ⇒    Wheel Up (219,42)
+14:48:56.644 MOUSE  (221, 42) btn=WheelUp      mod=-
+14:48:56.644   ⇒    Wheel Up (221,42)
+14:48:56.652 MOUSE  (226, 41) btn=WheelUp      mod=-
+14:48:56.652   ⇒    Wheel Up (226,41)
+14:48:56.660 MOUSE  (227, 41) btn=WheelUp      mod=-
+14:48:56.660   ⇒    Wheel Up (227,41)
+14:48:56.662 MOUSE  (229, 41) btn=WheelUp      mod=-
+14:48:56.662   ⇒    Wheel Up (229,41)
+14:48:56.677 MOUSE  (231, 41) btn=WheelUp      mod=-
+14:48:56.677   ⇒    Wheel Up (231,41)
+14:48:56.685 MOUSE  (233, 41) btn=WheelUp      mod=-
+14:48:56.685   ⇒    Wheel Up (233,41)
+14:48:56.693 MOUSE  (235, 41) btn=WheelUp      mod=-
+14:48:56.693   ⇒    Wheel Up (235,41)
+14:48:56.718 MOUSE  (240, 41) btn=WheelUp      mod=-
+14:48:56.718   ⇒    Wheel Up (240,41)
+14:48:56.727 MOUSE  (242, 41) btn=WheelUp      mod=-
+14:48:56.727   ⇒    Wheel Up (242,41)
+14:48:56.728 MOUSE  (246, 41) btn=WheelUp      mod=-
+14:48:56.728   ⇒    Wheel Up (246,41)
+14:48:56.735 MOUSE  (247, 41) btn=WheelUp      mod=-
+14:48:56.735   ⇒    Wheel Up (247,41)
+14:48:56.752 MOUSE  (248, 41) btn=WheelUp      mod=-
+14:48:56.752   ⇒    Wheel Up (248,41)
+14:48:56.753 MOUSE  (249, 41) btn=WheelUp      mod=-
+14:48:56.753   ⇒    Wheel Up (249,41)
+14:48:56.769 MOUSE  (251, 41) btn=WheelUp      mod=-
+14:48:56.769   ⇒    Wheel Up (251,41)
+14:48:56.777 MOUSE  (252, 41) btn=WheelUp      mod=-
+14:48:56.777   ⇒    Wheel Up (252,41)
+14:48:56.785 MOUSE  (252, 41) btn=WheelUp      mod=-
+14:48:56.785   ⇒    Wheel Up (252,41)
+14:48:56.802 MOUSE  (254, 41) btn=WheelUp      mod=-
+14:48:56.802   ⇒    Wheel Up (254,41)
+14:48:56.810 MOUSE  (254, 41) btn=WheelUp      mod=-
+14:48:56.810   ⇒    Wheel Up (254,41)
+14:48:56.827 MOUSE  (253, 41) btn=WheelUp      mod=-
+14:48:56.827   ⇒    Wheel Up (253,41)
+14:48:56.835 MOUSE  (252, 41) btn=WheelUp      mod=-
+14:48:56.835   ⇒    Wheel Up (252,41)
+14:48:56.860 MOUSE  (251, 41) btn=WheelUp      mod=-
+14:48:56.860   ⇒    Wheel Up (251,41)
+14:48:56.868 MOUSE  (251, 41) btn=WheelUp      mod=-
+14:48:56.868   ⇒    Wheel Up (251,41)
+14:49:03.500 MOUSE  (103, 24) btn=Left         mod=-
+14:49:03.602 MOUSE  (103, 24) btn=none         mod=-
+14:49:03.602   ⇒    Click single Left (103,24)
+14:49:04.077 MOUSE  (101, 26) btn=Left         mod=-
+14:49:04.093 MOUSE  (101, 27) btn=Left         mod=-
+14:49:04.093   ⇒    DragStart Left (101,26)->(101,27)
+14:49:04.102 MOUSE  (100, 27) btn=Left         mod=-  [드래그 중]
+14:49:04.111 MOUSE  (100, 28) btn=Left         mod=-  [드래그 중]
+14:49:04.135 MOUSE  (100, 29) btn=Left         mod=-  [드래그 중]
+14:49:04.152 MOUSE  (100, 30) btn=Left         mod=-  [드래그 중]
+14:49:04.161 MOUSE  ( 99, 31) btn=Left         mod=-  [드래그 중]
+14:49:04.177 MOUSE  ( 99, 33) btn=Left         mod=-  [드래그 중]
+14:49:04.185 MOUSE  ( 98, 34) btn=Left         mod=-  [드래그 중]
+14:49:04.202 MOUSE  ( 98, 35) btn=Left         mod=-  [드래그 중]
+14:49:04.210 MOUSE  ( 98, 36) btn=Left         mod=-  [드래그 중]
+14:49:04.218 MOUSE  ( 99, 37) btn=Left         mod=-  [드래그 중]
+14:49:04.235 MOUSE  ( 99, 38) btn=Left         mod=-  [드래그 중]
+14:49:04.260 MOUSE  ( 99, 38) btn=none         mod=-
+14:49:04.260   ⇒    DragEnd Left (101,26)->(99,38)
+14:49:08.461 MOUSE  ( 98, 17) btn=Left         mod=-
+14:49:08.536 MOUSE  ( 98, 17) btn=none         mod=-
+14:49:08.536   ⇒    Click single Left (98,17)
+14:49:16.754 MOUSE  ( 98, 17) btn=Left         mod=-
+14:49:16.844 MOUSE  ( 98, 17) btn=none         mod=-
+14:49:16.844   ⇒    Click single Left (98,17)
+14:49:17.737 FOCUS  창 포커스 잃음
+14:49:22.159 FOCUS  창 포커스 얻음
+14:49:23.491 MOUSE  ( 72,  9) btn=Left         mod=-
+14:49:23.548 MOUSE  ( 72,  9) btn=none         mod=-
+14:49:23.548   ⇒    Click single Left (72,9)
+14:49:29.294 KEY    Ctrl+Rune[ㅊ]  key=256  rune='ㅊ' U+314A mod=Ctrl
+14:49:30.046 MOUSE  (108, 48) btn=Left         mod=-
+14:49:30.129 MOUSE  (108, 48) btn=none         mod=-
+14:49:30.129   ⇒    Click single Left (108,48)
+14:49:30.365 MOUSE  (110, 48) btn=WheelDown    mod=-
+14:49:30.365   ⇒    Wheel Down (110,48)
+14:49:30.374 MOUSE  (110, 48) btn=WheelDown    mod=-
+14:49:30.374   ⇒    Wheel Down (110,48)
+14:49:30.615 MOUSE  (109, 47) btn=WheelDown    mod=-
+14:49:30.615   ⇒    Wheel Down (109,47)
+14:49:30.632 MOUSE  (109, 47) btn=WheelDown    mod=-
+14:49:30.632   ⇒    Wheel Down (109,47)
+14:49:30.648 MOUSE  (110, 47) btn=WheelDown    mod=-
+14:49:30.648   ⇒    Wheel Down (110,47)
+14:49:30.657 MOUSE  (110, 47) btn=WheelDown    mod=-
+14:49:30.657   ⇒    Wheel Down (110,47)
+14:49:30.665 MOUSE  (110, 47) btn=WheelDown    mod=-
+14:49:30.665   ⇒    Wheel Down (110,47)
+14:49:30.689 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.690   ⇒    Wheel Down (111,47)
+14:49:30.698 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.698   ⇒    Wheel Down (111,47)
+14:49:30.699 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.699   ⇒    Wheel Down (111,47)
+14:49:30.714 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.714   ⇒    Wheel Down (111,47)
+14:49:30.716 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.716   ⇒    Wheel Down (111,47)
+14:49:30.723 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.723   ⇒    Wheel Down (111,47)
+14:49:30.731 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.731   ⇒    Wheel Down (111,47)
+14:49:30.739 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.739   ⇒    Wheel Down (111,47)
+14:49:30.748 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.748   ⇒    Wheel Down (111,47)
+14:49:30.756 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.756   ⇒    Wheel Down (111,47)
+14:49:30.773 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.773   ⇒    Wheel Down (111,47)
+14:49:30.798 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.798   ⇒    Wheel Down (111,47)
+14:49:30.806 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.806   ⇒    Wheel Down (111,47)
+14:49:30.865 MOUSE  (110, 47) btn=WheelDown    mod=-
+14:49:30.865   ⇒    Wheel Down (110,47)
+14:49:30.881 MOUSE  (110, 47) btn=WheelDown    mod=-
+14:49:30.881   ⇒    Wheel Down (110,47)
+14:49:30.890 MOUSE  (110, 47) btn=WheelDown    mod=-
+14:49:30.890   ⇒    Wheel Down (110,47)
+14:49:30.898 MOUSE  (110, 47) btn=WheelDown    mod=-
+14:49:30.898   ⇒    Wheel Down (110,47)
+14:49:30.907 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.907   ⇒    Wheel Down (111,47)
+14:49:30.915 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.915   ⇒    Wheel Down (111,47)
+14:49:30.923 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.923   ⇒    Wheel Down (111,47)
+14:49:30.939 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.939   ⇒    Wheel Down (111,47)
+14:49:30.948 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.948   ⇒    Wheel Down (111,47)
+14:49:30.956 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.956   ⇒    Wheel Down (111,47)
+14:49:30.973 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.973   ⇒    Wheel Down (111,47)
+14:49:30.981 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.981   ⇒    Wheel Down (111,47)
+14:49:30.990 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.990   ⇒    Wheel Down (111,47)
+14:49:30.998 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:30.998   ⇒    Wheel Down (111,47)
+14:49:31.014 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.014   ⇒    Wheel Down (111,47)
+14:49:31.023 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.023   ⇒    Wheel Down (111,47)
+14:49:31.031 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.031   ⇒    Wheel Down (111,47)
+14:49:31.039 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.039   ⇒    Wheel Down (111,47)
+14:49:31.057 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.057   ⇒    Wheel Down (111,47)
+14:49:31.073 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.073   ⇒    Wheel Down (111,47)
+14:49:31.095 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.095   ⇒    Wheel Down (111,47)
+14:49:31.115 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.115   ⇒    Wheel Down (111,47)
+14:49:31.131 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.131   ⇒    Wheel Down (111,47)
+14:49:31.156 MOUSE  (110, 47) btn=WheelDown    mod=-
+14:49:31.156   ⇒    Wheel Down (110,47)
+14:49:31.165 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.165   ⇒    Wheel Down (111,47)
+14:49:31.181 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.181   ⇒    Wheel Down (111,47)
+14:49:31.189 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.189   ⇒    Wheel Down (111,47)
+14:49:31.198 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.198   ⇒    Wheel Down (111,47)
+14:49:31.206 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.206   ⇒    Wheel Down (111,47)
+14:49:31.214 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.214   ⇒    Wheel Down (111,47)
+14:49:31.216 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.216   ⇒    Wheel Down (111,47)
+14:49:31.231 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.231   ⇒    Wheel Down (111,47)
+14:49:31.240 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.240   ⇒    Wheel Down (111,47)
+14:49:31.248 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.248   ⇒    Wheel Down (111,47)
+14:49:31.264 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.264   ⇒    Wheel Down (111,47)
+14:49:31.273 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.273   ⇒    Wheel Down (111,47)
+14:49:31.281 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.281   ⇒    Wheel Down (111,47)
+14:49:31.298 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.298   ⇒    Wheel Down (111,47)
+14:49:31.299 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.299   ⇒    Wheel Down (111,47)
+14:49:31.306 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.306   ⇒    Wheel Down (111,47)
+14:49:31.320 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.320   ⇒    Wheel Down (111,47)
+14:49:31.329 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.329   ⇒    Wheel Down (111,47)
+14:49:31.348 MOUSE  (111, 47) btn=WheelDown    mod=-
+14:49:31.348   ⇒    Wheel Down (111,47)
+14:49:31.551 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.551   ⇒    Wheel Up (111,47)
+14:49:31.604 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.604   ⇒    Wheel Up (111,47)
+14:49:31.614 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.614   ⇒    Wheel Up (111,47)
+14:49:31.633 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.633   ⇒    Wheel Up (111,47)
+14:49:31.840 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.840   ⇒    Wheel Up (111,47)
+14:49:31.865 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.865   ⇒    Wheel Up (111,47)
+14:49:31.890 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.890   ⇒    Wheel Up (111,47)
+14:49:31.891 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.891   ⇒    Wheel Up (111,47)
+14:49:31.899 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.899   ⇒    Wheel Up (111,47)
+14:49:31.915 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.915   ⇒    Wheel Up (111,47)
+14:49:31.923 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.923   ⇒    Wheel Up (111,47)
+14:49:31.931 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.931   ⇒    Wheel Up (111,47)
+14:49:31.943 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.943   ⇒    Wheel Up (111,47)
+14:49:31.948 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.949   ⇒    Wheel Up (111,47)
+14:49:31.956 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.956   ⇒    Wheel Up (111,47)
+14:49:31.973 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.973   ⇒    Wheel Up (111,47)
+14:49:31.981 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:31.981   ⇒    Wheel Up (111,47)
+14:49:32.000 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:32.000   ⇒    Wheel Up (111,47)
+14:49:32.007 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:32.007   ⇒    Wheel Up (111,47)
+14:49:32.031 MOUSE  (111, 47) btn=WheelUp      mod=-
+14:49:32.031   ⇒    Wheel Up (111,47)
+14:49:32.106 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.106   ⇒    Wheel Up (110,47)
+14:49:32.115 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.115   ⇒    Wheel Up (110,47)
+14:49:32.123 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.123   ⇒    Wheel Up (110,47)
+14:49:32.131 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.131   ⇒    Wheel Up (110,47)
+14:49:32.153 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.153   ⇒    Wheel Up (110,47)
+14:49:32.154 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.154   ⇒    Wheel Up (110,47)
+14:49:32.164 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.164   ⇒    Wheel Up (110,47)
+14:49:32.173 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.173   ⇒    Wheel Up (110,47)
+14:49:32.181 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.181   ⇒    Wheel Up (110,47)
+14:49:32.190 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.190   ⇒    Wheel Up (110,47)
+14:49:32.198 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.198   ⇒    Wheel Up (110,47)
+14:49:32.223 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.223   ⇒    Wheel Up (110,47)
+14:49:32.248 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.248   ⇒    Wheel Up (110,47)
+14:49:32.256 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.256   ⇒    Wheel Up (110,47)
+14:49:32.323 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.323   ⇒    Wheel Up (110,47)
+14:49:32.339 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.339   ⇒    Wheel Up (110,47)
+14:49:32.348 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.348   ⇒    Wheel Up (110,47)
+14:49:32.364 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.364   ⇒    Wheel Up (110,47)
+14:49:32.373 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.373   ⇒    Wheel Up (110,47)
+14:49:32.381 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.381   ⇒    Wheel Up (110,47)
+14:49:32.412 MOUSE  (110, 47) btn=WheelUp      mod=-
+14:49:32.412   ⇒    Wheel Up (110,47)
+14:49:33.459 KEY    Ctrl+C         key=67   rune=- mod=Ctrl
+14:49:33.459 INFO   한 번 더 Ctrl+C를 누르면 종료합니다
+14:49:34.580 KEY    Ctrl+C         key=67   rune=- mod=Ctrl

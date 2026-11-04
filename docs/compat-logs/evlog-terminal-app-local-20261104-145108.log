@@ -1,0 +1,140 @@
+# tuidesk evlog 2026-11-04T14:51:08+09:00
+# label=terminal-app-local host=yusanghun-ui-MacBookPro.local os=darwin/arm64 ssh=false
+# TERM="xterm-256color"
+# COLORTERM="truecolor"
+# TERM_PROGRAM="Apple_Terminal"
+# TERM_PROGRAM_VERSION="470.2"
+# LC_TERMINAL=""
+# LC_TERMINAL_VERSION=""
+# LANG="ko_KR.UTF-8"
+# LC_ALL=""
+# LC_CTYPE=""
+# RUNEWIDTH_EASTASIAN=""
+# TMUX=""
+# STY=""
+# colors=16777216 size=195x49 mouse=drag(1002) dblclick=400ms ambiguousWide=false
+14:51:08.947 RESIZE 195x49
+14:51:10.033 MOUSE  ( 80, 20) btn=Left         mod=-
+14:51:10.113 MOUSE  ( 80, 20) btn=none         mod=-
+14:51:10.113   ⇒    Click single Left (80,20)
+14:51:11.672 MOUSE  (  2,  3) btn=Left         mod=-
+14:51:11.710 MOUSE  (  1,  3) btn=Left         mod=-
+14:51:11.710   ⇒    DragStart Left (2,3)->(1,3)
+14:51:11.806 MOUSE  (  1,  3) btn=none         mod=-
+14:51:11.806   ⇒    DragEnd Left (2,3)->(1,3)
+14:51:12.298 MOUSE  ( 14, 17) btn=Left         mod=-
+14:51:12.298 MOUSE  ( 15, 18) btn=Left         mod=-
+14:51:12.298   ⇒    DragStart Left (14,17)->(15,18)
+14:51:12.310 MOUSE  ( 16, 18) btn=Left         mod=-  [드래그 중]
+14:51:12.319 MOUSE  ( 16, 19) btn=Left         mod=-  [드래그 중]
+14:51:12.327 MOUSE  ( 17, 19) btn=Left         mod=-  [드래그 중]
+14:51:12.344 MOUSE  ( 18, 19) btn=Left         mod=-  [드래그 중]
+14:51:12.352 MOUSE  ( 18, 20) btn=Left         mod=-  [드래그 중]
+14:51:12.360 MOUSE  ( 20, 20) btn=Left         mod=-  [드래그 중]
+14:51:12.368 MOUSE  ( 21, 21) btn=Left         mod=-  [드래그 중]
+14:51:12.377 MOUSE  ( 22, 21) btn=Left         mod=-  [드래그 중]
+14:51:12.385 MOUSE  ( 24, 22) btn=Left         mod=-  [드래그 중]
+14:51:12.393 MOUSE  ( 25, 22) btn=Left         mod=-  [드래그 중]
+14:51:12.402 MOUSE  ( 27, 23) btn=Left         mod=-  [드래그 중]
+14:51:12.410 MOUSE  ( 29, 24) btn=Left         mod=-  [드래그 중]
+14:51:12.418 MOUSE  ( 32, 24) btn=Left         mod=-  [드래그 중]
+14:51:12.427 MOUSE  ( 37, 26) btn=Left         mod=-  [드래그 중]
+14:51:12.435 MOUSE  ( 40, 26) btn=Left         mod=-  [드래그 중]
+14:51:12.443 MOUSE  ( 43, 27) btn=Left         mod=-  [드래그 중]
+14:51:12.452 MOUSE  ( 46, 28) btn=Left         mod=-  [드래그 중]
+14:51:12.460 MOUSE  ( 50, 28) btn=Left         mod=-  [드래그 중]
+14:51:12.468 MOUSE  ( 53, 29) btn=Left         mod=-  [드래그 중]
+14:51:12.477 MOUSE  ( 57, 30) btn=Left         mod=-  [드래그 중]
+14:51:12.485 MOUSE  ( 61, 30) btn=Left         mod=-  [드래그 중]
+14:51:12.493 MOUSE  ( 64, 31) btn=Left         mod=-  [드래그 중]
+14:51:12.502 MOUSE  ( 69, 31) btn=Left         mod=-  [드래그 중]
+14:51:12.510 MOUSE  ( 78, 32) btn=Left         mod=-  [드래그 중]
+14:51:12.518 MOUSE  ( 82, 32) btn=Left         mod=-  [드래그 중]
+14:51:12.527 MOUSE  ( 86, 32) btn=Left         mod=-  [드래그 중]
+14:51:12.535 MOUSE  ( 90, 33) btn=Left         mod=-  [드래그 중]
+14:51:12.543 MOUSE  ( 93, 33) btn=Left         mod=-  [드래그 중]
+14:51:12.552 MOUSE  ( 97, 33) btn=Left         mod=-  [드래그 중]
+14:51:12.560 MOUSE  (100, 33) btn=Left         mod=-  [드래그 중]
+14:51:12.568 MOUSE  (103, 33) btn=Left         mod=-  [드래그 중]
+14:51:12.576 MOUSE  (109, 34) btn=Left         mod=-  [드래그 중]
+14:51:12.585 MOUSE  (112, 34) btn=Left         mod=-  [드래그 중]
+14:51:12.593 MOUSE  (116, 35) btn=Left         mod=-  [드래그 중]
+14:51:12.602 MOUSE  (119, 35) btn=Left         mod=-  [드래그 중]
+14:51:12.610 MOUSE  (122, 35) btn=Left         mod=-  [드래그 중]
+14:51:12.618 MOUSE  (124, 35) btn=Left         mod=-  [드래그 중]
+14:51:12.627 MOUSE  (127, 36) btn=Left         mod=-  [드래그 중]
+14:51:12.635 MOUSE  (129, 36) btn=Left         mod=-  [드래그 중]
+14:51:12.643 MOUSE  (132, 36) btn=Left         mod=-  [드래그 중]
+14:51:12.652 MOUSE  (136, 36) btn=Left         mod=-  [드래그 중]
+14:51:12.660 MOUSE  (138, 36) btn=Left         mod=-  [드래그 중]
+14:51:12.668 MOUSE  (140, 36) btn=Left         mod=-  [드래그 중]
+14:51:12.677 MOUSE  (142, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.685 MOUSE  (144, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.693 MOUSE  (146, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.702 MOUSE  (147, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.710 MOUSE  (150, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.718 MOUSE  (152, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.726 MOUSE  (154, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.735 MOUSE  (156, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.746 MOUSE  (158, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.752 MOUSE  (160, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.760 MOUSE  (161, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.768 MOUSE  (162, 37) btn=Left         mod=-  [드래그 중]
+14:51:12.781 MOUSE  (162, 36) btn=Left         mod=-  [드래그 중]
+14:51:12.789 MOUSE  (163, 36) btn=Left         mod=-  [드래그 중]
+14:51:12.827 MOUSE  (163, 35) btn=Left         mod=-  [드래그 중]
+14:51:12.852 MOUSE  (163, 34) btn=Left         mod=-  [드래그 중]
+14:51:12.868 MOUSE  (164, 33) btn=Left         mod=-  [드래그 중]
+14:51:12.885 MOUSE  (164, 32) btn=Left         mod=-  [드래그 중]
+14:51:12.893 MOUSE  (164, 31) btn=Left         mod=-  [드래그 중]
+14:51:12.901 MOUSE  (165, 30) btn=Left         mod=-  [드래그 중]
+14:51:12.910 MOUSE  (165, 29) btn=Left         mod=-  [드래그 중]
+14:51:12.918 MOUSE  (166, 28) btn=Left         mod=-  [드래그 중]
+14:51:12.927 MOUSE  (167, 27) btn=Left         mod=-  [드래그 중]
+14:51:12.935 MOUSE  (167, 26) btn=Left         mod=-  [드래그 중]
+14:51:12.943 MOUSE  (168, 25) btn=Left         mod=-  [드래그 중]
+14:51:12.952 MOUSE  (168, 24) btn=Left         mod=-  [드래그 중]
+14:51:12.960 MOUSE  (169, 23) btn=Left         mod=-  [드래그 중]
+14:51:12.977 MOUSE  (169, 23) btn=none         mod=-
+14:51:12.977   ⇒    DragEnd Left (14,17)->(169,23)
+14:51:13.177 MOUSE  (169, 22) btn=Left         mod=-
+14:51:13.272 MOUSE  (169, 22) btn=none         mod=-
+14:51:13.272   ⇒    Click single Left (169,22)
+14:51:13.490 MOUSE  (169, 22) btn=Right        mod=-
+14:51:13.606 MOUSE  (169, 22) btn=none         mod=-
+14:51:13.606   ⇒    Click single Right (169,22)
+14:51:20.099 MOUSE  ( 86, 27) btn=Left         mod=-
+14:51:20.168 MOUSE  ( 86, 27) btn=none         mod=-
+14:51:20.169   ⇒    Click single Left (86,27)
+14:51:20.385 KEY    Rune[ ]        key=256  rune=' ' U+0020 mod=-
+14:51:20.907 KEY    Rune[ ]        key=256  rune=' ' U+0020 mod=-
+14:51:21.114 KEY    Rune[ ]        key=256  rune=' ' U+0020 mod=-
+14:51:21.308 KEY    Rune[ ]        key=256  rune=' ' U+0020 mod=-
+14:51:21.490 KEY    Rune[ ]        key=256  rune=' ' U+0020 mod=-
+14:51:21.675 KEY    Rune[ ]        key=256  rune=' ' U+0020 mod=-
+14:51:21.840 KEY    Rune[ ]        key=256  rune=' ' U+0020 mod=-
+14:51:22.132 MOUSE  ( 86, 28) btn=Left         mod=-
+14:51:22.177 MOUSE  ( 85, 28) btn=Left         mod=-
+14:51:22.177   ⇒    DragStart Left (86,28)->(85,28)
+14:51:22.238 MOUSE  ( 85, 28) btn=none         mod=-
+14:51:22.239   ⇒    DragEnd Left (86,28)->(85,28)
+14:51:22.639 KEY    Rune[ㅊ]       key=256  rune='ㅊ' U+314A mod=-
+14:51:22.929 KEY    Rune[ㅇ]       key=256  rune='ㅇ' U+3147 mod=-
+14:51:23.044 KEY    Rune[ㅁ]       key=256  rune='ㅁ' U+3141 mod=-
+14:51:23.152 KEY    Rune[ㄴ]       key=256  rune='ㄴ' U+3134 mod=-
+14:51:23.281 KEY    Rune[ㅇ]       key=256  rune='ㅇ' U+3147 mod=-
+14:51:23.341 KEY    Rune[ㅁ]       key=256  rune='ㅁ' U+3141 mod=-
+14:51:23.448 KEY    Rune[ㄴ]       key=256  rune='ㄴ' U+3134 mod=-
+14:51:23.550 KEY    Rune[ㅇ]       key=256  rune='ㅇ' U+3147 mod=-
+14:51:23.581 KEY    Rune[ㅁ]       key=256  rune='ㅁ' U+3141 mod=-
+14:51:23.667 KEY    Rune[ㄴ]       key=256  rune='ㄴ' U+3134 mod=-
+14:51:23.883 KEY    Rune[ㅇ]       key=256  rune='ㅇ' U+3147 mod=-
+14:51:23.961 KEY    Rune[a]        key=256  rune='a' U+0061 mod=-
+14:51:24.036 KEY    Rune[s]        key=256  rune='s' U+0073 mod=-
+14:51:24.113 KEY    Rune[d]        key=256  rune='d' U+0064 mod=-
+14:51:24.230 KEY    Rune[a]        key=256  rune='a' U+0061 mod=-
+14:51:24.265 KEY    Rune[s]        key=256  rune='s' U+0073 mod=-
+14:51:24.371 KEY    Rune[d]        key=256  rune='d' U+0064 mod=-
+14:51:28.601 KEY    Ctrl+C         key=67   rune=- mod=Ctrl
+14:51:28.601 INFO   한 번 더 Ctrl+C를 누르면 종료합니다
+14:51:29.300 KEY    Ctrl+C         key=67   rune=- mod=Ctrl

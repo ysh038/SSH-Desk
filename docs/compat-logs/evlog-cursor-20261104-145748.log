@@ -1,0 +1,95 @@
+# tuidesk evlog 2026-11-04T14:57:48+09:00
+# label=iterm2 host=dev-server os=linux/amd64 ssh=true
+# TERM="xterm-256color"
+# COLORTERM="truecolor"
+# TERM_PROGRAM="vscode"
+# TERM_PROGRAM_VERSION="3.27.22"
+# LC_TERMINAL=""
+# LC_TERMINAL_VERSION=""
+# LANG="en_US.UTF-8"
+# LC_ALL=""
+# LC_CTYPE=""
+# RUNEWIDTH_EASTASIAN=""
+# TMUX=""
+# STY=""
+# colors=16777216 size=241x33 mouse=drag(1002) dblclick=400ms ambiguousWide=false
+14:57:48.728 RESIZE 241x33
+14:57:48.750 FOCUS  창 포커스 얻음
+14:57:50.800 MOUSE  (  1,  1) btn=Left         mod=-
+14:57:50.948 MOUSE  (  1,  1) btn=Left         mod=-
+14:57:50.966 MOUSE  (  2,  1) btn=Left         mod=-
+14:57:50.967   ⇒    DragStart Left (1,1)->(2,1)
+14:57:50.978 MOUSE  (  2,  2) btn=Left         mod=-  [드래그 중]
+14:57:50.987 MOUSE  (  4,  2) btn=Left         mod=-  [드래그 중]
+14:57:51.014 MOUSE  (  5,  2) btn=Left         mod=-  [드래그 중]
+14:57:51.020 MOUSE  (  6,  2) btn=Left         mod=-  [드래그 중]
+14:57:51.037 MOUSE  (  8,  2) btn=Left         mod=-  [드래그 중]
+14:57:51.055 MOUSE  (  9,  2) btn=Left         mod=-  [드래그 중]
+14:57:51.067 MOUSE  (  9,  3) btn=Left         mod=-  [드래그 중]
+14:57:51.087 MOUSE  ( 10,  3) btn=Left         mod=-  [드래그 중]
+14:57:51.516 MOUSE  ( 11,  3) btn=Left         mod=-  [드래그 중]
+14:57:51.527 MOUSE  ( 12,  3) btn=Left         mod=-  [드래그 중]
+14:57:51.538 MOUSE  ( 13,  3) btn=Left         mod=-  [드래그 중]
+14:57:51.548 MOUSE  ( 14,  3) btn=Left         mod=-  [드래그 중]
+14:57:51.555 MOUSE  ( 15,  4) btn=Left         mod=-  [드래그 중]
+14:57:51.567 MOUSE  ( 16,  4) btn=Left         mod=-  [드래그 중]
+14:57:51.622 MOUSE  ( 17,  4) btn=Left         mod=-  [드래그 중]
+14:57:51.636 MOUSE  ( 18,  4) btn=Left         mod=-  [드래그 중]
+14:57:51.646 MOUSE  ( 20,  5) btn=Left         mod=-  [드래그 중]
+14:57:51.657 MOUSE  ( 21,  5) btn=Left         mod=-  [드래그 중]
+14:57:51.668 MOUSE  ( 24,  5) btn=Left         mod=-  [드래그 중]
+14:57:51.676 MOUSE  ( 26,  6) btn=Left         mod=-  [드래그 중]
+14:57:51.688 MOUSE  ( 29,  6) btn=Left         mod=-  [드래그 중]
+14:57:51.698 MOUSE  ( 32,  7) btn=Left         mod=-  [드래그 중]
+14:57:51.707 MOUSE  ( 43,  9) btn=Left         mod=-  [드래그 중]
+14:57:51.717 MOUSE  ( 48,  9) btn=Left         mod=-  [드래그 중]
+14:57:51.727 MOUSE  ( 53, 10) btn=Left         mod=-  [드래그 중]
+14:57:51.737 MOUSE  ( 59, 11) btn=Left         mod=-  [드래그 중]
+14:57:51.748 MOUSE  ( 72, 12) btn=Left         mod=-  [드래그 중]
+14:57:51.758 MOUSE  ( 78, 13) btn=Left         mod=-  [드래그 중]
+14:57:51.768 MOUSE  ( 85, 14) btn=Left         mod=-  [드래그 중]
+14:57:51.779 MOUSE  ( 91, 15) btn=Left         mod=-  [드래그 중]
+14:57:51.787 MOUSE  (103, 17) btn=Left         mod=-  [드래그 중]
+14:57:51.796 MOUSE  (109, 18) btn=Left         mod=-  [드래그 중]
+14:57:51.806 MOUSE  (114, 18) btn=Left         mod=-  [드래그 중]
+14:57:51.818 MOUSE  (123, 19) btn=Left         mod=-  [드래그 중]
+14:57:51.826 MOUSE  (127, 20) btn=Left         mod=-  [드래그 중]
+14:57:51.838 MOUSE  (133, 20) btn=Left         mod=-  [드래그 중]
+14:57:51.849 MOUSE  (137, 20) btn=Left         mod=-  [드래그 중]
+14:57:51.857 MOUSE  (139, 20) btn=Left         mod=-  [드래그 중]
+14:57:51.868 MOUSE  (141, 20) btn=Left         mod=-  [드래그 중]
+14:57:51.878 MOUSE  (145, 20) btn=Left         mod=-  [드래그 중]
+14:57:51.887 MOUSE  (147, 20) btn=Left         mod=-  [드래그 중]
+14:57:51.908 MOUSE  (153, 21) btn=Left         mod=-  [드래그 중]
+14:57:51.916 MOUSE  (155, 21) btn=Left         mod=-  [드래그 중]
+14:57:51.929 MOUSE  (158, 21) btn=Left         mod=-  [드래그 중]
+14:57:51.937 MOUSE  (159, 21) btn=Left         mod=-  [드래그 중]
+14:57:51.948 MOUSE  (161, 21) btn=Left         mod=-  [드래그 중]
+14:57:51.958 MOUSE  (162, 21) btn=Left         mod=-  [드래그 중]
+14:57:51.966 MOUSE  (165, 21) btn=Left         mod=-  [드래그 중]
+14:57:51.977 MOUSE  (168, 21) btn=Left         mod=-  [드래그 중]
+14:57:51.997 MOUSE  (171, 22) btn=Left         mod=-  [드래그 중]
+14:57:52.008 MOUSE  (173, 22) btn=Left         mod=-  [드래그 중]
+14:57:52.018 MOUSE  (176, 23) btn=Left         mod=-  [드래그 중]
+14:57:52.029 MOUSE  (180, 23) btn=Left         mod=-  [드래그 중]
+14:57:52.038 MOUSE  (182, 23) btn=Left         mod=-  [드래그 중]
+14:57:52.048 MOUSE  (186, 24) btn=Left         mod=-  [드래그 중]
+14:57:52.057 MOUSE  (187, 24) btn=Left         mod=-  [드래그 중]
+14:57:52.067 MOUSE  (189, 24) btn=Left         mod=-  [드래그 중]
+14:57:52.078 MOUSE  (190, 24) btn=Left         mod=-  [드래그 중]
+14:57:52.087 MOUSE  (193, 24) btn=Left         mod=-  [드래그 중]
+14:57:52.098 MOUSE  (194, 24) btn=Left         mod=-  [드래그 중]
+14:57:52.107 MOUSE  (195, 25) btn=Left         mod=-  [드래그 중]
+14:57:52.117 MOUSE  (197, 25) btn=Left         mod=-  [드래그 중]
+14:57:52.127 MOUSE  (199, 25) btn=Left         mod=-  [드래그 중]
+14:57:52.227 MOUSE  (199, 25) btn=none         mod=-
+14:57:52.227   ⇒    DragEnd Left (1,1)->(199,25)
+14:57:52.775 MOUSE  ( 91, 16) btn=Right        mod=-
+14:57:54.169 MOUSE  ( 49, 23) btn=Left         mod=-
+14:57:54.669 MOUSE  ( 34, 24) btn=Right        mod=-
+14:57:55.695 MOUSE  ( 79, 19) btn=Left         mod=-
+14:57:56.916 KEY    Rune[d]        key=256  rune='d' U+0064 mod=-
+14:57:58.332 KEY    Backspace      key=8    rune=- mod=-
+14:57:59.680 KEY    Ctrl+C         key=67   rune=- mod=Ctrl
+14:57:59.680 INFO   한 번 더 Ctrl+C를 누르면 종료합니다
+14:58:00.481 KEY    Ctrl+C         key=67   rune=- mod=Ctrl

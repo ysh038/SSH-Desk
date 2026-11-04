@@ -3,3 +3,4 @@ evlog-*.log
 /tuidesk
 /evlog
 .DS_Store
+!docs/compat-logs/*.log
