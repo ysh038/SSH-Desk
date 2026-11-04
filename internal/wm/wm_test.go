@@ -3,6 +3,8 @@ package wm
 import (
 	"strings"
 	"testing"
+
+	"tuidesk/internal/term"
 )
 
 func full(c *Canvas) Rect { return Rect{0, 0, c.W, c.H} }
@@ -213,5 +215,159 @@ func TestFocusPrevUndoesFocusNext(t *testing.T) {
 		if before[i] != after[i] {
 			t.Fatalf("stack %v -> %v", before, after)
 		}
+	}
+}
+
+func wideManager() (*Manager, *Window, *Window) {
+	m := &Manager{Desktop: Rect{0, 1, 80, 22}}
+	a := &Window{Title: "A", Rect: Rect{2, 2, 30, 10}}
+	b := &Window{Title: "B", Rect: Rect{20, 6, 30, 10}}
+	m.Add(a)
+	m.Add(b)
+	return m, a, b
+}
+
+func TestAutoIDs(t *testing.T) {
+	_, a, b := wideManager()
+	if a.ID != 1 || b.ID != 2 {
+		t.Fatalf("ids %d %d", a.ID, b.ID)
+	}
+}
+
+func TestTitleButtonsHitTest(t *testing.T) {
+	m, _, b := wideManager()
+	// B spans x 20..49; buttons occupy the 9 columns before the right corner.
+	bx := 49 - 9
+	cases := map[int]Part{bx: PartMinimize, bx + 2: PartMinimize, bx + 3: PartMaximize, bx + 6: PartClose, bx + 8: PartClose, bx - 1: PartTitle}
+	for x, want := range cases {
+		if w, p := m.HitTest(x, 6); w != b || p != want {
+			t.Errorf("x=%d: part %v, want %v", x, p, want)
+		}
+	}
+	if _, p := m.HitTest(49, 15); p != PartResize {
+		t.Errorf("corner part = %v", p)
+	}
+}
+
+func TestTitleShownBesideButtons(t *testing.T) {
+	m, _, _ := wideManager()
+	c := NewCanvas(80, 23)
+	m.Draw(c)
+	if got := c.Row(6); !strings.Contains(got, "┌─ B ") || !strings.Contains(got, "[_][^][x]┐") {
+		t.Fatalf("row6 = %q", got)
+	}
+}
+
+func TestResizeByCornerDrag(t *testing.T) {
+	m, _, b := wideManager()
+	m.PointerDown(49, 15) // corner of B
+	m.PointerDrag(59, 18)
+	m.PointerUp()
+	if b.Rect.W != 40 || b.Rect.H != 13 {
+		t.Fatalf("B = %+v", b.Rect)
+	}
+	// Cannot shrink below the minimum size.
+	m.PointerDown(59, 18)
+	m.PointerDrag(0, 0)
+	m.PointerUp()
+	if b.Rect.W != 16 || b.Rect.H != 4 {
+		t.Fatalf("B = %+v, want min 16x4", b.Rect)
+	}
+}
+
+func TestResizeStopsAtDesktopEdge(t *testing.T) {
+	m, _, b := wideManager()
+	m.ResizeTo(b, 500, 500)
+	if b.Rect.X+b.Rect.W != 80 || b.Rect.Y+b.Rect.H != 23 {
+		t.Fatalf("B = %+v", b.Rect)
+	}
+}
+
+func TestMaximizeAndRestore(t *testing.T) {
+	m, _, b := wideManager()
+	orig := b.Rect
+	m.ToggleMaximize(b)
+	if b.Rect != m.Desktop || !b.Maximized {
+		t.Fatalf("B = %+v", b.Rect)
+	}
+	m.MoveBy(b, 5, 5) // ignored while maximized
+	if b.Rect != m.Desktop {
+		t.Fatal("maximized window moved")
+	}
+	m.ToggleMaximize(b)
+	if b.Rect != orig || b.Maximized {
+		t.Fatalf("restored to %+v, want %+v", b.Rect, orig)
+	}
+}
+
+func TestMinimizeMovesFocusAndHides(t *testing.T) {
+	m, a, b := wideManager()
+	m.Minimize(b)
+	if m.Focused() != a || m.Top() != a {
+		t.Fatal("focus should move to A")
+	}
+	if w, _ := m.HitTest(40, 12); w == b {
+		t.Fatal("minimized window must not be hit")
+	}
+	if len(m.Visible()) != 1 {
+		t.Fatal("B should be hidden")
+	}
+	m.Raise(b)
+	if b.Minimized || m.Focused() != b {
+		t.Fatal("Raise should restore B")
+	}
+}
+
+func TestFocusCyclingSkipsMinimized(t *testing.T) {
+	m, a, b := wideManager()
+	c := &Window{Title: "C", Rect: Rect{40, 3, 30, 6}}
+	m.Add(c)
+	m.Minimize(b)
+	m.FocusNext()
+	if m.Focused() != a {
+		t.Fatalf("next = %s", m.Focused().Title)
+	}
+	m.FocusPrev()
+	if m.Focused() != c {
+		t.Fatalf("prev = %s", m.Focused().Title)
+	}
+	if !b.Minimized {
+		t.Fatal("cycling must not restore minimized windows")
+	}
+}
+
+func TestRemove(t *testing.T) {
+	m, a, b := wideManager()
+	m.Remove(b)
+	if len(m.Windows()) != 1 || m.Focused() != a {
+		t.Fatal("remove failed")
+	}
+	m.Remove(a)
+	if m.Focused() != nil || m.Top() != nil {
+		t.Fatal("no windows should remain")
+	}
+}
+
+type fakeApp struct{ drawn bool }
+
+func (f *fakeApp) Title() string                { return "앱" }
+func (f *fakeApp) MinSize() (int, int)          { return 20, 5 }
+func (f *fakeApp) HandleEvent(term.Event) bool  { return false }
+func (f *fakeApp) Close() error                 { return nil }
+func (f *fakeApp) Draw(s Surface, focused bool) { f.drawn = true; s.Text(0, 0, "본문", StyleBody) }
+
+func TestAppDrawAndMinSize(t *testing.T) {
+	m := &Manager{Desktop: Rect{0, 0, 80, 24}}
+	app := &fakeApp{}
+	w := &Window{App: app, Rect: Rect{0, 0, 30, 10}}
+	m.Add(w)
+	c := NewCanvas(80, 24)
+	m.Draw(c)
+	if !app.drawn || !strings.HasPrefix(c.Row(1), "│본문") || !strings.Contains(c.Row(0), " 앱 ") {
+		t.Fatalf("rows: %q / %q", c.Row(0), c.Row(1))
+	}
+	m.ResizeTo(w, 1, 1)
+	if w.Rect.W != 22 || w.Rect.H != 7 {
+		t.Fatalf("min size not applied: %+v", w.Rect)
 	}
 }
