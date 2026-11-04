@@ -1,0 +1,25 @@
+# tuidesk evlog 2026-11-04T16:11:16+09:00
+# label=terminal-app host=dev-server os=linux/amd64 ssh=true
+# TERM="xterm-256color"
+# COLORTERM=""
+# TERM_PROGRAM=""
+# TERM_PROGRAM_VERSION=""
+# LC_TERMINAL=""
+# LC_TERMINAL_VERSION=""
+# LANG="en_US.UTF-8"
+# LC_ALL=""
+# LC_CTYPE=""
+# RUNEWIDTH_EASTASIAN=""
+# TMUX=""
+# STY=""
+# colors=256 size=195x49 mouse=drag(1002) dblclick=400ms ambiguousWide=false
+16:11:16.253 RESIZE 195x49
+16:11:17.275 MOUSE  ( 25, 21) btn=Left         mod=-
+16:11:17.363 MOUSE  ( 25, 21) btn=none         mod=-
+16:11:17.363   ⇒    Click single Left (25,21)
+16:11:17.693 MOUSE  ( 25, 21) btn=Right        mod=-
+16:11:17.806 MOUSE  ( 25, 21) btn=none         mod=-
+16:11:17.806   ⇒    Click single Right (25,21)
+16:11:19.225 KEY    Ctrl+C         key=67   rune=- mod=Ctrl
+16:11:19.225 INFO   한 번 더 Ctrl+C를 누르면 종료합니다
+16:11:19.436 KEY    Ctrl+C         key=67   rune=- mod=Ctrl

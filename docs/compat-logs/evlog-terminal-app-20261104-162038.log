@@ -1,0 +1,124 @@
+# tuidesk evlog 2026-11-04T16:20:38+09:00
+# label=terminal-app host=dev-server os=linux/amd64 ssh=true
+# TERM="xterm-256color"
+# COLORTERM=""
+# TERM_PROGRAM=""
+# TERM_PROGRAM_VERSION=""
+# LC_TERMINAL=""
+# LC_TERMINAL_VERSION=""
+# LANG="en_US.UTF-8"
+# LC_ALL=""
+# LC_CTYPE=""
+# RUNEWIDTH_EASTASIAN=""
+# TMUX=""
+# STY=""
+# colors=256 size=195x49 mouse=drag(1002) dblclick=400ms ambiguousWide=false
+16:20:38.819 RESIZE 195x49
+16:20:42.807 MOUSE  ( 27,  3) btn=Left         mod=-
+16:20:42.947 MOUSE  ( 27,  4) btn=Left         mod=-
+16:20:42.947   ⇒    DragStart Left (27,3)->(27,4)
+16:20:42.949 MOUSE  ( 28,  4) btn=Left         mod=-  [드래그 중]
+16:20:42.968 MOUSE  ( 29,  4) btn=Left         mod=-  [드래그 중]
+16:20:42.989 MOUSE  ( 30,  4) btn=Left         mod=-  [드래그 중]
+16:20:43.013 MOUSE  ( 31,  5) btn=Left         mod=-  [드래그 중]
+16:20:43.039 MOUSE  ( 32,  5) btn=Left         mod=-  [드래그 중]
+16:20:43.059 MOUSE  ( 33,  5) btn=Left         mod=-  [드래그 중]
+16:20:43.178 MOUSE  ( 34,  5) btn=Left         mod=-  [드래그 중]
+16:20:43.487 MOUSE  ( 34,  5) btn=none         mod=-
+16:20:43.487   ⇒    DragEnd Left (27,3)->(34,5)
+16:20:44.279 MOUSE  ( 30,  5) btn=Left         mod=-
+16:20:44.302 MOUSE  ( 31,  5) btn=Left         mod=-
+16:20:44.302   ⇒    DragStart Left (30,5)->(31,5)
+16:20:44.416 MOUSE  ( 31,  6) btn=Left         mod=-  [드래그 중]
+16:20:44.488 MOUSE  ( 31,  6) btn=none         mod=-
+16:20:44.488   ⇒    DragEnd Left (30,5)->(31,6)
+16:20:48.356 MOUSE  ( 11,  4) btn=Left         mod=-
+16:20:48.446 MOUSE  ( 12,  4) btn=Left         mod=-
+16:20:48.446   ⇒    DragStart Left (11,4)->(12,4)
+16:20:48.492 MOUSE  ( 13,  4) btn=Left         mod=-  [드래그 중]
+16:20:48.559 MOUSE  ( 13,  4) btn=none         mod=-
+16:20:48.559   ⇒    DragEnd Left (11,4)->(13,4)
+16:20:49.122 MOUSE  ( 45,  8) btn=Left         mod=-
+16:20:49.188 MOUSE  ( 45,  8) btn=none         mod=-
+16:20:49.188   ⇒    Click single Left (45,8)
+16:20:52.330 MOUSE  ( 40, 11) btn=Left         mod=-
+16:20:52.402 MOUSE  ( 40, 11) btn=none         mod=-
+16:20:52.402   ⇒    Click single Left (40,11)
+16:20:53.026 MOUSE  ( 40, 11) btn=Left         mod=-
+16:20:53.097 MOUSE  ( 40, 11) btn=none         mod=-
+16:20:53.097   ⇒    Click single Left (40,11)
+16:20:53.509 MOUSE  ( 52, 15) btn=Left         mod=-
+16:20:53.511 MOUSE  ( 53, 15) btn=Left         mod=-
+16:20:53.511   ⇒    DragStart Left (52,15)->(53,15)
+16:20:53.514 MOUSE  ( 54, 15) btn=Left         mod=-  [드래그 중]
+16:20:53.531 MOUSE  ( 55, 16) btn=Left         mod=-  [드래그 중]
+16:20:53.552 MOUSE  ( 56, 16) btn=Left         mod=-  [드래그 중]
+16:20:53.554 MOUSE  ( 57, 16) btn=Left         mod=-  [드래그 중]
+16:20:53.575 MOUSE  ( 57, 17) btn=Left         mod=-  [드래그 중]
+16:20:53.577 MOUSE  ( 58, 17) btn=Left         mod=-  [드래그 중]
+16:20:53.597 MOUSE  ( 59, 17) btn=Left         mod=-  [드래그 중]
+16:20:53.599 MOUSE  ( 59, 18) btn=Left         mod=-  [드래그 중]
+16:20:53.600 MOUSE  ( 60, 18) btn=Left         mod=-  [드래그 중]
+16:20:53.619 MOUSE  ( 61, 19) btn=Left         mod=-  [드래그 중]
+16:20:53.621 MOUSE  ( 63, 19) btn=Left         mod=-  [드래그 중]
+16:20:53.623 MOUSE  ( 64, 20) btn=Left         mod=-  [드래그 중]
+16:20:53.641 MOUSE  ( 65, 20) btn=Left         mod=-  [드래그 중]
+16:20:53.644 MOUSE  ( 65, 20) btn=none         mod=-
+16:20:53.644   ⇒    DragEnd Left (52,15)->(65,20)
+16:20:55.119 MOUSE  ( 37, 20) btn=Left         mod=-
+16:20:55.165 MOUSE  ( 38, 20) btn=Left         mod=-
+16:20:55.165   ⇒    DragStart Left (37,20)->(38,20)
+16:20:55.167 MOUSE  ( 38, 21) btn=Left         mod=-  [드래그 중]
+16:20:55.209 MOUSE  ( 39, 21) btn=Left         mod=-  [드래그 중]
+16:20:55.214 MOUSE  ( 40, 22) btn=Left         mod=-  [드래그 중]
+16:20:55.252 MOUSE  ( 41, 22) btn=Left         mod=-  [드래그 중]
+16:20:55.256 MOUSE  ( 42, 23) btn=Left         mod=-  [드래그 중]
+16:20:55.321 MOUSE  ( 42, 23) btn=none         mod=-
+16:20:55.321   ⇒    DragEnd Left (37,20)->(42,23)
+16:20:55.827 MOUSE  ( 29, 20) btn=Left         mod=-
+16:20:55.917 MOUSE  ( 30, 21) btn=Left         mod=-
+16:20:55.917   ⇒    DragStart Left (29,20)->(30,21)
+16:20:55.921 MOUSE  ( 31, 21) btn=Left         mod=-  [드래그 중]
+16:20:55.925 MOUSE  ( 33, 22) btn=Left         mod=-  [드래그 중]
+16:20:55.937 MOUSE  ( 34, 23) btn=Left         mod=-  [드래그 중]
+16:20:55.941 MOUSE  ( 35, 24) btn=Left         mod=-  [드래그 중]
+16:20:55.959 MOUSE  ( 37, 25) btn=Left         mod=-  [드래그 중]
+16:20:55.962 MOUSE  ( 38, 25) btn=Left         mod=-  [드래그 중]
+16:20:55.964 MOUSE  ( 41, 27) btn=Left         mod=-  [드래그 중]
+16:20:55.982 MOUSE  ( 42, 27) btn=Left         mod=-  [드래그 중]
+16:20:55.986 MOUSE  ( 43, 27) btn=Left         mod=-  [드래그 중]
+16:20:56.011 MOUSE  ( 43, 28) btn=Left         mod=-  [드래그 중]
+16:20:56.016 MOUSE  ( 44, 28) btn=Left         mod=-  [드래그 중]
+16:20:56.020 MOUSE  ( 45, 28) btn=Left         mod=-  [드래그 중]
+16:20:56.099 MOUSE  ( 45, 28) btn=none         mod=-
+16:20:56.099   ⇒    DragEnd Left (29,20)->(45,28)
+16:20:57.709 MOUSE  (109, 35) btn=Left         mod=-
+16:20:57.801 MOUSE  (109, 35) btn=none         mod=-
+16:20:57.801   ⇒    Click single Left (109,35)
+16:20:58.388 PASTE  ▶ bracketed paste 시작
+16:20:58.482 PASTE  ■ 끝: 35자(rune) 35바이트 1줄, 첫 줄="~/sanghoon && ./evlog -label iterm2"
+----- paste begin -----
+~/sanghoon && ./evlog -label iterm2
+----- paste end -----
+16:21:00.247 PASTE  ▶ bracketed paste 시작
+16:21:00.332 PASTE  ■ 끝: 35자(rune) 35바이트 1줄, 첫 줄="~/sanghoon && ./evlog -label iterm2"
+----- paste begin -----
+~/sanghoon && ./evlog -label iterm2
+----- paste end -----
+16:21:00.746 PASTE  ▶ bracketed paste 시작
+16:21:00.852 PASTE  ■ 끝: 35자(rune) 35바이트 1줄, 첫 줄="~/sanghoon && ./evlog -label iterm2"
+----- paste begin -----
+~/sanghoon && ./evlog -label iterm2
+----- paste end -----
+16:21:09.859 MOUSE  ( 77, 27) btn=Left         mod=-
+16:21:09.946 MOUSE  ( 77, 27) btn=none         mod=-
+16:21:09.946   ⇒    Click single Left (77,27)
+16:21:18.138 MOUSE  (101, 40) btn=Left         mod=-
+16:21:18.245 MOUSE  (101, 40) btn=none         mod=-
+16:21:18.245   ⇒    Click single Left (101,40)
+16:21:19.600 PASTE  ▶ bracketed paste 시작
+16:21:19.687 PASTE  ■ 끝: 35자(rune) 35바이트 1줄, 첫 줄="~/sanghoon && ./evlog -label iterm2"
+----- paste begin -----
+~/sanghoon && ./evlog -label iterm2
+----- paste end -----
+16:21:33.465 FOCUS  창 포커스 잃음
