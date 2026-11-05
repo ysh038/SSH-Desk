@@ -71,14 +71,16 @@ func (a *App) buildCommands() {
 		c("selectall", "Edit", "Select all", "", []string{"Ctrl+A"}, "", nil, func() { a.selectRange(0, len(a.view)-1) }),
 
 		// Go
+		c("back", "Go", "Back", "", []string{"Alt+Left", "Alt+B"}, "", func() bool { return len(a.back) > 0 }, a.goBack),
+		c("forward", "Go", "Forward", "", []string{"Alt+Right", "Alt+F"}, "", func() bool { return len(a.fwd) > 0 }, a.goForward),
 		c("up", "Go", "Parent folder", "", []string{"Alt+Up"}, "", nil, a.up),
 		c("goto", "Go", "Go to folder...", "", []string{"Ctrl+L"}, "", nil, a.promptPath),
 		c("home", "Go", "Home folder", "", nil, "", nil, func() {
 			if h, err := os.UserHomeDir(); err == nil {
-				a.navigate(h, "")
+				a.goTo(h, "")
 			}
 		}),
-		c("root", "Go", "Root folder (/)", "", nil, "", nil, func() { a.navigate("/", "") }),
+		c("root", "Go", "Root folder (/)", "", nil, "", nil, func() { a.goTo("/", "") }),
 
 		// View
 		c("refresh", "View", "Refresh", "", []string{"F5"}, "", nil, a.Refresh),

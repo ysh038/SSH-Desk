@@ -45,6 +45,7 @@ tuidesk는 서버(리눅스)에서 실행되므로 **사용자 PC의 터미널 �
 | 전체 선택 | Ctrl+A 🔶 | Ctrl+A 🔶 | Ctrl+A ✅ |
 | 처음/끝으로 | fn+←/→ 🔶 ※ | Home/End, Ctrl+Home/End 🔶 ※ | Home/End ✅ |
 | 상위 폴더 | delete(⌫), Option+↑ 🔶 | Backspace, Alt+↑ 🔶 | Backspace ✅ |
+| 뒤로 / 앞으로 (스크롤 위치 복원) | **Option+←/→**(→ Alt+B/F), 경로 줄의 `<` `>` 클릭 🔶 | Alt+←/→, 클릭 🔶 | Alt+←/→ |
 | 열기 | return, 더블클릭, Option+↓ 🔶 | Enter, 더블클릭, Alt+↓ 🔶 | Enter ✅ |
 | 이름 바꾸기 | fn+F2 🔶 | F2 🔶 | F2 ✅ |
 | 휴지통 | fn+delete(⌦) 🔶 | Delete 🔶 | Delete ✅ |
@@ -72,6 +73,7 @@ Cmd(Windows 키) 조합은 받을 수 없으므로 **PC 표준 키 + Mac에서 �
 | 전체 선택 | Ctrl+A | ⌃A (규칙 B: 명령은 ⌃) | Ctrl+A |
 | 저장 / 찾기 / 실행취소 | Ctrl+S / Ctrl+F / Ctrl+Z | 같음 | 같음 |
 | 복사 / 붙여넣기 | Ctrl+C / Ctrl+V, Win+V | Ctrl+C / Cmd+V | 같음 |
+| 선택한 글 옮기기 | 선택 영역을 끌어서 놓기(Ctrl/Alt를 누르고 놓으면 복사) 🔶 | 같음 🔶 | Ctrl+X → 이동 → Ctrl+V |
 
 - **PC 배열이라도 맥에 연결하면** Ctrl+←/→는 macOS가 가져가므로, 단어 이동은 Alt(=Option)+←/→로 합니다.
 - **Ctrl+A**: "명령은 ⌃" 규칙(ADR 0003 B)에 따라 전체 선택으로 정했습니다. 줄 처음은 fn←(Home)입니다.

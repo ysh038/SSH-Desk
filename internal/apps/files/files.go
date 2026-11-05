@@ -75,7 +75,26 @@ type App struct {
 	cols     []column
 	nameW    int
 	toggleX  [2]int // path-row "List|Icons" switch: x of "List", x of "Icons" (0,0: hidden)
+
+	// Back / Forward history; each place remembers cursor and scroll.
+	back, fwd  []place
+	wantOffset int // scroll position to restore after the next load (-1: none)
 }
+
+// place is a visited folder with the cursor and scroll position it had.
+type place struct {
+	dir, cursor string
+	offset      int
+}
+
+const maxHistory = 100
+
+// Path-row "<" and ">" buttons (Back, Forward); folder segments follow.
+const (
+	backX    = 1
+	forwardX = 3
+	pathX    = 6
+)
 
 // New opens a file manager on dir.
 func New(h host.Host, dir string) *App {
@@ -129,8 +148,49 @@ func (a *App) navigate(dir, cursorName string) {
 	a.cursor, a.offset, a.anchor = 0, 0, 0
 	a.renaming = nil
 	a.wantCur = cursorName
+	a.wantOffset = -1
 	a.entries, a.view = nil, nil
 	a.load()
+}
+
+// here is the current folder, cursor and scroll position.
+func (a *App) here() place {
+	p := place{dir: a.dir, offset: a.offset}
+	if e, ok := a.cursorEntry(); ok {
+		p.cursor = e.Name
+	}
+	return p
+}
+
+// goTo opens dir as a new step in the history (Back returns here).
+func (a *App) goTo(dir, cursorName string) {
+	if abs, err := filepath.Abs(dir); err == nil && abs == a.dir {
+		a.navigate(dir, cursorName)
+		return
+	}
+	a.back = append(a.back, a.here())
+	if len(a.back) > maxHistory {
+		a.back = a.back[1:]
+	}
+	a.fwd = nil
+	a.navigate(dir, cursorName)
+}
+
+// goBack returns to the previous folder with its cursor and scroll position.
+func (a *App) goBack() { a.travel(&a.back, &a.fwd) }
+
+// goForward undoes a goBack.
+func (a *App) goForward() { a.travel(&a.fwd, &a.back) }
+
+func (a *App) travel(from, to *[]place) {
+	if len(*from) == 0 {
+		return
+	}
+	p := (*from)[len(*from)-1]
+	*from = (*from)[:len(*from)-1]
+	*to = append(*to, a.here())
+	a.navigate(p.dir, p.cursor)
+	a.wantOffset = p.offset
 }
 
 func (a *App) load() {
@@ -187,6 +247,14 @@ func (a *App) setEntries(es []fsops.Entry) {
 	if a.wantCur != "" {
 		a.moveCursorTo(a.wantCur)
 		a.wantCur = ""
+	}
+	if a.wantOffset >= 0 { // Back/Forward: the scroll position the folder had
+		n := a.ncols()
+		a.offset = a.clampOffsetRow(a.wantOffset/n) * n
+		a.wantOffset = -1
+		if or, cr := a.offset/n, a.cursor/n; cr < or || cr >= or+a.visRows() {
+			a.scrolled = true // the cursor was off screen (wheel): keep the view
+		}
 	}
 }
 
@@ -602,10 +670,16 @@ func (a *App) handleClick(g term.Gesture) bool {
 	case g.Y == rowPath && !ctx && a.toggleX[1] > 0 && g.X >= a.toggleX[0]:
 		a.setIcons(g.X >= a.toggleX[1])
 		return true
+	case g.Y == rowPath && !ctx && g.X < forwardX:
+		a.goBack()
+		return true
+	case g.Y == rowPath && !ctx && g.X < pathX-1:
+		a.goForward()
+		return true
 	case g.Y == rowPath && !ctx:
 		for _, s := range a.segments {
 			if g.X >= s.x0 && g.X < s.x1 {
-				a.navigate(s.path, "")
+				a.goTo(s.path, "")
 			}
 		}
 		return true
@@ -730,8 +804,18 @@ func (a *App) drawPath(s wm.Surface) {
 	for _, sg := range segs {
 		total += term.Width(sg.label)
 	}
+	// "<" Back and ">" Forward on the left (keys: Alt+Left / Alt+Right).
+	nav := func(x int, label string, on bool) {
+		st := wm.StyleHeader
+		if !on {
+			st = wm.StyleBodyDim
+		}
+		row.Text(x, 0, label, st)
+	}
+	nav(backX-1, " < ", len(a.back) > 0)
+	nav(forwardX, "> ", len(a.fwd) > 0)
 	// "List|Icons" switch on the right (mouse; keys: View menu).
-	avail := a.vw - 2
+	avail := a.vw - 2 - pathX + 1
 	a.toggleX = [2]int{}
 	if a.vw >= 36 {
 		x0 := a.vw - 13
@@ -750,7 +834,7 @@ func (a *App) drawPath(s wm.Surface) {
 		total -= term.Width(segs[first].label)
 		first++
 	}
-	pr := row.Sub(wm.Rect{X: 0, Y: 0, W: avail + 1, H: 1})
+	pr := row.Sub(wm.Rect{X: pathX - 1, Y: 0, W: max(avail+1, 0), H: 1})
 	x := 1
 	if first > 0 {
 		x = pr.Text(x, 0, "…", wm.StyleHeader)
@@ -758,7 +842,7 @@ func (a *App) drawPath(s wm.Surface) {
 	for _, sg := range segs[first:] {
 		x0 := x
 		x = pr.Text(x, 0, sg.label, wm.StyleHeader)
-		a.segments = append(a.segments, segment{x0, x, sg.path})
+		a.segments = append(a.segments, segment{x0 + pathX - 1, x + pathX - 1, sg.path})
 	}
 }
 

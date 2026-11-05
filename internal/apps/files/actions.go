@@ -28,14 +28,14 @@ func (a *App) up() {
 	if parent == a.dir {
 		return
 	}
-	a.navigate(parent, filepath.Base(a.dir))
+	a.goTo(parent, filepath.Base(a.dir))
 }
 
 // open enters folders, views text files and describes everything else.
 func (a *App) open(e fsops.Entry) {
 	switch {
 	case e.IsDir:
-		a.navigate(e.Path, "")
+		a.goTo(e.Path, "")
 	case e.Mode.IsRegular() && e.Mode&0o111 != 0:
 		// SPEC 7.2: executables run in a terminal window after asking.
 		text := fsops.IsText(e.Path)
@@ -140,7 +140,7 @@ func (a *App) commitRename() {
 // ---- prompts ----
 
 func (a *App) promptPath() {
-	p := ui.NewPrompt("Go to folder", "Path (~ for home):", a.dir, func(v string) { a.navigate(expand(v), "") })
+	p := ui.NewPrompt("Go to folder", "Path (~ for home):", a.dir, func(v string) { a.goTo(expand(v), "") })
 	p.Validate = func(v string) error {
 		info, err := os.Stat(expand(v))
 		if err != nil {
