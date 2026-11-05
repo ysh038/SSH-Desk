@@ -38,17 +38,13 @@ func (a *App) expandSnippet(d *Doc, sn snippets.Snippet, trigger string) {
 	if !e.ExpandTabs {
 		body = strings.ReplaceAll(body, strings.Repeat(" ", e.TabSize), "\t")
 	}
-	text, stops := snippets.Expand(body)
-	text = strings.ReplaceAll(text, "\n", "\n"+indent)
-	// Offsets shift by the indent added on every earlier line.
-	rs := []rune(snippets.ExpandPlain(body))
+	plain, stops := snippets.Expand(body)
+	text, mapOff := indentLines([]rune(plain), []rune(indent))
 	a0, _, _ := e.Selection()
 	base := e.Offset(a0)
 	for i := range stops {
-		before := strings.Count(string(rs[:stops[i].Start]), "\n") * len([]rune(indent))
-		inside := strings.Count(string(rs[stops[i].Start:stops[i].End]), "\n") * len([]rune(indent))
-		stops[i].Start += base + before
-		stops[i].End += base + before + inside
+		stops[i].Start = base + mapOff[stops[i].Start]
+		stops[i].End = base + mapOff[stops[i].End]
 	}
 	e.Insert(text)
 	a.snip = &session{stops: stops, doc: d}
@@ -134,4 +130,28 @@ func (a *App) snippetPalette() {
 		return
 	}
 	a.h.ShowPalette(&cmds)
+}
+
+// indentLines prefixes every non-empty continuation line with indent (blank
+// lines stay empty: no trailing whitespace). mapOff[i] is the new offset of
+// original rune offset i.
+func indentLines(rs, indent []rune) (string, []int) {
+	out := make([]rune, 0, len(rs)+len(indent)*4)
+	mapOff := make([]int, len(rs)+1)
+	lineStart := false
+	for i, r := range rs {
+		if lineStart {
+			lineStart = false
+			if r != '\n' {
+				out = append(out, indent...)
+			}
+		}
+		mapOff[i] = len(out)
+		out = append(out, r)
+		if r == '\n' {
+			lineStart = true
+		}
+	}
+	mapOff[len(rs)] = len(out)
+	return string(out), mapOff
 }

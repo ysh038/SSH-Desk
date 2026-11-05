@@ -307,9 +307,11 @@ func (a *App) HandleEvent(ev term.Event) bool {
 		if d == nil {
 			return false
 		}
-		before := d.Ed.Len()
+		before, sess := d.Ed.Len(), a.snip
 		handled := a.handleEditKey(d, ev.Key)
-		a.trackEdit(before, d.Ed.Len())
+		if a.snip != nil && a.snip == sess { // a new expansion already has exact stops
+			a.trackEdit(before, d.Ed.Len())
+		}
 		a.scrollToCursor()
 		return handled
 	case term.PasteEvent:
