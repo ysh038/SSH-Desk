@@ -149,8 +149,10 @@ docs/
 - sudo 비밀번호는 화면에 `*`로만 보이고, 로그·감사 기록·실행취소 기록에 남기지 않으며, `sudo -S`에 한 번 넘긴 뒤 메모리에서 지운다(Phase 3).
 - 일반 명령이 터미널에서 묻는 입력(`[y/N]` 등)은 Phase 4 터미널 창에서 사용자가 직접 입력한다.
 
-### 7.3 에디터 (micro 수준)
-- 키맵: Ctrl+S 저장, Ctrl+Q 닫기, Ctrl+Z/Y 실행취소/재실행, Ctrl+C/X/V, Ctrl+F 찾기, Ctrl+R 바꾸기, Ctrl+G 줄 이동, Ctrl+A 전체 선택, Home/End, Ctrl+←/→ 단어 이동, Shift+방향키 선택.
+### 7.3 에디터 (OS 기본 편집기 수준, 2026-11-05 목표 상향)
+- 목표: 맥의 텍스트 편집기나 Windows 메모장처럼 따로 배우지 않아도 쓸 수 있는 수준. 모드 전환 방식(vim)은 쓰지 않는다. 설계와 키는 ADR 0003.
+- 공통 UX: 키보드 표기 설정(Mac/PC), 메뉴 바, 명령 검색(⌃K), 하단 힌트 줄(ADR 0003 §1).
+- 키맵: Ctrl+S 저장, Ctrl+Q 닫기, Ctrl+Z/Y 실행취소/재실행, Ctrl+C/X/V, Ctrl+F 찾기, Ctrl+R 바꾸기, Ctrl+G 줄 이동, Ctrl+A 전체 선택, Home/End, Ctrl+←/→·Alt+←/→ 단어 이동, Ctrl+Home/End·Alt+↑/↓ 문서 처음/끝, PgUp/PgDn 한 화면, Shift+이동 키 선택(콘솔은 Ctrl+Space로 선택 시작 표시). 전체 표는 ADR 0003 §2.
 - 마우스: 클릭 커서 이동, 드래그 선택, 더블클릭 단어 선택, 트리플클릭 줄 선택, 휠 스크롤, 우클릭 메뉴(잘라내기/복사/붙여넣기/스니펫 삽입).
 - 문법 하이라이트: nginx, yaml, json, toml, ini/conf, sh/bash, systemd unit, Dockerfile, python, go, markdown 우선.
 - 자동 들여쓰기, 탭/스페이스·탭 크기 설정, `.editorconfig` 인식.
@@ -162,7 +164,7 @@ docs/
 
 ### 7.4 스니펫
 - 형식: `assets/snippets/<언어>.toml` + 사용자 디렉터리 `~/.config/tuidesk/snippets/`.
-- 사용: 트리거 단어 입력 후 Tab, 또는 Ctrl+Space 스니펫 팔레트(검색 가능), 우클릭 메뉴.
+- 사용: 트리거 단어 입력 후 Tab, 또는 Ctrl+T 스니펫 팔레트(검색 가능), 우클릭 메뉴. (Ctrl+Space는 macOS 입력 소스 전환과 겹쳐 사용하지 않음)
 - 탭스톱 문법: `${1:server_name}`, `${2}`, `$0`. Tab으로 다음 위치 이동.
 - 기본 번들
   - nginx: server, location, proxy_pass, upstream, ssl 설정, gzip, 리다이렉트
@@ -302,6 +304,7 @@ MVP = Phase 0 ~ 3.
 - 완료 기준: 시나리오 S2를 마우스만으로 수행 가능 — ✅ 시나리오 테스트(`internal/desktop/s2_test.go`)에서 마우스만으로 박스 선택→창 간 드래그→Move→우클릭 Rename까지 통과, 리눅스 콘솔 VM 확인(`docs/img/phase2-console-*.png`). Terminal.app 실사용 확인 대기 (2026-11-05)
 
 ### Phase 3 — 에디터 + 스니펫
+- [ ] 키보드 표기 설정(Mac/PC), 메뉴 바, 명령 검색, 힌트 줄 (ADR 0003 §1)
 - [ ] 버퍼, 실행취소, 선택, 클립보드, 찾기/바꾸기
 - [ ] 문법 하이라이트(우선 목록)
 - [ ] 스니펫 엔진 + 팔레트 + 기본 번들
