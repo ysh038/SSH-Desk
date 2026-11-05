@@ -246,8 +246,9 @@ cwd = "{selected_dir}"
 |---|---|---|
 | 1 | macOS Terminal.app → ssh | 마우스 + 키보드 전체 기능 |
 | 2 | 리눅스 기본 콘솔 (서버에 모니터 직결, IPMI/KVM 원격 콘솔, `TERM=linux`) | 키보드 전용 |
-| 1 | Windows Terminal → ssh (2026-11-05 추가) | 마우스 + 키보드 전체 기능. 키 대응은 `docs/keyboard.md` |
-| 참고 | iTerm2, Warp, Ghostty, GNOME Terminal, PuTTY, Cursor/VS Code 내장 터미널 | 화면이 깨지지 않을 정도만. 전용 대응은 하지 않음 |
+| 참고 | iTerm2, Warp, Ghostty, GNOME Terminal, Windows Terminal, PuTTY, Cursor/VS Code 내장 터미널 | 화면이 깨지지 않을 정도만. 전용 대응은 하지 않음 |
+
+키보드 배열: Mac 배열 키보드와 PC(Windows) 배열 키보드를 모두 지원한다. 맥에 PC 키보드를 연결하면 Windows 키는 Cmd, Alt는 Option으로 동작한다. 키별 대응은 `docs/keyboard.md`.
 
 UI 언어: **영어** (2026-11-04 결정). 리눅스 콘솔에는 한글 글꼴이 없어 한글 UI를 읽을 수 없으므로 메뉴, 대화상자, 도움말, 알림 문구는 영어로 쓴다. 한글 파일명·본문 같은 사용자 데이터는 계속 지원한다(Terminal.app에서 정상 표시, 콘솔에서는 13장 미결정).
 

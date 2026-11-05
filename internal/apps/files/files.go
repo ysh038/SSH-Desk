@@ -294,9 +294,9 @@ func (a *App) HandleEvent(ev term.Event) bool {
 	case term.MouseEvent:
 		return a.handleMouse(ev.Gesture)
 	case term.PasteEvent:
-		// The terminal pasted text: Windows Terminal turns Ctrl+V into a
-		// paste and on a Mac Cmd+V does the same. In a file list that means
-		// "paste the copied files".
+		// The terminal pasted text (Cmd+V on a Mac keyboard, Win+V on a PC
+		// keyboard attached to a Mac). In a file list that means "paste the
+		// copied files".
 		if len(a.h.Files().Paths) > 0 {
 			a.paste()
 			return true
@@ -431,7 +431,7 @@ func (a *App) handleKey(k term.Key) bool {
 	case "Shift+F10":
 		y := rowList + a.cursor - a.offset
 		a.contextMenu(2, y, true)
-	case "Alt+Enter", "Ctrl+P": // Windows Terminal uses Alt+Enter for full screen
+	case "Alt+Enter", "Ctrl+P": // Ctrl+P: Alt/Option+Enter needs "Option as Meta" on a Mac
 		a.permissions()
 	default:
 		if k.IsRune() && k.Mod&(term.ModCtrl|term.ModAlt|term.ModMeta) == 0 && k.Rune > ' ' {
