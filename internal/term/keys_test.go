@@ -64,3 +64,14 @@ func TestNormalizeXtermShiftF(t *testing.T) {
 		t.Fatalf("got %s", got)
 	}
 }
+
+func TestNormalizeAltEnterFromConsole(t *testing.T) {
+	p := ProfileFor("linux")
+	// Measured in the QEMU VT: Alt+Enter arrives as Alt+Ctrl+M.
+	if got := p.Normalize(Key{Name: "Rune", Rune: 'm', Mod: ModCtrl | ModAlt}).String(); got != "Alt+Enter" {
+		t.Fatalf("got %s", got)
+	}
+	if got := p.Normalize(Key{Name: "Rune", Rune: 'i', Mod: ModCtrl}).String(); got != "Tab" {
+		t.Fatalf("got %s", got)
+	}
+}

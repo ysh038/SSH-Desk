@@ -345,6 +345,12 @@ var helpLines = []string{
 	"  Ctrl+N     New window      Ctrl+W Close   Ctrl+Q Quit",
 	"  Tab / Shift+Tab: switch windows (when the app does not use Tab)",
 	"  Move/size mode: arrow keys, Enter or Esc to finish",
+	"",
+	"Files",
+	"  Enter open   Backspace up   Space select   F2 rename   F5 refresh",
+	"  Del trash    Ctrl+Z undo    Ctrl+C/X/V copy/cut/paste   Ctrl+D duplicate",
+	"  Alt+Enter permissions   Alt+. hidden files   Ctrl+L go to folder",
+	"  Type to filter (Esc clears). Drag a selected row to move or copy.",
 }
 
 func (d *Desktop) showHelp() {
@@ -353,7 +359,7 @@ func (d *Desktop) showHelp() {
 		return
 	}
 	d.help = d.OpenWindow(&blank.Text{Name: "Help", Lines: helpLines})
-	d.M.ResizeTo(d.help, 74, len(helpLines)+2)
+	d.M.ResizeTo(d.help, 78, len(helpLines)+2)
 }
 
 // ---- keyboard ----

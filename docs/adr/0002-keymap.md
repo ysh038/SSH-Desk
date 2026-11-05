@@ -63,9 +63,10 @@
 | 잘라내기 / 복사 / 붙여넣기 | Ctrl+X / Ctrl+C / Ctrl+V | |
 | 복제 | Ctrl+D | |
 | 휴지통으로 | Delete | |
+| 영구 삭제 | Shift+Delete (이중 확인) | 리눅스 콘솔은 Shift가 사라져 Delete로 들어오므로 메뉴로만 가능 |
 | 실행취소 | Ctrl+Z | |
 | 컨텍스트 메뉴 | Shift+F10, 우클릭, Ctrl+클릭 | 앱 메뉴가 먼저, 바깥 테두리는 창 메뉴 |
-| 권한 | 메뉴 › Permissions… | Alt+Enter 후보(콘솔 확인 후 확정) |
+| 권한 | **Alt+Enter**, 메뉴 › Permissions… | 콘솔은 Alt+Enter를 Alt+Ctrl+M으로 보내며, 정규화로 처리(QEMU VT에서 확인) |
 
 앱은 F6~F9, Shift+F6, Ctrl+W, Ctrl+Q처럼 데스크톱 전역 키는 쓰지 않는다.
 

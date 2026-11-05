@@ -118,3 +118,26 @@ func contains(s, sub string) bool {
 	}
 	return false
 }
+
+// Regression: work posted before the loop installs its wake-up hook (a folder
+// loaded at startup) must still be delivered without further input.
+func TestWorkPostedBeforeLoopIsDelivered(t *testing.T) {
+	s := tcell.NewSimulationScreen("UTF-8")
+	if err := s.Init(); err != nil {
+		t.Fatal(err)
+	}
+	s.SetSize(80, 24)
+	defer s.Fini()
+	d := desktop.New(80, 24, "host", time.Now())
+	ran := false
+	d.Post(func() { ran = true })
+	l := NewLoop(s, d)
+	deadline := time.Now().Add(2 * time.Second)
+	for !ran && time.Now().Before(deadline) {
+		ev := s.PollEvent()
+		l.Dispatch(ev)
+	}
+	if !ran {
+		t.Fatal("queued work was never flushed")
+	}
+}

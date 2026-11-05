@@ -71,9 +71,20 @@ func ProfileFor(termName string) KeyProfile {
 //   - Ctrl/Alt + letter → lower-case letter (Ctrl+W and Ctrl+w are the same)
 //   - shifted function keys reported as F13… → Shift+Fn (Linux console:
 //     F20 → Shift+F10)
+//   - Ctrl+M → Enter, Ctrl+I → Tab (Alt+Enter on the console is Alt+Ctrl+M)
 func (p KeyProfile) Normalize(k Key) Key {
 	if k.IsRune() && k.Mod&(ModCtrl|ModAlt|ModMeta) != 0 {
 		k.Rune = unicode.ToLower(ShortcutRune(k.Rune, k.Mod))
+	}
+	// Ctrl+M and Ctrl+I are the same bytes as Enter and Tab. The Linux console
+	// sends Alt+Enter as ESC CR, which arrives as Alt+Ctrl+M.
+	if k.IsRune() && k.Mod&ModCtrl != 0 {
+		switch k.Rune {
+		case 'm':
+			k = Key{Name: "Enter", Mod: k.Mod &^ ModCtrl}
+		case 'i':
+			k = Key{Name: "Tab", Mod: k.Mod &^ ModCtrl}
+		}
 	}
 	var n int
 	if p.ShiftFOffset > 0 && k.Mod&ModShift == 0 {

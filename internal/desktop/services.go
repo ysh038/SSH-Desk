@@ -39,7 +39,17 @@ func (s *services) init() { s.fs = fsops.New() }
 var _ host.Host = (*Desktop)(nil)
 
 // SetPoster installs the function that wakes the UI loop after Post.
-func (d *Desktop) SetPoster(wake func()) { d.svc.poster = wake }
+// Work posted before the loop existed (e.g. a folder loaded at startup) is
+// delivered right away.
+func (d *Desktop) SetPoster(wake func()) {
+	d.svc.mu.Lock()
+	d.svc.poster = wake
+	queued := len(d.svc.pending) > 0
+	d.svc.mu.Unlock()
+	if queued && wake != nil {
+		wake()
+	}
+}
 
 // SetClipboardWriter installs the OSC 52 writer.
 func (d *Desktop) SetClipboardWriter(fn func(string)) { d.svc.clipText = fn }
