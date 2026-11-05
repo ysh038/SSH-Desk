@@ -282,3 +282,45 @@ func TestModifiedTracksSave(t *testing.T) {
 		t.Fatal("undo back to saved state")
 	}
 }
+
+func TestMoveTextDragAndDrop(t *testing.T) {
+	// Move forward across lines, with Hangul.
+	e := New("한글 alpha\nbeta gamma\n")
+	if !e.MoveText(Pos{0, 0}, Pos{0, 3}, Pos{1, 5}, false) { // "한글 " → before "gamma"
+		t.Fatal("move refused")
+	}
+	if got := e.Text(); got != "alpha\nbeta 한글 gamma\n" {
+		t.Fatalf("forward move: %q", got)
+	}
+	if got := e.SelectedText(); got != "한글 " {
+		t.Fatalf("moved text should stay selected: %q", got)
+	}
+	e.Undo()
+	if got := e.Text(); got != "한글 alpha\nbeta gamma\n" {
+		t.Fatalf("one undo restores the move: %q", got)
+	}
+	e.Redo()
+	if got := e.Text(); got != "alpha\nbeta 한글 gamma\n" {
+		t.Fatalf("redo: %q", got)
+	}
+
+	// Move backward, including a newline.
+	e = New("one\ntwo\nthree")
+	e.MoveText(Pos{1, 0}, Pos{2, 0}, Pos{0, 0}, false) // "two\n" to the top
+	if got := e.Text(); got != "two\none\nthree" {
+		t.Fatalf("backward move: %q", got)
+	}
+
+	// Dropping inside the text itself does nothing.
+	e = New("abcdef")
+	if e.MoveText(Pos{0, 1}, Pos{0, 4}, Pos{0, 2}, false) || e.Text() != "abcdef" || e.Modified() {
+		t.Fatalf("drop inside: %q", e.Text())
+	}
+
+	// Copy keeps the original.
+	e = New("ab cd")
+	e.MoveText(Pos{0, 0}, Pos{0, 2}, Pos{0, 5}, true)
+	if got := e.Text(); got != "ab cdab" {
+		t.Fatalf("copy: %q", got)
+	}
+}

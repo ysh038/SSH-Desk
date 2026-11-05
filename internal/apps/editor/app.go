@@ -35,6 +35,7 @@ type Doc struct {
 	Sudo     bool // last save needed sudo
 	top      int  // first visible line
 	left     int  // first visible display column
+	scrolled bool // the wheel moved the view: keep it until the cursor moves
 }
 
 // Name is the file name shown on the tab.
@@ -74,7 +75,11 @@ type App struct {
 	vw, vh   int
 	gutter   int
 	tabs     []tabHit
-	dragging bool
+	dragging bool // selecting with the mouse
+	// Dragging the selected text to move it (copy with Ctrl or Alt held).
+	moving   bool     // pressed inside the selection
+	moveDrag bool     // and the mouse moved: dropAt is the target
+	dropAt   core.Pos // where the text would land
 	runSave  saveRunner
 	snip     *session
 }
@@ -257,6 +262,7 @@ func (a *App) scrollToCursor() {
 	if d == nil {
 		return
 	}
+	d.scrolled = false
 	h, w := a.textH(), a.textW()
 	if d.Ed.Cur.Line < d.top {
 		d.top = d.Ed.Cur.Line
@@ -410,16 +416,21 @@ func (a *App) handleMouse(g term.Gesture) bool {
 		case term.WheelDown:
 			d.top = min(d.top+3, max(len(d.Ed.Lines)-a.textH(), 0))
 		}
+		d.scrolled = true // Draw must not pull the view back to the cursor
 		return true
 	}
 	if g.Y < a.textTop() || g.Y >= a.textTop()+a.textH() {
-		if g.Kind == term.GestureDrag && a.dragging { // auto-scroll while selecting
+		if g.Kind == term.GestureDrag && (a.dragging || a.moving) { // auto-scroll while selecting or moving
 			if g.Y < a.textTop() {
 				d.top = max(d.top-1, 0)
 			} else {
 				d.top = min(d.top+1, max(len(d.Ed.Lines)-1, 0))
 			}
+		} else if a.moving && (g.Kind == term.GestureRelease || g.Kind == term.GestureDragEnd) {
+			a.drop(d, a.dropAt, g.Mod) // released over the bars: drop at the last spot
+			return true
 		} else if g.Kind != term.GestureDrag {
+			a.dragging = a.dragging && g.Kind != term.GestureRelease && g.Kind != term.GestureDragEnd
 			return false
 		}
 	}
@@ -430,14 +441,26 @@ func (a *App) handleMouse(g term.Gesture) bool {
 	switch g.Kind {
 	case term.GesturePress:
 		if g.Button == term.ButtonLeft {
+			if sa, sz, sel := d.Ed.Selection(); sel && !d.ReadOnly && g.Mod&term.ModShift == 0 && !p.Less(sa) && p.Less(sz) {
+				a.moving, a.moveDrag = true, false // maybe a drag of the selected text
+				return true
+			}
 			d.Ed.SetCursor(p, g.Mod&term.ModShift != 0)
+			d.scrolled = false
 			a.dragging = true
 		}
 	case term.GestureDragStart, term.GestureDrag:
-		if a.dragging {
+		switch {
+		case a.moving:
+			a.moveDrag, a.dropAt = true, p
+			d.scrolled = true // the cursor stays on the selection while dropping elsewhere
+		case a.dragging:
 			d.Ed.SetCursor(p, true)
 		}
 	case term.GestureRelease, term.GestureDragEnd:
+		if a.moving {
+			a.drop(d, p, g.Mod)
+		}
 		a.dragging = false
 	case term.GestureClick:
 		switch {
@@ -454,6 +477,19 @@ func (a *App) handleMouse(g term.Gesture) bool {
 		}
 	}
 	return true
+}
+
+// drop finishes a press inside the selection: a drag moves (or with Ctrl or
+// Alt copies) the selected text to p; a plain click places the cursor.
+func (a *App) drop(d *Doc, p core.Pos, mod term.Mod) {
+	moved := a.moveDrag
+	a.moving, a.moveDrag = false, false
+	sa, sz, sel := d.Ed.Selection()
+	copy := mod&(term.ModCtrl|term.ModAlt|term.ModMeta) != 0
+	if !moved || !sel || !d.Ed.MoveText(sa, sz, p, copy) {
+		d.Ed.SetCursor(p, false)
+	}
+	a.scrollToCursor()
 }
 
 func (a *App) contextMenu(x, y int) {
@@ -487,7 +523,11 @@ func (a *App) Draw(s wm.Surface, focused bool) {
 		return
 	}
 	a.gutter = len(strconv.Itoa(len(d.Ed.Lines))) + 2
-	a.scrollToCursor()
+	if d.scrolled {
+		d.top = min(max(d.top, 0), max(len(d.Ed.Lines)-1, 0))
+	} else {
+		a.scrollToCursor()
+	}
 	a.drawText(s, d, focused)
 	if a.bar != barNone {
 		a.drawBar(s.Sub(wm.Rect{X: 0, Y: a.vh - 2 - a.chrome.HintRows(), W: a.vw, H: 1}))
@@ -568,8 +608,11 @@ func (a *App) drawText(s wm.Surface, d *Doc, focused bool) {
 			if hasBr && (p == brA || p == brB) {
 				st = wm.StyleBracket
 			}
-			if focused && p == e.Cur {
+			if focused && p == e.Cur && !a.moveDrag {
 				st = wm.StyleInputCursor
+			}
+			if a.moveDrag && p == a.dropAt {
+				st = wm.StyleInputCursor // where the dragged text will land
 			}
 			if sx+w > 0 && sx < a.textW() {
 				if r == '\t' {
@@ -585,7 +628,8 @@ func (a *App) drawText(s wm.Surface, d *Doc, focused bool) {
 		if hasSel && ln >= selA.Line && ln < selZ.Line { // selected newline
 			text.Set(x-d.left, 0, ' ', wm.StyleSelection)
 		}
-		if focused && e.Cur.Line == ln && e.Cur.Col == len(line) {
+		if (focused && !a.moveDrag && e.Cur.Line == ln && e.Cur.Col == len(line)) ||
+			(a.moveDrag && a.dropAt.Line == ln && a.dropAt.Col == len(line)) {
 			text.Set(x-d.left, 0, ' ', wm.StyleInputCursor)
 		}
 	}

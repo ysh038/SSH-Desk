@@ -572,3 +572,41 @@ func (e *Editor) MatchBracket() (Pos, Pos, bool) {
 	}
 	return Pos{}, Pos{}, false
 }
+
+// ---- drag and drop ----
+
+// MoveText moves the text in [a,z) to position to (or copies it when copy
+// is true) as one undo step, and selects it at its new place. Dropping a
+// move inside the text itself does nothing and returns false.
+func (e *Editor) MoveText(a, z, to Pos, copy bool) bool {
+	a, z = order(e.clamp(a), e.clamp(z))
+	to = e.clamp(to)
+	if a == z || (!copy && !to.Less(a) && !z.Less(to)) {
+		return false
+	}
+	s := e.slice(a, z)
+	n := len([]rune(s))
+	ot := e.Offset(to)
+	before := len(e.undo)
+	switch {
+	case copy:
+		e.replace(to, to, s, kindOther)
+	case z.Less(to): // drop after the text: insert first so a and z stay valid
+		e.replace(to, to, s, kindOther)
+		e.replace(a, z, "", kindOther)
+		ot -= n
+	default: // drop before the text
+		e.replace(a, z, "", kindOther)
+		e.replace(to, to, s, kindOther)
+	}
+	if len(e.undo) > before+1 { // one undo step
+		g := e.undo[before].group
+		for i := before + 1; i < len(e.undo); i++ {
+			e.undo[i].group = g
+		}
+		e.group = g
+	}
+	e.Select(e.PosAt(ot), e.PosAt(ot+n))
+	e.Mark = false
+	return true
+}
