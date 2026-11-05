@@ -63,11 +63,14 @@ type Desktop struct {
 	taskItems  []barItem
 	created    int
 	help       *wm.Window
+	iconSel    int // selected desktop icon (-1: none)
+	iconHover  int // desktop icon under a file drag (-1: none)
 }
 
 // New creates a desktop of w×h cells.
 func New(w, h int, host string, now time.Time) *Desktop {
-	d := &Desktop{HostName: host, Now: now, M: &wm.Manager{}}
+	d := &Desktop{HostName: host, Now: now, M: &wm.Manager{}, iconSel: -1, iconHover: -1}
+	d.M.Background = d.drawIcons
 	d.svc.init()
 	d.cfg = config.Default()
 	d.NewApp = func(n int) wm.App { return blank.New(n) }
@@ -304,6 +307,7 @@ func (d *Desktop) openLauncher(x, y int) {
 	items := []ui.MenuItem{
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
 		{Label: "Text editor", Hotkey: 'e', Action: "editor"},
+		{Label: "Show desktop", Hotkey: 'd', Action: "desktop"},
 		{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
 		{Label: "Settings", Hotkey: 's', Action: "settings"},
 	}
@@ -388,6 +392,14 @@ func (d *Desktop) run(action string, target *wm.Window) {
 		d.OpenText("")
 	case action == "help":
 		d.showHelp()
+	case action == "desktop":
+		d.showDesktop()
+	case (action == "next" || action == "prev") && d.M.Focused() == nil:
+		if t := d.M.Top(); t != nil {
+			d.M.Raise(t)
+		} else if wins := d.M.Windows(); len(wins) > 0 {
+			d.M.Raise(wins[len(wins)-1]) // everything minimized: bring one back
+		}
 	case action == "settings":
 		d.openSettings(1, 2)
 	case action == "quit":
@@ -447,6 +459,7 @@ var helpSections = []struct {
 }{
 	{"Desktop", []helpRow{
 		{"F9", "Menu (launcher)"}, {"Ctrl+N", "New window (file manager at /)"},
+		{"F9 > Show desktop", "Desktop icons: arrows, Enter opens, Delete removes"},
 		{"F6 / Shift+F6", "Next / previous window"}, {"Shift+F10", "Window menu (also right click)"},
 		{"F7 / F8", "Move / size window with arrow keys"}, {"Ctrl+W", "Close window"},
 		{"Ctrl+Q", "Quit tuidesk"}, {"F1", "This help"},
@@ -474,6 +487,8 @@ func helpLines() []string {
 		"Mouse: drag a title bar to move, drag the bottom-right corner to resize,",
 		"[_] minimize  [^] maximize  [x] close, double-click a title to maximize.",
 		"Type to filter files; drag selected files onto a folder to move or copy.",
+		"Desktop icons: double-click opens; drop files on a folder icon to move/copy,",
+		"on empty desktop to add shortcuts. View > Icon view switches the file list.",
 	}
 	for _, sec := range helpSections {
 		lines = append(lines, "", sec.title)
@@ -529,6 +544,9 @@ func (d *Desktop) handleKey(k term.Key) {
 	}
 
 	if f != nil && f.App != nil && f.App.HandleEvent(term.KeyEvent{Key: k}) {
+		return
+	}
+	if f == nil && d.handleIconKey(k) {
 		return
 	}
 
@@ -610,6 +628,9 @@ func (d *Desktop) handleMouse(g term.Gesture) {
 				return // the app opened its own context menu
 			}
 			d.openWindowMenu(w, g.X, g.Y)
+		} else if i := d.iconAt(g.X, g.Y); i >= 0 {
+			d.M.Unfocus()
+			d.iconMenu(i, g.X, g.Y)
 		} else {
 			d.openLauncher(g.X, g.Y)
 		}
@@ -651,11 +672,29 @@ func (d *Desktop) handleMouse(g term.Gesture) {
 			}
 		case wm.PartBody:
 			d.forward(w, g)
+		case wm.PartNone:
+			d.clickDesktop(g)
 		}
 	case term.GestureWheel:
 		if w, part := d.M.HitTest(g.X, g.Y); part == wm.PartBody {
 			d.forward(w, g)
 		}
+	}
+}
+
+// clickDesktop selects (or with a double click opens) a desktop icon.
+func (d *Desktop) clickDesktop(g term.Gesture) {
+	if !d.Area().Contains(g.X, g.Y) {
+		return
+	}
+	i := d.iconAt(g.X, g.Y)
+	d.iconSel = i
+	if i < 0 {
+		return
+	}
+	d.M.Unfocus()
+	if g.Count == 2 {
+		d.openIcon(i)
 	}
 }
 

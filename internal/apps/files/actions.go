@@ -222,7 +222,12 @@ func (a *App) copyPath() {
 
 // Transfer moves or copies paths into dir, asking about name conflicts first.
 // Used by paste and by drag and drop.
-func (a *App) Transfer(move bool, ps []string, dir string) {
+func (a *App) Transfer(move bool, ps []string, dir string) { Transfer(a.h, move, ps, dir) }
+
+// Transfer moves or copies ps into dir with conflict handling, progress and
+// undo. The desktop uses it for drops onto folder icons.
+func Transfer(h host.Host, move bool, ps []string, dir string) {
+	a := &App{h: h}
 	run := func(pol fsops.Policy) {
 		verb, done := "Copying", "Copied"
 		if move {
@@ -425,12 +430,17 @@ func (a *App) contextMenu(x, y int, onItems bool) {
 			{Label: "Make executable (+x)", Hotkey: 'x', Action: "plusx"},
 			{Label: "Remove executable (-x)", Hotkey: 'v', Action: "minusx"},
 			{Label: "Copy path", Hotkey: 'a', Action: "copypath"},
+			{Label: "Add to desktop", Hotkey: 'k', Action: "pin"},
 			{Separator: true},
 			{Label: "New file", Hotkey: 'f', Action: "newfile"},
 			{Label: "New folder", Hotkey: 'n', Action: "newfolder"},
 			{Label: "Open terminal here", Action: "terminal", Disabled: true},
 		}
 	} else {
+		view := "Icon view"
+		if a.icons {
+			view = "List view"
+		}
 		hidden := "Show hidden files"
 		if a.showHidden {
 			hidden = "Hide hidden files"
@@ -443,6 +453,7 @@ func (a *App) contextMenu(x, y int, onItems bool) {
 			{Label: "Refresh", Hotkey: 'r', Shortcut: "F5", Action: "refresh"},
 			{Label: hidden, Hotkey: 'h', Shortcut: "Alt+.", Action: "hidden"},
 			{Label: "Go to folder...", Hotkey: 'g', Shortcut: "Ctrl+L", Action: "goto"},
+			{Label: view, Hotkey: 'v', Action: "toggleview"},
 			{Label: "Copy path", Hotkey: 'a', Action: "copypath"},
 			{Label: "Open terminal here", Action: "terminal", Disabled: true},
 		}
@@ -489,5 +500,9 @@ func (a *App) runAction(action string) {
 		a.rebuild()
 	case "goto":
 		a.promptPath()
+	case "toggleview":
+		a.setIcons(!a.icons)
+	case "pin":
+		a.h.AddToDesktop(paths(a.Selection()))
 	}
 }

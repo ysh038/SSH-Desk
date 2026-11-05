@@ -44,6 +44,7 @@ type App struct {
 	reverse    bool
 	showHidden bool
 	filter     []rune
+	icons      bool // icon view instead of the list (SPEC 7.2)
 
 	cursor   int // index into view
 	offset   int
@@ -72,6 +73,7 @@ type App struct {
 	segments []segment
 	cols     []column
 	nameW    int
+	toggleX  [2]int // path-row "List|Icons" switch: x of "List", x of "Icons" (0,0: hidden)
 }
 
 // New opens a file manager on dir.
@@ -227,15 +229,66 @@ func (a *App) clampCursor() {
 
 func (a *App) listH() int { return max(a.vh-rowList-1-a.chrome.HintRows(), 1) }
 
+// ncols is the number of items per grid row (1 in the list view).
+func (a *App) ncols() int {
+	if !a.icons {
+		return 1
+	}
+	return max((a.vw-1)/cellW, 1)
+}
+
+// itemH is the screen height of one grid row.
+func (a *App) itemH() int {
+	if a.icons {
+		return cellH
+	}
+	return 1
+}
+
+// visRows is the number of grid rows that fit.
+func (a *App) visRows() int { return max(a.listH()/a.itemH(), 1) }
+
+// pageItems is how far PgUp/PgDn move.
+func (a *App) pageItems() int { return max(a.visRows()-1, 1) * a.ncols() }
+
+// ensureVisible scrolls so the cursor is shown. offset is the first visible
+// item and always starts a grid row.
 func (a *App) ensureVisible() {
-	h := a.listH()
-	if a.cursor < a.offset {
-		a.offset = a.cursor
+	n, h := a.ncols(), a.visRows()
+	or, cr := a.offset/n, a.cursor/n
+	if cr < or {
+		or = cr
 	}
-	if a.cursor >= a.offset+h {
-		a.offset = a.cursor - h + 1
+	if cr >= or+h {
+		or = cr - h + 1
 	}
-	a.offset = min(max(a.offset, 0), max(len(a.view)-h, 0))
+	a.offset = a.clampOffsetRow(or) * n
+}
+
+func (a *App) clampOffsetRow(or int) int {
+	n := a.ncols()
+	rows := (len(a.view) + n - 1) / n
+	return min(max(or, 0), max(rows-a.visRows(), 0))
+}
+
+func (a *App) scrollRows(d int) {
+	n := a.ncols()
+	a.offset = a.clampOffsetRow(a.offset/n+d) * n
+}
+
+// cellPos is the local position of item vi (top-left of its row or cell).
+func (a *App) cellPos(vi int) (x, y int) {
+	n := a.ncols()
+	r, c := (vi-a.offset)/n, (vi-a.offset)%n
+	if !a.icons {
+		return 0, rowList + r
+	}
+	return c * cellW, rowList + r*cellH
+}
+
+func (a *App) setIcons(on bool) {
+	a.icons = on
+	a.ensureVisible()
 }
 
 func (a *App) entryAt(vi int) (fsops.Entry, bool) {
@@ -349,12 +402,33 @@ func (a *App) toggle(vi int) {
 }
 
 func (a *App) handleKey(k term.Key) bool {
-	page := max(a.listH()-1, 1)
+	page := a.pageItems()
+	n := a.ncols()
 	switch k.String() {
 	case "Up":
-		a.moveCursor(-1)
+		a.moveCursor(-n)
 	case "Down":
+		a.moveCursor(n)
+	case "Left":
+		if !a.icons {
+			return false
+		}
+		a.moveCursor(-1)
+	case "Right":
+		if !a.icons {
+			return false
+		}
 		a.moveCursor(1)
+	case "Shift+Left":
+		if !a.icons {
+			return false
+		}
+		a.extend(-1)
+	case "Shift+Right":
+		if !a.icons {
+			return false
+		}
+		a.extend(1)
 	case "PgUp":
 		a.moveCursor(-page)
 	case "PgDn":
@@ -364,9 +438,9 @@ func (a *App) handleKey(k term.Key) bool {
 	case "End", "Ctrl+End":
 		a.moveCursor(len(a.view))
 	case "Shift+Up":
-		a.extend(-1)
+		a.extend(-n)
 	case "Shift+Down":
-		a.extend(1)
+		a.extend(n)
 	case "Shift+PgUp":
 		a.extend(-page)
 	case "Shift+PgDn":
@@ -400,8 +474,8 @@ func (a *App) handleKey(k term.Key) bool {
 			a.selectOnly(a.cursor)
 		}
 	case "Shift+F10":
-		y := rowList + a.cursor - a.offset
-		a.contextMenu(2, y, true)
+		x, y := a.cellPos(a.cursor)
+		a.contextMenu(x+2, y, true)
 	default:
 		if a.chrome.HandleKey(k) {
 			return true
@@ -416,30 +490,54 @@ func (a *App) handleKey(k term.Key) bool {
 	return true
 }
 
-func (a *App) rowAt(y int) (vi int, inList bool) {
-	if y < rowList || y >= rowList+a.listH() {
-		return -1, false
+// itemAt returns the item at local (x, y); inList reports that the point is
+// in the list area (vi is -1 on empty space there).
+func (a *App) itemAt(x, y int) (vi int, inList bool) {
+	if y < rowList || y >= rowList+a.visRows()*a.itemH() {
+		return -1, y >= rowList && y < rowList+a.listH()
 	}
-	vi = a.offset + y - rowList
+	c := 0
+	if a.icons {
+		c = x / cellW
+		if x < 0 || c >= a.ncols() {
+			return -1, true
+		}
+	}
+	vi = a.offset + (y-rowList)/a.itemH()*a.ncols() + c
 	if vi >= len(a.view) {
 		return -1, true
 	}
 	return vi, true
 }
 
+// nearestItem is the item closest to (x, y) for box selection: clamped to
+// the visible grid and the list length.
+func (a *App) nearestItem(x, y int) int {
+	n := a.ncols()
+	r := min(max((y-rowList)/a.itemH(), 0), a.visRows()-1)
+	if y < rowList {
+		r = 0
+	}
+	c := 0
+	if a.icons {
+		c = min(max(x/cellW, 0), n-1)
+	}
+	return min(max(a.offset+r*n+c, 0), len(a.view)-1)
+}
+
 func (a *App) handleMouse(g term.Gesture) bool {
 	switch g.Kind {
 	case term.GestureWheel:
+		step := max(3/a.itemH(), 1)
 		switch g.Wheel {
 		case term.WheelUp:
-			a.offset -= 3
+			a.scrollRows(-step)
 		case term.WheelDown:
-			a.offset += 3
+			a.scrollRows(step)
 		}
-		a.offset = min(max(a.offset, 0), max(len(a.view)-a.listH(), 0))
 		return true
 	case term.GesturePress:
-		vi, _ := a.rowAt(g.Y)
+		vi, _ := a.itemAt(g.X, g.Y)
 		a.pressSel = false
 		if e, ok := a.entryAt(vi); ok && g.Button == term.ButtonLeft {
 			a.pressSel = a.selected[e.Name]
@@ -450,7 +548,7 @@ func (a *App) handleMouse(g term.Gesture) bool {
 		if g.Button != term.ButtonLeft {
 			return true
 		}
-		startVi, inList := a.rowAt(g.StartY)
+		startVi, inList := a.itemAt(g.StartX, g.StartY)
 		if !inList {
 			return true
 		}
@@ -469,13 +567,13 @@ func (a *App) handleMouse(g term.Gesture) bool {
 				a.boxStart = len(a.view) - 1
 			}
 		}
-		if g.Y < rowList && a.offset > 0 {
-			a.offset--
+		if g.Y < rowList {
+			a.scrollRows(-1)
 		}
-		if g.Y >= rowList+a.listH() {
-			a.offset = min(a.offset+1, max(len(a.view)-a.listH(), 0))
+		if g.Y >= rowList+a.visRows()*a.itemH() {
+			a.scrollRows(1)
 		}
-		cur := min(max(a.offset+g.Y-rowList, 0), len(a.view)-1)
+		cur := a.nearestItem(g.X, g.Y)
 		a.selectRange(a.boxStart, cur)
 		a.cursor, a.anchor = cur, a.boxStart
 		return true
@@ -498,6 +596,9 @@ func (a *App) handleClick(g term.Gesture) bool {
 	case g.Y == rowBar && !ctx:
 		a.chrome.ClickBar(g.X)
 		return true
+	case g.Y == rowPath && !ctx && a.toggleX[1] > 0 && g.X >= a.toggleX[0]:
+		a.setIcons(g.X >= a.toggleX[1])
+		return true
 	case g.Y == rowPath && !ctx:
 		for _, s := range a.segments {
 			if g.X >= s.x0 && g.X < s.x1 {
@@ -519,7 +620,7 @@ func (a *App) handleClick(g term.Gesture) bool {
 		}
 		return true
 	}
-	vi, inList := a.rowAt(g.Y)
+	vi, inList := a.itemAt(g.X, g.Y)
 	if !inList {
 		if ctx {
 			a.contextMenu(g.X, g.Y, false)
@@ -563,7 +664,7 @@ func (a *App) handleClick(g term.Gesture) bool {
 
 // DropDir: a folder row under the pointer, otherwise this window's folder.
 func (a *App) DropDir(x, y int) (string, bool) {
-	if vi, inList := a.rowAt(y); inList {
+	if vi, inList := a.itemAt(x, y); inList {
 		if e, ok := a.entryAt(vi); ok && e.IsDir {
 			return e.Path, true
 		}
@@ -579,7 +680,7 @@ func (a *App) DropHover(x, y int, on bool) {
 	if !on {
 		return
 	}
-	if vi, inList := a.rowAt(y); inList {
+	if vi, inList := a.itemAt(x, y); inList {
 		if e, ok := a.entryAt(vi); ok && e.IsDir {
 			a.dropRow = vi
 		}
@@ -620,18 +721,34 @@ func (a *App) drawPath(s wm.Surface) {
 	for _, sg := range segs {
 		total += term.Width(sg.label)
 	}
+	// "List|Icons" switch on the right (mouse; keys: View menu).
+	avail := a.vw - 2
+	a.toggleX = [2]int{}
+	if a.vw >= 36 {
+		x0 := a.vw - 13
+		a.toggleX = [2]int{x0, x0 + 6}
+		avail = x0 - 2
+		on, off := wm.StyleSelected, wm.StyleHeader
+		ls, is := on, off
+		if a.icons {
+			ls, is = off, on
+		}
+		row.Text(x0, 0, " List ", ls)
+		row.Text(x0+6, 0, " Icons ", is)
+	}
 	first := 0
-	for total > a.vw-2 && first < len(segs)-1 {
+	for total > avail && first < len(segs)-1 {
 		total -= term.Width(segs[first].label)
 		first++
 	}
+	pr := row.Sub(wm.Rect{X: 0, Y: 0, W: avail + 1, H: 1})
 	x := 1
 	if first > 0 {
-		x = row.Text(x, 0, "…", wm.StyleHeader)
+		x = pr.Text(x, 0, "…", wm.StyleHeader)
 	}
 	for _, sg := range segs[first:] {
 		x0 := x
-		x = row.Text(x, 0, sg.label, wm.StyleHeader)
+		x = pr.Text(x, 0, sg.label, wm.StyleHeader)
 		a.segments = append(a.segments, segment{x0, x, sg.path})
 	}
 }
@@ -639,6 +756,17 @@ func (a *App) drawPath(s wm.Surface) {
 func (a *App) layoutColumns() {
 	const sizeW, timeW, permW = 7, 16, 10
 	a.cols = a.cols[:0]
+	if a.icons {
+		// No columns: the header holds sort buttons.
+		x := 0
+		for _, k := range []fsops.SortKey{fsops.SortName, fsops.SortSize, fsops.SortTime} {
+			w := map[fsops.SortKey]int{fsops.SortName: 8, fsops.SortSize: 8, fsops.SortTime: 12}[k]
+			a.cols = append(a.cols, column{key: k, x0: x, w: w})
+			x += w
+		}
+		a.nameW = cellW - 1
+		return
+	}
 	x := a.vw - 1 // leave the scrollbar column
 	var extra []column
 	if a.vw >= 40 {
@@ -715,6 +843,10 @@ func (a *App) drawRows(s wm.Surface, focused bool) {
 			msg = "(no match for filter)"
 		}
 		list.Text(1, 0, msg, wm.StyleBodyDim)
+	}
+	if a.icons {
+		a.drawIcons(list, focused)
+		return
 	}
 	for y := 0; y < h; y++ {
 		vi := a.offset + y
@@ -815,4 +947,48 @@ func errText(err error) string {
 		return pe.Err.Error()
 	}
 	return err.Error()
+}
+
+// drawIcons draws the icon view: a grid of cellW×cellH cells, the text icon
+// centred on the first line and the (clipped) name on the second.
+func (a *App) drawIcons(list wm.Surface, focused bool) {
+	n, rows := a.ncols(), a.visRows()
+	for r := 0; r < rows; r++ {
+		for c := 0; c < n; c++ {
+			vi := a.offset + r*n + c
+			e, ok := a.entryAt(vi)
+			if !ok {
+				break
+			}
+			st := wm.StyleBody
+			switch {
+			case vi == a.dropRow:
+				st = wm.StyleDropTarget
+			case vi == a.cursor && focused:
+				st = wm.StyleSelected
+			case a.selected[e.Name]:
+				st = wm.StyleMarked
+			case e.IsDir:
+				st = wm.StyleTitle
+			}
+			cell := list.Sub(wm.Rect{X: c * cellW, Y: r * cellH, W: cellW - 1, H: cellH})
+			cell.Clear(st)
+			icon := entryIcon(e)
+			if a.selected[e.Name] {
+				cell.Text(0, 0, "+", st)
+			}
+			cell.Text((cellW-1-term.Width(icon))/2, 0, icon, st)
+			if a.renaming != nil && e.Name == a.renameName {
+				a.renaming.Draw(cell.Sub(wm.Rect{X: 0, Y: 1, W: cellW - 1, H: 1}), true)
+				continue
+			}
+			name := clipName(a.display(e.Name), cellW-1)
+			cell.Text((cellW-1-term.Width(name))/2, 1, name, st)
+		}
+	}
+	total := (len(a.view) + n - 1) / n
+	if total > rows {
+		w, _ := list.Size()
+		ui.DrawScrollbar(list.Sub(wm.Rect{X: w - 1, Y: 0, W: 1, H: rows * cellH}), total, a.offset/n, rows)
+	}
 }

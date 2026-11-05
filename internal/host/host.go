@@ -93,6 +93,9 @@ type Host interface {
 	// it takes a while) and calls done on the UI goroutine.
 	Go(title string, work Work, done func(error))
 
+	// AddToDesktop pins files or folders as desktop icons (SPEC 7.1).
+	AddToDesktop(paths []string)
+
 	// Config returns the current settings.
 	Config() config.Config
 }

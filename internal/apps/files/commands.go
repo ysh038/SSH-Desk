@@ -51,6 +51,7 @@ func (a *App) buildCommands() {
 		c("rename", "File", "Rename", "Rename", []string{"F2"}, "", one, a.startRename),
 		c("duplicate", "File", "Duplicate", "", []string{"Ctrl+D"}, "", hasSel, a.duplicate),
 		c("copypath", "File", "Copy path", "", nil, "", nil, a.copyPath),
+		c("pin", "File", "Add to desktop", "", nil, "", hasSel, func() { a.h.AddToDesktop(paths(a.Selection())) }),
 		sep("File"),
 		c("perms", "File", "Permissions...", "", []string{"Ctrl+P", "Alt+Enter"}, "", hasSel, a.permissions),
 		c("plusx", "File", "Make executable (+x)", "", nil, "", hasSel, func() { a.setExec(true) }),
@@ -84,6 +85,8 @@ func (a *App) buildCommands() {
 			a.showHidden = !a.showHidden
 			a.rebuild()
 		}),
+		c("listview", "View", "List view", "", nil, "", func() bool { return a.icons }, func() { a.setIcons(false) }),
+		c("iconview", "View", "Icon view", "", nil, "", func() bool { return !a.icons }, func() { a.setIcons(true) }),
 		sep("View"),
 		c("sortname", "View", "Sort by name", "", nil, "", nil, sortBy(fsops.SortName)),
 		c("sortsize", "View", "Sort by size", "", nil, "", nil, sortBy(fsops.SortSize)),

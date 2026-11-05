@@ -47,3 +47,25 @@ func TestBadFileReportsErrorAndUsesDefaults(t *testing.T) {
 		t.Fatalf("got %+v err=%v", got, err)
 	}
 }
+
+func TestDesktopIcons(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "c.toml")
+	if got, _, _ := Load(p); len(got.Icons) != 5 || got.Icons[0].Path != "~" || got.Icons[4].App != "editor" {
+		t.Fatalf("default icons %+v", got.Icons)
+	}
+	// A file with its own icons replaces the defaults (not appended).
+	os.WriteFile(p, []byte("[[desktop_icon]]\nname = \"웹 설정\"\npath = \"/etc/nginx\"\n"), 0o644)
+	if got, _, _ := Load(p); len(got.Icons) != 1 || got.Icons[0].Name != "웹 설정" {
+		t.Fatalf("user icons %+v", got.Icons)
+	}
+	// Removing every icon survives a save/load.
+	cfg := Default()
+	cfg.Icons, cfg.IconsEdited = nil, true
+	if err := Save(p, cfg); err != nil {
+		t.Fatal(err)
+	}
+	if got, _, _ := Load(p); len(got.Icons) != 0 {
+		t.Fatalf("emptied icons came back: %+v", got.Icons)
+	}
+}

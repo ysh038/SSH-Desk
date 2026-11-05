@@ -90,6 +90,8 @@ const MinVisible = 6
 type Manager struct {
 	// Desktop is the area windows live in (the screen minus bars).
 	Desktop Rect
+	// Background draws on the desktop under the windows (desktop icons).
+	Background func(c *Canvas)
 
 	wins  []*Window // bottom to top, minimized ones included
 	focus *Window
@@ -131,6 +133,9 @@ func (m *Manager) Visible() []*Window {
 
 // Focused returns the focused window (nil if none).
 func (m *Manager) Focused() *Window { return m.focus }
+
+// Unfocus leaves no window focused (the desktop itself has the keyboard).
+func (m *Manager) Unfocus() { m.focus = nil }
 
 // Top returns the topmost visible window (nil if none).
 func (m *Manager) Top() *Window {
@@ -349,6 +354,9 @@ func (m *Manager) Dragging() bool { return m.grabActive }
 // Draw paints the desktop background and all visible windows back to front.
 func (m *Manager) Draw(c *Canvas) {
 	c.Fill(m.Desktop, ' ', StyleDesktop)
+	if m.Background != nil {
+		m.Background(c)
+	}
 	for _, w := range m.wins {
 		if !w.Minimized {
 			m.drawWindow(c, w, w == m.focus)

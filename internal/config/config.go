@@ -21,6 +21,14 @@ type Validator struct {
 	Sudo    bool   `toml:"sudo"` // run with sudo when the file needed sudo to save
 }
 
+// DesktopIcon is a desktop shortcut (SPEC 7.1): a folder or file (Path,
+// "~" = home) or a built-in app (App: "editor", "files", "help").
+type DesktopIcon struct {
+	Name string `toml:"name"`
+	Path string `toml:"path,omitempty"`
+	App  string `toml:"app,omitempty"`
+}
+
 // Config is the user configuration.
 type Config struct {
 	// Keyboard is "mac" or "pc" (ADR 0003 A); empty = not chosen yet.
@@ -34,6 +42,10 @@ type Config struct {
 	ExpandTabs bool `toml:"expand_tabs"`
 	// Validators run after saving matching files.
 	Validators []Validator `toml:"validator"`
+	// Icons are the desktop shortcuts. IconsEdited records that the user
+	// changed them, so an empty list stays empty instead of the defaults.
+	Icons       []DesktopIcon `toml:"desktop_icon"`
+	IconsEdited bool          `toml:"desktop_icons_edited"`
 }
 
 // Default returns the built-in defaults.
@@ -46,6 +58,13 @@ func Default() Config {
 		Validators: []Validator{
 			{Pattern: "/etc/nginx/**", Command: "nginx -t", Sudo: true},
 			{Pattern: "/etc/systemd/system/*", Command: "systemd-analyze verify {file}", Sudo: false},
+		},
+		Icons: []DesktopIcon{
+			{Name: "Home", Path: "~"},
+			{Name: "Root /", Path: "/"},
+			{Name: "/etc", Path: "/etc"},
+			{Name: "Logs", Path: "/var/log"},
+			{Name: "Text editor", App: "editor"},
 		},
 	}
 }
@@ -70,8 +89,12 @@ func Load(path string) (cfg Config, exists bool, err error) {
 	if err != nil {
 		return cfg, false, err
 	}
-	if _, err := toml.Decode(string(data), &cfg); err != nil {
+	md, err := toml.Decode(string(data), &cfg)
+	if err != nil {
 		return Default(), true, err
+	}
+	if cfg.IconsEdited && !md.IsDefined("desktop_icon") {
+		cfg.Icons = nil // the user removed every icon
 	}
 	if cfg.TabSize <= 0 || cfg.TabSize > 16 {
 		cfg.TabSize = 4

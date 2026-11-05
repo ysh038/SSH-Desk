@@ -28,6 +28,13 @@ func (d *Desktop) endDrag() {
 		d.svc.dragHover.DropHover(0, 0, false)
 	}
 	d.svc.drag, d.svc.dragHover = nil, nil
+	d.iconHover = -1
+}
+
+// overDesktop reports that (x, y) is on the bare desktop (no window).
+func (d *Desktop) overDesktop(x, y int) bool {
+	w, _ := d.M.HitTest(x, y)
+	return w == nil && d.Area().Contains(x, y)
 }
 
 func (d *Desktop) targetAt(x, y int) (*wm.Window, host.DropTarget) {
@@ -50,6 +57,12 @@ func (d *Desktop) handleDrag(g term.Gesture) {
 		in := w.Inner()
 		t.DropHover(g.X-in.X, g.Y-in.Y, true)
 	}
+	d.iconHover = -1
+	if d.overDesktop(g.X, g.Y) {
+		if i := d.iconAt(g.X, g.Y); d.iconDropKind(i) != "" {
+			d.iconHover = i
+		}
+	}
 	switch g.Kind {
 	case term.GestureRelease, term.GestureDragEnd:
 		dr := d.svc.drag
@@ -58,7 +71,11 @@ func (d *Desktop) handleDrag(g term.Gesture) {
 			// The detector reports Release then DragEnd for the same input;
 			// the DragEnd must not reach the menu the drop opens.
 			d.svc.swallowDragEnd = g.Kind == term.GestureRelease
-			d.drop(*dr, w, t, g.X, g.Y)
+			if d.overDesktop(g.X, g.Y) {
+				d.dropOnDesktop(*dr, g.X, g.Y)
+			} else {
+				d.drop(*dr, w, t, g.X, g.Y)
+			}
 		}
 	}
 }
