@@ -81,8 +81,9 @@ func (f *fmHarness) ls(rel string) []string {
 	return out
 }
 
-// row returns the screen y of list row i in window w.
-func row(w *wm.Window, i int) int { return w.Inner().Y + 2 + i }
+// row returns the screen y of list row i in window w
+// (menu bar, path bar and column header come first).
+func row(w *wm.Window, i int) int { return w.Inner().Y + 3 + i }
 
 func (f *fmHarness) clickMenuItem(label string) {
 	f.t.Helper()
@@ -118,9 +119,8 @@ func TestScenarioS2MouseOnly(t *testing.T) {
 	// 1. Box selection: drag from the first log row to the third.
 	f.d.M.Raise(src)
 	f.drag(x, row(src, 0), x, row(src, 2))
-	c := f.draw()
-	if !strings.Contains(c.Row(src.Inner().Y+src.Inner().H-1), "3 selected") {
-		t.Fatalf("status = %q", c.Row(src.Inner().Y+src.Inner().H-1))
+	if s := statusRow(f.draw(), src); !strings.Contains(s, "3 selected") {
+		t.Fatalf("status = %q", s)
 	}
 
 	// 2. Drag the selection onto backup/ (row 0 in the other window).
@@ -412,8 +412,8 @@ func TestLargeFolderLoadsAsync(t *testing.T) {
 	drawStart := time.Now()
 	c := f.draw()
 	drawTime := time.Since(drawStart)
-	if !strings.Contains(c.Row(w.Inner().Y+w.Inner().H-1), "20000 items") {
-		t.Fatalf("status %q", c.Row(w.Inner().Y+w.Inner().H-1))
+	if !strings.Contains(statusRow(c, w), "20000 items") {
+		t.Fatalf("status %q", statusRow(c, w))
 	}
 	t.Logf("20k entries: load %v, draw after End %v", loaded, drawTime)
 	if drawTime > 50*time.Millisecond {
@@ -459,7 +459,8 @@ func (f *fmHarness) modClick(x, y int, mod term.Mod) {
 	f.wait()
 }
 
-func statusRow(c *wm.Canvas, w *wm.Window) string { return c.Row(w.Inner().Y + w.Inner().H - 1) }
+// statusRow is above the hint bar.
+func statusRow(c *wm.Canvas, w *wm.Window) string { return c.Row(w.Inner().Y + w.Inner().H - 2) }
 
 func TestMultiSelectWindowsAndMacStyles(t *testing.T) {
 	f := newFM(t)
@@ -518,5 +519,67 @@ func TestNewWindowOpensFileManagerAtRoot(t *testing.T) {
 	}
 	if !strings.Contains(f.draw().Row(row(f.d.M.Focused(), 0)), "etc/") {
 		t.Fatal("root listing not shown")
+	}
+}
+
+func TestMenuBarPaletteAndHints(t *testing.T) {
+	f := newFM(t)
+	f.touch("d/.secret", "")
+	f.touch("d/a.txt", "")
+	_, w := f.open(filepath.Join(f.root, "d"), wm.Rect{X: 1, Y: 2, W: 80, H: 16})
+	c := f.draw()
+	if bar := c.Row(w.Inner().Y); !strings.Contains(bar, "File") || !strings.Contains(bar, "View") {
+		t.Fatalf("menu bar = %q", bar)
+	}
+	if hints := c.Row(w.Inner().Y + w.Inner().H - 1); !strings.Contains(hints, "F2 Rename") || !strings.Contains(hints, "Ctrl+K Commands") {
+		t.Fatalf("hint bar = %q", hints)
+	}
+
+	// F10 opens File; Right moves to Edit.
+	f.key("F10", 0)
+	if !f.d.MenuOpen() || f.d.menu.Items[0].Label != "Open" {
+		t.Fatal("F10 should open the File menu")
+	}
+	f.key("Right", 0)
+	if !f.d.MenuOpen() || f.d.menu.Items[0].Label != "Undo" {
+		t.Fatalf("Right should open Edit, got %q", f.d.menu.Items[0].Label)
+	}
+	f.key("Esc", 0)
+
+	// Clicking "View" on the bar opens it.
+	vx, vy, ok := findText(f.draw(), " View ")
+	if !ok {
+		t.Fatal("View not on the bar")
+	}
+	f.click(vx+2, vy)
+	if !f.d.MenuOpen() || f.d.menu.Items[0].Label != "Refresh" {
+		t.Fatal("click should open View")
+	}
+	f.key("Esc", 0)
+
+	// Ctrl+K command search: "hidden" + Enter shows dotfiles.
+	f.rune('k', term.ModCtrl)
+	if !f.d.DialogOpen() {
+		t.Fatal("palette expected")
+	}
+	f.typeText("hidden")
+	f.key("Enter", 0)
+	if f.d.DialogOpen() || !strings.Contains(f.draw().Row(row(w, 0)), ".secret") {
+		t.Fatal("palette should run Show / hide hidden files")
+	}
+
+	// Mac labels in the menu.
+	defer term.SetLabelStyle(term.LabelPC)
+	term.SetLabelStyle(term.LabelMac)
+	f.key("F10", 0)
+	f.key("Right", 0) // Edit
+	found := false
+	for y := 0; y < f.d.H; y++ {
+		if strings.Contains(f.draw().Row(y), "⌃Z") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("Edit menu should show ⌃Z on a Mac keyboard")
 	}
 }

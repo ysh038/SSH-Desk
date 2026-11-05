@@ -120,6 +120,15 @@ func (d *Desktop) OpenMenu(app wm.App, x, y int, items []ui.MenuItem, onChoose f
 	}
 }
 
+func (d *Desktop) OpenBarMenu(app wm.App, x, y int, items []ui.MenuItem, onChoose func(string), side func(int)) {
+	d.OpenMenu(app, x, y, items, onChoose)
+	if d.menu != nil {
+		d.menu.Side = side
+	}
+}
+
+func (d *Desktop) ShowPalette(cmds *ui.Commands) { d.ShowModal(ui.NewPalette(cmds)) }
+
 func (d *Desktop) SetClipboardText(s string) {
 	if d.svc.clipText != nil {
 		d.svc.clipText(s)

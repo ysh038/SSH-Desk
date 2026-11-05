@@ -56,6 +56,10 @@ type Host interface {
 	Prompt(p *ui.Prompt)
 	// OpenMenu opens a popup menu for app at its local (x, y).
 	OpenMenu(app wm.App, x, y int, items []ui.MenuItem, onChoose func(action string))
+	// OpenBarMenu is OpenMenu for a menu bar: Left/Right call side(-1/+1).
+	OpenBarMenu(app wm.App, x, y int, items []ui.MenuItem, onChoose func(action string), side func(dir int))
+	// ShowPalette opens the command search for cmds.
+	ShowPalette(cmds *ui.Commands)
 
 	OpenWindow(app wm.App) *wm.Window
 	// SetClipboardText copies text to the internal clipboard and, through

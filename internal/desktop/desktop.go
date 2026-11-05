@@ -344,6 +344,10 @@ func (d *Desktop) handleMenu(ev term.Event) bool {
 		}
 	case ui.MenuClosed:
 		d.closeMenu()
+	case ui.MenuSide:
+		side, dir := d.menu.Side, d.menu.SideDir
+		d.closeMenu()
+		side(dir)
 	case ui.MenuIgnored:
 		return false
 	}

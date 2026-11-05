@@ -18,9 +18,10 @@ import (
 
 // Layout rows inside the window.
 const (
-	rowPath   = 0
-	rowHeader = 1
-	rowList   = 2
+	rowBar    = 0
+	rowPath   = 1
+	rowHeader = 2
+	rowList   = 3
 )
 
 type segment struct {
@@ -63,6 +64,9 @@ type App struct {
 	dragging   bool
 	dropRow    int
 
+	chrome *host.Chrome
+	cmds   ui.Commands
+
 	// layout from the last Draw
 	vw, vh   int
 	segments []segment
@@ -73,6 +77,8 @@ type App struct {
 // New opens a file manager on dir.
 func New(h host.Host, dir string) *App {
 	a := &App{h: h, selected: map[string]bool{}, boxStart: -1, dropRow: -1}
+	a.buildCommands()
+	a.chrome = host.NewChrome(h, a, &a.cmds)
 	a.navigate(dir, "")
 	return a
 }
@@ -219,7 +225,7 @@ func (a *App) clampCursor() {
 	a.ensureVisible()
 }
 
-func (a *App) listH() int { return max(a.vh-3, 1) }
+func (a *App) listH() int { return max(a.vh-rowList-1-a.chrome.HintRows(), 1) }
 
 func (a *App) ensureVisible() {
 	h := a.listH()
@@ -369,12 +375,6 @@ func (a *App) handleKey(k term.Key) bool {
 		a.extend(-len(a.view))
 	case "Shift+End":
 		a.extend(len(a.view))
-	case "Alt+Up":
-		a.up() // Finder: Cmd+Up; Option+Up is what can reach the terminal
-	case "Alt+Down":
-		if e, ok := a.cursorEntry(); ok {
-			a.open(e)
-		}
 	case "Space":
 		if e, ok := a.cursorEntry(); ok {
 			a.selected[e.Name] = !a.selected[e.Name]
@@ -383,10 +383,6 @@ func (a *App) handleKey(k term.Key) bool {
 			}
 			a.cursor++
 			a.clampCursor()
-		}
-	case "Enter":
-		if e, ok := a.cursorEntry(); ok {
-			a.open(e)
 		}
 	case "Backspace":
 		if len(a.filter) > 0 {
@@ -403,37 +399,13 @@ func (a *App) handleKey(k term.Key) bool {
 		case len(a.selected) > 1:
 			a.selectOnly(a.cursor)
 		}
-	case "F2":
-		a.startRename()
-	case "F5":
-		a.Refresh()
-	case "Alt+.":
-		a.showHidden = !a.showHidden
-		a.rebuild()
-	case "Ctrl+L":
-		a.promptPath()
-	case "Ctrl+A":
-		a.selectRange(0, len(a.view)-1)
-	case "Ctrl+C":
-		a.clip(false)
-	case "Ctrl+X":
-		a.clip(true)
-	case "Ctrl+V":
-		a.paste()
-	case "Ctrl+D":
-		a.duplicate()
-	case "Delete":
-		a.trash()
-	case "Shift+Delete":
-		a.deletePermanently()
-	case "Ctrl+Z":
-		a.undo()
 	case "Shift+F10":
 		y := rowList + a.cursor - a.offset
 		a.contextMenu(2, y, true)
-	case "Alt+Enter", "Ctrl+P": // Ctrl+P: Alt/Option+Enter needs "Option as Meta" on a Mac
-		a.permissions()
 	default:
+		if a.chrome.HandleKey(k) {
+			return true
+		}
 		if k.IsRune() && k.Mod&(term.ModCtrl|term.ModAlt|term.ModMeta) == 0 && k.Rune > ' ' {
 			a.filter = append(a.filter, k.Rune)
 			a.rebuild()
@@ -523,6 +495,9 @@ func (a *App) handleClick(g term.Gesture) bool {
 	}
 	toggleMod := g.Mod&(term.ModCtrl|term.ModAlt|term.ModMeta) != 0
 	switch {
+	case g.Y == rowBar && !ctx:
+		a.chrome.ClickBar(g.X)
+		return true
 	case g.Y == rowPath && !ctx:
 		for _, s := range a.segments {
 			if g.X >= s.x0 && g.X < s.x1 {
@@ -616,6 +591,8 @@ func (a *App) DropHover(x, y int, on bool) {
 func (a *App) Draw(s wm.Surface, focused bool) {
 	a.vw, a.vh = s.Size()
 	a.ensureVisible()
+	a.chrome.DrawBar(s)
+	a.chrome.DrawHints(s)
 	a.drawPath(s)
 	a.layoutColumns()
 	a.drawHeader(s)
@@ -809,7 +786,7 @@ func clipName(s string, w int) string {
 }
 
 func (a *App) drawStatus(s wm.Surface) {
-	row := s.Sub(wm.Rect{X: 0, Y: a.vh - 1, W: a.vw, H: 1})
+	row := s.Sub(wm.Rect{X: 0, Y: a.vh - 1 - a.chrome.HintRows(), W: a.vw, H: 1})
 	row.Clear(wm.StyleBodyDim)
 	var parts []string
 	parts = append(parts, fmt.Sprintf("%d items", len(a.view)))

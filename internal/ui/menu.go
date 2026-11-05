@@ -29,6 +29,7 @@ const (
 	MenuActivated                   // an item was chosen; see Menu.Chosen
 	MenuClosed                      // dismissed (Esc or click outside)
 	MenuIgnored                     // event not for the menu
+	MenuSide                        // Left/Right on a menu bar menu; see SideDir
 )
 
 // Menu is a vertical popup menu. Its Rect (screen position, frame included)
@@ -38,6 +39,9 @@ type Menu struct {
 	Selected int
 	Rect     wm.Rect
 	Chosen   MenuItem
+	// Side, when set, makes Left/Right report MenuSide (menu bar navigation).
+	Side    func(dir int)
+	SideDir int
 }
 
 // NewMenu returns a menu with the first enabled item selected.
@@ -121,8 +125,13 @@ func (m *Menu) HandleKey(k term.Key) MenuResult {
 		m.move(-1)
 	case "Enter", "Space":
 		return m.activate(m.Selected)
-	case "Esc", "F9", "Shift+F10":
+	case "Esc", "F9", "Shift+F10", "F10":
 		return MenuClosed
+	case "Left", "Right":
+		if m.Side != nil {
+			m.SideDir = map[string]int{"Left": -1, "Right": 1}[k.String()]
+			return MenuSide
+		}
 	default:
 		if k.IsRune() && k.Mod == 0 {
 			r := unicode.ToLower(term.ShortcutRune(k.Rune, term.ModCtrl)) // hotkeys work with the Korean IME on
