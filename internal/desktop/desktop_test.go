@@ -146,7 +146,7 @@ func TestDoubleClickTitleMaximizes(t *testing.T) {
 	}
 }
 
-func TestRightClickAndCtrlClickOpenWindowMenu(t *testing.T) {
+func TestRightClickOpensWindowMenu(t *testing.T) {
 	h := newHarness(t, 2)
 	w1 := h.win(1)
 	h.rclick(w1.Rect.X+2, w1.Rect.Y+2)
@@ -158,16 +158,13 @@ func TestRightClickAndCtrlClickOpenWindowMenu(t *testing.T) {
 		t.Fatal("menu hotkey should maximize")
 	}
 
+	// Ctrl+click no longer opens the window menu (it is multi-select now).
 	h2 := newHarness(t, 1)
 	w := h2.win(1)
 	h2.mouse(w.Rect.X+3, w.Rect.Y+3, term.ButtonLeft, term.ModCtrl)
 	h2.mouse(w.Rect.X+3, w.Rect.Y+3, term.ButtonNone, term.ModCtrl)
-	if !h2.d.MenuOpen() {
-		t.Fatal("Ctrl+click should open the window menu")
-	}
-	h2.key("Esc", 0)
 	if h2.d.MenuOpen() {
-		t.Fatal("Esc should close the menu")
+		t.Fatal("Ctrl+click must reach the app, not open a menu")
 	}
 }
 

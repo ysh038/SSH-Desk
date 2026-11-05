@@ -37,8 +37,11 @@ type Desktop struct {
 	M        *wm.Manager
 	// NewApp creates the app for "New window" (window number n).
 	NewApp func(n int) wm.App
-	// NewFiles creates a file manager for dir (nil: no "Files" launcher item).
+	// NewFiles creates a file manager for dir. When set, "New window" opens
+	// a file manager at RootDir instead of an empty window.
 	NewFiles func(dir string) wm.App
+	// RootDir is where "New window" file managers start (default "/").
+	RootDir string
 	// HomeDir is where new file managers start.
 	HomeDir string
 	Quit    bool
@@ -209,14 +212,10 @@ func (d *Desktop) openMenu(items []ui.MenuItem, target *wm.Window, x, y int) {
 }
 
 func (d *Desktop) openLauncher(x, y int) {
-	var items []ui.MenuItem
-	if d.NewFiles != nil {
-		items = append(items, ui.MenuItem{Label: "Files", Hotkey: 'f', Action: "files"})
-	}
-	items = append(items, []ui.MenuItem{
+	items := []ui.MenuItem{
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
 		{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
-	}...)
+	}
 	if wins := d.M.Windows(); len(wins) > 0 {
 		items = append(items, ui.MenuItem{Separator: true})
 		for _, w := range wins {
@@ -281,11 +280,15 @@ func (d *Desktop) run(action string, target *wm.Window) {
 		target = d.M.Focused()
 	}
 	switch {
+	case action == "new" && d.NewFiles != nil:
+		root := d.RootDir
+		if root == "" {
+			root = "/"
+		}
+		w := d.OpenWindow(d.NewFiles(root))
+		d.M.ResizeTo(w, min(84, d.Area().W-4), min(22, d.Area().H-2))
 	case action == "new":
 		d.OpenWindow(d.NewApp(d.created + 1))
-	case action == "files" && d.NewFiles != nil:
-		w := d.OpenWindow(d.NewFiles(d.HomeDir))
-		d.M.ResizeTo(w, min(84, d.Area().W-4), min(22, d.Area().H-2))
 	case action == "help":
 		d.showHelp()
 	case action == "quit":
@@ -337,7 +340,7 @@ var helpLines = []string{
 	"Mouse",
 	"  Drag title bar: move       Drag bottom-right corner: resize",
 	"  [_] minimize  [^] maximize  [x] close  Double-click title: maximize",
-	"  Right click or Ctrl+click: window menu",
+	"  Right click: window / file menu   Ctrl+click or Option+click: add to selection",
 	"",
 	"Keyboard",
 	"  F9         Menu            F6 / Shift+F6  Next / previous window",
@@ -349,7 +352,8 @@ var helpLines = []string{
 	"Files",
 	"  Enter open   Backspace up   Space select   F2 rename   F5 refresh",
 	"  Del trash    Ctrl+Z undo    Ctrl+C/X/V copy/cut/paste   Ctrl+D duplicate",
-	"  Alt+Enter permissions   Alt+. hidden files   Ctrl+L go to folder",
+	"  Ctrl+P / Alt+Enter permissions   Alt+. hidden   Ctrl+L go to folder",
+	"  Shift+arrows extend selection   Ctrl/Option+click add to selection",
 	"  Type to filter (Esc clears). Drag a selected row to move or copy.",
 }
 
@@ -467,8 +471,9 @@ func (d *Desktop) handleMouse(g term.Gesture) {
 		}
 	}
 
-	ctxClick := g.Kind == term.GestureClick &&
-		(g.Button == term.ButtonRight || (g.Button == term.ButtonLeft && g.Mod&term.ModCtrl != 0))
+	// Right click opens menus. Ctrl/Alt+click go to the app (multi-select in
+	// the file manager, Windows convention; Cmd never reaches the terminal).
+	ctxClick := g.Kind == term.GestureClick && g.Button == term.ButtonRight
 	if ctxClick {
 		if w, part := d.M.HitTest(g.X, g.Y); w != nil {
 			d.M.Raise(w)
@@ -487,9 +492,6 @@ func (d *Desktop) handleMouse(g term.Gesture) {
 
 	switch g.Kind {
 	case term.GesturePress:
-		if g.Mod&term.ModCtrl != 0 {
-			return
-		}
 		if w, part := d.M.PointerDown(g.X, g.Y); part == wm.PartBody {
 			d.forward(w, g)
 		}

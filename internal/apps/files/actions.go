@@ -416,7 +416,7 @@ func (a *App) contextMenu(x, y int, onItems bool) {
 			{Label: "Move to Trash", Hotkey: 't', Shortcut: "Del", Action: "trash"},
 			{Label: "Delete permanently", Hotkey: 'e', Shortcut: "Shift+Del", Action: "delete"},
 			{Separator: true},
-			{Label: "Permissions...", Hotkey: 's', Shortcut: "Alt+Enter", Action: "perms"},
+			{Label: "Permissions...", Hotkey: 's', Shortcut: "Ctrl+P", Action: "perms"},
 			{Label: "Make executable (+x)", Hotkey: 'x', Action: "plusx"},
 			{Label: "Remove executable (-x)", Hotkey: 'v', Action: "minusx"},
 			{Label: "Copy path", Hotkey: 'a', Action: "copypath"},

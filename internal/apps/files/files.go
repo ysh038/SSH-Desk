@@ -293,6 +293,14 @@ func (a *App) HandleEvent(ev term.Event) bool {
 		return a.handleKey(ev.Key)
 	case term.MouseEvent:
 		return a.handleMouse(ev.Gesture)
+	case term.PasteEvent:
+		// The terminal pasted text: Windows Terminal turns Ctrl+V into a
+		// paste and on a Mac Cmd+V does the same. In a file list that means
+		// "paste the copied files".
+		if len(a.h.Files().Paths) > 0 {
+			a.paste()
+			return true
+		}
 	}
 	return false
 }
@@ -307,6 +315,33 @@ func (a *App) moveCursor(delta int) {
 	a.anchor = a.cursor
 }
 
+// extend moves the cursor and selects the range from the anchor (Shift+arrows).
+func (a *App) extend(delta int) {
+	a.cursor += delta
+	a.clampCursor()
+	a.selectRange(a.anchor, a.cursor)
+}
+
+// toggle adds or removes one row from the selection (Ctrl/Option+click).
+func (a *App) toggle(vi int) {
+	e, ok := a.entryAt(vi)
+	if !ok {
+		return
+	}
+	if len(a.selected) == 0 {
+		// The cursor row counts as selected until the first toggle.
+		if c, ok := a.cursorEntry(); ok && c.Name != e.Name {
+			a.selected[c.Name] = true
+		}
+	}
+	if a.selected[e.Name] {
+		delete(a.selected, e.Name)
+	} else {
+		a.selected[e.Name] = true
+	}
+	a.cursor, a.anchor = vi, vi
+}
+
 func (a *App) handleKey(k term.Key) bool {
 	page := max(a.listH()-1, 1)
 	switch k.String() {
@@ -318,10 +353,28 @@ func (a *App) handleKey(k term.Key) bool {
 		a.moveCursor(-page)
 	case "PgDn":
 		a.moveCursor(page)
-	case "Home":
+	case "Home", "Ctrl+Home":
 		a.moveCursor(-len(a.view))
-	case "End":
+	case "End", "Ctrl+End":
 		a.moveCursor(len(a.view))
+	case "Shift+Up":
+		a.extend(-1)
+	case "Shift+Down":
+		a.extend(1)
+	case "Shift+PgUp":
+		a.extend(-page)
+	case "Shift+PgDn":
+		a.extend(page)
+	case "Shift+Home":
+		a.extend(-len(a.view))
+	case "Shift+End":
+		a.extend(len(a.view))
+	case "Alt+Up":
+		a.up() // Finder: Cmd+Up; Option+Up is what can reach the terminal
+	case "Alt+Down":
+		if e, ok := a.cursorEntry(); ok {
+			a.open(e)
+		}
 	case "Space":
 		if e, ok := a.cursorEntry(); ok {
 			a.selected[e.Name] = !a.selected[e.Name]
@@ -378,7 +431,7 @@ func (a *App) handleKey(k term.Key) bool {
 	case "Shift+F10":
 		y := rowList + a.cursor - a.offset
 		a.contextMenu(2, y, true)
-	case "Alt+Enter":
+	case "Alt+Enter", "Ctrl+P": // Windows Terminal uses Alt+Enter for full screen
 		a.permissions()
 	default:
 		if k.IsRune() && k.Mod&(term.ModCtrl|term.ModAlt|term.ModMeta) == 0 && k.Rune > ' ' {
@@ -464,10 +517,11 @@ func (a *App) handleMouse(g term.Gesture) bool {
 }
 
 func (a *App) handleClick(g term.Gesture) bool {
-	ctx := g.Button == term.ButtonRight || (g.Button == term.ButtonLeft && g.Mod&term.ModCtrl != 0)
+	ctx := g.Button == term.ButtonRight
 	if g.Button != term.ButtonLeft && !ctx {
 		return false
 	}
+	toggleMod := g.Mod&(term.ModCtrl|term.ModAlt|term.ModMeta) != 0
 	switch {
 	case g.Y == rowPath && !ctx:
 		for _, s := range a.segments {
@@ -514,6 +568,8 @@ func (a *App) handleClick(g term.Gesture) bool {
 		return true
 	}
 	switch {
+	case toggleMod:
+		a.toggle(vi)
 	case g.Count == 2:
 		a.selectOnly(vi)
 		a.cursor = vi

@@ -452,3 +452,71 @@ func findText(c *wm.Canvas, text string) (int, int, bool) {
 	}
 	return 0, 0, false
 }
+
+func (f *fmHarness) modClick(x, y int, mod term.Mod) {
+	f.mouse(x, y, term.ButtonLeft, mod)
+	f.mouse(x, y, term.ButtonNone, mod)
+	f.wait()
+}
+
+func statusRow(c *wm.Canvas, w *wm.Window) string { return c.Row(w.Inner().Y + w.Inner().H - 1) }
+
+func TestMultiSelectWindowsAndMacStyles(t *testing.T) {
+	f := newFM(t)
+	for _, n := range []string{"a.log", "b.log", "c.log", "d.log", "e.log"} {
+		f.touch("x/"+n, n)
+	}
+	_, w := f.open(filepath.Join(f.root, "x"), wm.Rect{X: 1, Y: 2, W: 70, H: 14})
+	x := w.Inner().X + 4
+
+	// Ctrl+click (Windows) and Option+click (Mac, arrives as Alt) toggle rows.
+	f.click(x, row(w, 0))
+	f.wait()
+	f.modClick(x, row(w, 2), term.ModCtrl)
+	f.modClick(x, row(w, 4), term.ModAlt)
+	if s := statusRow(f.draw(), w); !strings.Contains(s, "3 selected") {
+		t.Fatalf("status %q", s)
+	}
+	f.modClick(x, row(w, 2), term.ModCtrl) // toggle off
+	if s := statusRow(f.draw(), w); !strings.Contains(s, "2 selected") {
+		t.Fatalf("status %q", s)
+	}
+
+	// Shift+Down extends from the anchor (keyboard, Windows and Mac).
+	f.key("Home", 0)
+	f.key("Down", term.ModShift)
+	f.key("Down", term.ModShift)
+	if s := statusRow(f.draw(), w); !strings.Contains(s, "3 selected") {
+		t.Fatalf("shift range status %q", s)
+	}
+}
+
+func TestTerminalPasteInFileListPastesFiles(t *testing.T) {
+	f := newFM(t)
+	f.touch("src/report.txt", "r")
+	os.Mkdir(filepath.Join(f.root, "dst"), 0o755)
+	f.open(filepath.Join(f.root, "src"), wm.Rect{X: 1, Y: 2, W: 70, H: 14})
+	f.rune('c', term.ModCtrl)
+	f.open(filepath.Join(f.root, "dst"), wm.Rect{X: 2, Y: 3, W: 70, H: 14})
+	// Windows Terminal sends Ctrl+V (and a Mac sends Cmd+V) as pasted text.
+	f.d.Handle(term.PasteEvent{Text: "whatever was on the system clipboard"})
+	f.settle()
+	if got := strings.Join(f.ls("dst"), ","); got != "report.txt" {
+		t.Fatalf("dst = %s", got)
+	}
+}
+
+func TestNewWindowOpensFileManagerAtRoot(t *testing.T) {
+	f := newFM(t)
+	f.touch("etc/nginx.conf", "")
+	f.d.RootDir = f.root
+	f.rune('n', term.ModCtrl)
+	f.settle()
+	a, ok := f.d.M.Focused().App.(*files.App)
+	if !ok || a.Dir() != f.root {
+		t.Fatalf("new window = %T", f.d.M.Focused().App)
+	}
+	if !strings.Contains(f.draw().Row(row(f.d.M.Focused(), 0)), "etc/") {
+		t.Fatal("root listing not shown")
+	}
+}
