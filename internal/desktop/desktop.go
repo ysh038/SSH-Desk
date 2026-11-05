@@ -31,18 +31,24 @@ type barItem struct {
 
 // Desktop holds the whole shell state.
 type Desktop struct {
-	W, H int
-	Host string
-	Now  time.Time
-	M    *wm.Manager
+	W, H     int
+	HostName string
+	Now      time.Time
+	M        *wm.Manager
 	// NewApp creates the app for "New window" (window number n).
 	NewApp func(n int) wm.App
-	Quit   bool
+	// NewFiles creates a file manager for dir (nil: no "Files" launcher item).
+	NewFiles func(dir string) wm.App
+	// HomeDir is where new file managers start.
+	HomeDir string
+	Quit    bool
 
 	menu       *ui.Menu
 	menuTarget *wm.Window
-	dialog     *ui.Dialog
+	menuFn     func(action string) // app menu callback (nil: desktop action)
+	modals     []ui.Modal
 	toasts     ui.Toasts
+	svc        services
 	mode       Mode
 	topItems   []barItem
 	taskItems  []barItem
@@ -52,7 +58,8 @@ type Desktop struct {
 
 // New creates a desktop of w×h cells.
 func New(w, h int, host string, now time.Time) *Desktop {
-	d := &Desktop{Host: host, Now: now, M: &wm.Manager{}}
+	d := &Desktop{HostName: host, Now: now, M: &wm.Manager{}}
+	d.svc.init()
 	d.NewApp = func(n int) wm.App { return blank.New(n) }
 	d.Resize(w, h)
 	return d
@@ -66,8 +73,8 @@ func (d *Desktop) Resize(w, h int) {
 	d.W, d.H = w, h
 	d.M.Desktop = d.Area()
 	d.M.ClampAll()
-	if d.dialog != nil {
-		d.dialog.Center(d.Area())
+	for _, m := range d.modals {
+		m.Layout(d.Area())
 	}
 	d.closeMenu()
 }
@@ -77,7 +84,7 @@ func (d *Desktop) Mode() Mode { return d.mode }
 
 // MenuOpen and DialogOpen expose modal state (for tests and the status line).
 func (d *Desktop) MenuOpen() bool   { return d.menu != nil }
-func (d *Desktop) DialogOpen() bool { return d.dialog != nil }
+func (d *Desktop) DialogOpen() bool { return len(d.modals) > 0 }
 
 // Notify shows a toast.
 func (d *Desktop) Notify(text string, isErr bool) { d.toasts.Push(d.Now, text, isErr) }
@@ -112,12 +119,26 @@ func (d *Desktop) Handle(ev term.Event) {
 		d.toasts.Tick(t.Now)
 		return
 	}
-	if d.dialog != nil {
-		d.handleDialog(ev)
+	d.dropClosedModals()
+	if n := len(d.modals); n > 0 {
+		top := d.modals[n-1]
+		if top.HandleEvent(ev) {
+			d.removeModal(top)
+		}
 		return
 	}
 	if d.menu != nil && d.handleMenu(ev) {
 		return
+	}
+	if d.svc.drag != nil {
+		if me, ok := ev.(term.MouseEvent); ok {
+			d.handleDrag(me.Gesture)
+			return
+		}
+		if ke, ok := ev.(term.KeyEvent); ok && ke.Key.String() == "Esc" {
+			d.endDrag()
+			return
+		}
 	}
 	switch ev := ev.(type) {
 	case term.KeyEvent:
@@ -135,43 +156,61 @@ func (d *Desktop) Handle(ev term.Event) {
 
 func (d *Desktop) askQuit() {
 	d.closeMenu()
-	d.dialog = ui.NewDialog("quit", "Quit", "Quit tuidesk?\nAll open windows will be closed.", "Quit", "Cancel")
-	d.dialog.Center(d.Area())
-}
-
-func (d *Desktop) handleDialog(ev term.Event) {
-	if d.dialog.HandleEvent(ev) != ui.DialogDone {
-		return
-	}
-	dl := d.dialog
-	d.dialog = nil
-	if dl.ID == "quit" && dl.Chosen == 0 {
+	d.Confirm("Quit", "Quit tuidesk?\nAll open windows will be closed.", []string{"Quit", "Cancel"}, func(choice int) {
+		if choice != 0 {
+			return
+		}
 		for _, w := range d.M.Windows() {
 			if w.App != nil {
 				_ = w.App.Close()
 			}
 		}
 		d.Quit = true
+	})
+}
+
+// dropClosedModals removes modals their owner closed (e.g. progress).
+func (d *Desktop) dropClosedModals() {
+	kept := d.modals[:0]
+	for _, m := range d.modals {
+		if p, ok := m.(*ui.ProgressModal); ok && p.Closed() {
+			continue
+		}
+		kept = append(kept, m)
+	}
+	d.modals = kept
+}
+
+func (d *Desktop) removeModal(m ui.Modal) {
+	for i, x := range d.modals {
+		if x == m {
+			d.modals = append(d.modals[:i], d.modals[i+1:]...)
+			return
+		}
 	}
 }
 
 // ---- menus ----
 
-func (d *Desktop) closeMenu() { d.menu, d.menuTarget = nil, nil }
+func (d *Desktop) closeMenu() { d.menu, d.menuTarget, d.menuFn = nil, nil, nil }
 
 func (d *Desktop) openMenu(items []ui.MenuItem, target *wm.Window, x, y int) {
 	d.mode = ModeNormal
 	m := ui.NewMenu(items)
 	w, h := m.Size()
 	m.Rect = ui.PlacePopup(wm.Rect{X: 0, Y: 0, W: d.W, H: d.H}, x, y, w, h)
-	d.menu, d.menuTarget = m, target
+	d.menu, d.menuTarget, d.menuFn = m, target, nil
 }
 
 func (d *Desktop) openLauncher(x, y int) {
-	items := []ui.MenuItem{
+	var items []ui.MenuItem
+	if d.NewFiles != nil {
+		items = append(items, ui.MenuItem{Label: "Files", Hotkey: 'f', Action: "files"})
+	}
+	items = append(items, []ui.MenuItem{
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
 		{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
-	}
+	}...)
 	if wins := d.M.Windows(); len(wins) > 0 {
 		items = append(items, ui.MenuItem{Separator: true})
 		for _, w := range wins {
@@ -214,9 +253,13 @@ func (d *Desktop) handleMenu(ev term.Event) bool {
 	}
 	switch r {
 	case ui.MenuActivated:
-		item, target := d.menu.Chosen, d.menuTarget
+		item, target, fn := d.menu.Chosen, d.menuTarget, d.menuFn
 		d.closeMenu()
-		d.run(item.Action, target)
+		if fn != nil {
+			fn(item.Action)
+		} else {
+			d.run(item.Action, target)
+		}
 	case ui.MenuClosed:
 		d.closeMenu()
 	case ui.MenuIgnored:
@@ -234,6 +277,9 @@ func (d *Desktop) run(action string, target *wm.Window) {
 	switch {
 	case action == "new":
 		d.OpenWindow(d.NewApp(d.created + 1))
+	case action == "files" && d.NewFiles != nil:
+		w := d.OpenWindow(d.NewFiles(d.HomeDir))
+		d.M.ResizeTo(w, min(84, d.Area().W-4), min(22, d.Area().H-2))
 	case action == "help":
 		d.showHelp()
 	case action == "quit":
@@ -412,8 +458,11 @@ func (d *Desktop) handleMouse(g term.Gesture) {
 	ctxClick := g.Kind == term.GestureClick &&
 		(g.Button == term.ButtonRight || (g.Button == term.ButtonLeft && g.Mod&term.ModCtrl != 0))
 	if ctxClick {
-		if w, _ := d.M.HitTest(g.X, g.Y); w != nil {
+		if w, part := d.M.HitTest(g.X, g.Y); w != nil {
 			d.M.Raise(w)
+			if part == wm.PartBody && w.App != nil && w.App.HandleEvent(term.MouseEvent{Gesture: local(g, w.Inner())}) {
+				return // the app opened its own context menu
+			}
 			d.openWindowMenu(w, g.X, g.Y)
 		} else {
 			d.openLauncher(g.X, g.Y)
@@ -496,9 +545,10 @@ func (d *Desktop) Draw(c *wm.Canvas) {
 	if d.menu != nil {
 		d.menu.Draw(c)
 	}
-	if d.dialog != nil {
-		d.dialog.Draw(c)
+	for _, m := range d.modals {
+		m.Draw(c)
 	}
+	d.drawDrag(c)
 	a := d.Area()
 	d.toasts.Draw(c, wm.Rect{X: a.X + a.W/3, Y: a.Y, W: a.W - a.W/3, H: a.H})
 }
@@ -508,7 +558,7 @@ func (d *Desktop) drawTopBar(c *wm.Canvas) {
 	s.Clear(wm.StyleBar)
 	d.topItems = d.topItems[:0]
 
-	right := fmt.Sprintf(" %s  %s ", d.Host, d.Now.Format("15:04"))
+	right := fmt.Sprintf(" %s  %s ", d.HostName, d.Now.Format("15:04"))
 	limit := d.W - term.Width(right) - 1
 
 	x := 0

@@ -24,6 +24,15 @@ type Handler interface {
 	Done() bool
 }
 
+// poster is implemented by handlers that accept work from goroutines.
+type poster interface {
+	SetPoster(wake func())
+	Flush() bool
+}
+
+// clipboarder is implemented by handlers that copy text to the user's clipboard.
+type clipboarder interface{ SetClipboardWriter(func(string)) }
+
 // Loop owns the tcell screen and the render state.
 type Loop struct {
 	S       tcell.Screen
@@ -45,6 +54,7 @@ type Loop struct {
 }
 
 type tickData struct{}
+type flushData struct{}
 
 // NewLoop prepares a loop for an initialized screen.
 func NewLoop(s tcell.Screen, h Handler) *Loop {
@@ -59,6 +69,12 @@ func NewLoop(s tcell.Screen, h Handler) *Loop {
 		canvas:  wm.NewCanvas(w, ht),
 	}
 	l.Det.MultiClickInterval = 500 * time.Millisecond // compat-matrix finding 7
+	if p, ok := h.(poster); ok {
+		p.SetPoster(func() { _ = s.PostEvent(tcell.NewEventInterrupt(flushData{})) })
+	}
+	if c, ok := h.(clipboarder); ok {
+		c.SetClipboardWriter(func(text string) { s.SetClipboard([]byte(text)) })
+	}
 	return l
 }
 
@@ -105,10 +121,16 @@ func (l *Loop) Dispatch(ev tcell.Event) {
 			l.H.Handle(term.MouseEvent{Gesture: g})
 		}
 	case *tcell.EventInterrupt:
-		if _, ok := ev.Data().(tickData); !ok {
+		switch ev.Data().(type) {
+		case tickData:
+			l.H.Handle(term.TickEvent{Now: l.Now()})
+		case flushData:
+			if p, ok := l.H.(poster); !ok || !p.Flush() {
+				return
+			}
+		default:
 			return
 		}
-		l.H.Handle(term.TickEvent{Now: l.Now()})
 	default:
 		return
 	}
