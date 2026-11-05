@@ -55,22 +55,22 @@ tuidesk는 서버(리눅스)에서 실행되므로 **사용자 PC의 터미널 �
 
 ※ Terminal.app은 기본 설정에서 Home/End/PgUp/PgDn을 **터미널 화면 스크롤**에 쓰고, Shift를 함께 눌러야 앱으로 보낸다고 알려져 있습니다. PC 키보드의 Home/End 키도 같은 영향을 받습니다. 실측이 필요합니다.
 
-## 3. 에디터 키 계획 (Phase 3, 실측 후 확정)
+## 3. 에디터 키 (Phase 3에서 구현, Mac 배열은 실측 대기)
 
-Cmd(Windows 키) 조합은 받을 수 없으므로 **PC 표준 키 + Mac에서 실제로 전달되는 대체 키 + 콘솔용 키**를 모두 연결할 계획입니다.
+Cmd(Windows 키) 조합은 받을 수 없으므로 **PC 표준 키 + Mac에서 실제로 전달되는 대체 키 + 콘솔용 키**를 모두 연결했습니다. 메뉴, 도움말, 힌트 줄은 설정한 키보드 표기로 보여 줍니다(ADR 0003).
 
 | 동작 | PC 배열 | Mac 배열 (Cmd 대신) | 콘솔 |
 |---|---|---|---|
-| 줄 처음/끝 | Home / End | fn+←/→, **Ctrl+A / Ctrl+E**(macOS 텍스트 기본 키) | Home / End |
+| 줄 처음/끝 | Home / End | fn+←/→ | Home / End |
 | 문서 처음/끝 | Ctrl+Home / Ctrl+End 🔶 | **Option+↑/↓** | Ctrl+Home/End 🔶 |
 | 단어 이동 | Alt+←/→ (맥에서는 Alt=Option) | **Option+←/→** (Terminal.app이 ESC b/f로 보냄 → Alt+B/F) | Alt+B / Alt+F |
-| 선택 | Shift+방향키 | Shift+방향키 | 선택 모드 키(미정, Shift가 사라짐) |
-| 전체 선택 | Ctrl+A | Ctrl+A가 줄 처음과 겹침(미정) | |
+| 선택 | Shift+방향키 | Shift+방향키 | **Ctrl+Space**로 선택 시작 후 이동 |
+| 전체 선택 | Ctrl+A | ⌃A (규칙 B: 명령은 ⌃) | Ctrl+A |
 | 저장 / 찾기 / 실행취소 | Ctrl+S / Ctrl+F / Ctrl+Z | 같음 | 같음 |
 | 복사 / 붙여넣기 | Ctrl+C / Ctrl+V, Win+V | Ctrl+C / Cmd+V | 같음 |
 
 - **PC 배열이라도 맥에 연결하면** Ctrl+←/→는 macOS가 가져가므로, 단어 이동은 Alt(=Option)+←/→로 합니다.
-- **Ctrl+A 충돌**: PC 기준으로는 "전체 선택"이고, macOS 텍스트 기준으로는 "줄 처음"입니다. 실측 결과를 보고 정합니다.
+- **Ctrl+A**: "명령은 ⌃" 규칙(ADR 0003 B)에 따라 전체 선택으로 정했습니다. 줄 처음은 fn←(Home)입니다.
 - **Cmd+←/→를 꼭 쓰고 싶다면**: Terminal.app의 프로파일 › 키보드 설정에서 Cmd 조합을 Home/End로 매핑할 수 있는지 확인이 필요합니다. 가능하면 설정 방법을 안내하겠습니다.
 
 ## 4. 실측 방법 (`evlog`)

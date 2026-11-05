@@ -204,6 +204,8 @@ func KeyFromTcell(ev *tcell.EventKey) term.Key {
 		return term.Key{Name: "Rune", Rune: rune('a' + (k - tcell.KeyCtrlA)), Mod: mod | term.ModCtrl}
 	case k >= tcell.KeyF1 && k <= tcell.KeyF64:
 		return term.Key{Name: fmt.Sprintf("F%d", int(k-tcell.KeyF1)+1), Mod: mod}
+	case k == tcell.KeyCtrlUnderscore: // terminals send Ctrl+/ as ^_ (0x1F)
+		return term.Key{Name: "Rune", Rune: '/', Mod: mod | term.ModCtrl}
 	case k == tcell.KeyBacktab:
 		return term.Key{Name: "Tab", Mod: mod | term.ModShift}
 	}
@@ -317,6 +319,7 @@ func StylesFor(colors int) [wm.NumStyles]tcell.Style {
 		st[wm.StyleBodyDim] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorWhite)
 		st[wm.StyleMenuDisabled] = b.Background(tcell.ColorSilver).Foreground(tcell.ColorNavy)
 		st[wm.StyleScrollbar] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorWhite)
+		st[wm.StyleSynComment] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorOlive) // grey is invisible here
 	}
 	return st
 }

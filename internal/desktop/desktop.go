@@ -458,6 +458,15 @@ var helpSections = []struct {
 		{"Ctrl+D", "Duplicate"}, {"Ctrl+P", "Permissions"}, {"Ctrl+L", "Go to folder"},
 		{"F5", "Refresh"}, {"Alt+.", "Show hidden files"},
 	}},
+	{"Editor", []helpRow{
+		{"Ctrl+S", "Save (offers sudo when needed)"}, {"Ctrl+Z / Ctrl+Y", "Undo / redo"},
+		{"Ctrl+F / Ctrl+R", "Find / replace"}, {"Ctrl+G", "Go to line"},
+		{"Home / End", "Line start / end"}, {"Alt+Up / Alt+Down", "Document start / end"},
+		{"Alt+Left / Alt+Right", "Previous / next word"}, {"PgUp / PgDn", "One screen up / down"},
+		{"Shift+arrows", "Select (Linux console: Ctrl+Space, then move)"},
+		{"Ctrl+T", "Insert snippet (or type a trigger, then Tab)"}, {"Ctrl+Q", "Close tab"},
+		{"Ctrl+K", "Search all commands"},
+	}},
 }
 
 func helpLines() []string {
