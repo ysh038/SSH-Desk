@@ -177,15 +177,22 @@ func (e *Editor) wordRight(p Pos) Pos {
 		return Pos{p.Line + 1, 0}
 	}
 	c := p.Col
-	if isWord(l[c]) {
+	if e.WordEnds { // skip blanks, then to the end of the word
+		for c < len(l) && unicode.IsSpace(l[c]) {
+			c++
+		}
+	}
+	if c < len(l) && isWord(l[c]) {
 		for c < len(l) && isWord(l[c]) {
 			c++
 		}
-	} else if !unicode.IsSpace(l[c]) {
+	} else if c < len(l) && !unicode.IsSpace(l[c]) {
 		c++
 	}
-	for c < len(l) && unicode.IsSpace(l[c]) {
-		c++
+	if !e.WordEnds {
+		for c < len(l) && unicode.IsSpace(l[c]) {
+			c++
+		}
 	}
 	return Pos{p.Line, c}
 }

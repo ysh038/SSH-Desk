@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -322,5 +323,19 @@ func TestMoveTextDragAndDrop(t *testing.T) {
 	e.MoveText(Pos{0, 0}, Pos{0, 2}, Pos{0, 5}, true)
 	if got := e.Text(); got != "ab cdab" {
 		t.Fatalf("copy: %q", got)
+	}
+}
+
+func TestWordRightMacStopsAtWordEnd(t *testing.T) {
+	e := New("proxy_pass  한글.conf;")
+	e.WordEnds = true
+	var stops []int
+	for range 5 {
+		e.MoveCursor(WordRight, false, 10)
+		stops = append(stops, e.Cur.Col)
+	}
+	// end of proxy_pass, end of 한글, after '.', end of conf, after ';'
+	if want := []int{10, 14, 15, 19, 20}; fmt.Sprint(stops) != fmt.Sprint(want) {
+		t.Fatalf("stops %v, want %v", stops, want)
 	}
 }

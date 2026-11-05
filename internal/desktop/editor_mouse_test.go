@@ -96,3 +96,68 @@ func TestEditorDragMovesSelectedText(t *testing.T) {
 		t.Fatalf("click inside the selection should clear it, still %q", e.SelectedText())
 	}
 }
+
+// Every Shift+movement extends the selection from where the cursor was:
+// Shift+Option+←/→ (Alt+Shift+Left/Right once Terminal.app sends it) by
+// words, Shift+Home/End to the line ends, Shift+Option+↑/↓ to the document.
+func TestEditorShiftExtendsAnyMove(t *testing.T) {
+	f := newFM(t)
+	f.touch("s.conf", "server_name 한글.example.com;\nlisten 80;\n")
+	mac := pcConfig()
+	mac.Keyboard = "mac"
+	f.d.SetConfig(mac, "")
+	f.withEditor(&fakeRunner{})
+	f.d.OpenText(filepath.Join(f.root, "s.conf"))
+	e := f.editor().Doc().Ed
+
+	f.key("Right", term.ModAlt|term.ModShift)
+	if s := e.SelectedText(); s != "server_name" {
+		t.Fatalf("Shift+Option+→: %q", s)
+	}
+	f.key("Right", term.ModAlt|term.ModShift)
+	if s := e.SelectedText(); s != "server_name 한글" { // Mac: to the end of the next word
+		t.Fatalf("second Shift+Option+→ adds the next word: %q", s)
+	}
+	f.key("Left", term.ModAlt|term.ModShift)
+	if s := e.SelectedText(); s != "server_name " {
+		t.Fatalf("Shift+Option+← shrinks it back: %q", s)
+	}
+	f.key("End", term.ModShift)
+	if s := e.SelectedText(); s != "server_name 한글.example.com;" {
+		t.Fatalf("Shift+End: %q", s)
+	}
+	f.key("Down", term.ModAlt|term.ModShift) // to the end of the document
+	if s := e.SelectedText(); s != "server_name 한글.example.com;\nlisten 80;" { // the final newline is kept apart
+		t.Fatalf("Shift+Option+↓: %q", s)
+	}
+	f.key("Left", 0) // a plain move ends the selection
+	if _, _, sel := e.Selection(); sel {
+		t.Fatal("plain Left should clear the selection")
+	}
+}
+
+func TestEditorDoubleClickSelectsWord(t *testing.T) {
+	f := newFM(t)
+	f.touch("w.conf", "proxy_pass http://한글서버:8080;    # note\n")
+	f.withEditor(&fakeRunner{})
+	f.d.OpenText(filepath.Join(f.root, "w.conf"))
+	ed := f.editor()
+	in := f.d.M.Focused().Inner()
+	f.draw()
+	g, y := 3, in.Y+2
+	dbl := func(col int) string {
+		f.wait()
+		f.click(in.X+g+col, y)
+		f.click(in.X+g+col, y)
+		return ed.Doc().Ed.SelectedText()
+	}
+	if s := dbl(3); s != "proxy_pass" {
+		t.Fatalf("word with _: %q", s)
+	}
+	if s := dbl(20); s != "한글서버" { // "proxy_pass http://" is 18 columns; Hangul is 2 wide
+		t.Fatalf("Hangul word: %q", s)
+	}
+	if s := dbl(32); s != "    " {
+		t.Fatalf("blank run: %q", s)
+	}
+}

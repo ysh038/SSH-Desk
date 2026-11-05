@@ -338,6 +338,7 @@ func (a *App) HandleEvent(ev term.Event) bool {
 
 func (a *App) handleEditKey(d *Doc, k term.Key) bool {
 	e := d.Ed
+	e.WordEnds = a.h.Config().Keyboard == "mac" // Option+→ stops at the word end
 	page := a.textH()
 	name := k.String()
 	shift := k.Mod&term.ModShift != 0

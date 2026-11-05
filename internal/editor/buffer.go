@@ -55,6 +55,9 @@ type Editor struct {
 	FinalEOL   bool // the file ended with a newline
 	// ColonIndent adds a level after a trailing ':' (YAML, Python).
 	ColonIndent bool
+	// WordEnds makes word-right stop at the end of a word (macOS Option+→)
+	// instead of the start of the next one (Windows Ctrl+→).
+	WordEnds bool
 
 	undo, redo []op
 	group      int
@@ -294,6 +297,15 @@ func (e *Editor) WordAt(p Pos) (Pos, Pos) {
 	p = e.clamp(p)
 	l := e.Lines[p.Line]
 	a, z := p.Col, p.Col
+	if a < len(l) && (l[a] == ' ' || l[a] == '\t') { // a run of blanks
+		for a > 0 && (l[a-1] == ' ' || l[a-1] == '\t') {
+			a--
+		}
+		for z < len(l) && (l[z] == ' ' || l[z] == '\t') {
+			z++
+		}
+		return Pos{p.Line, a}, Pos{p.Line, z}
+	}
 	if a < len(l) && !isWord(l[a]) {
 		return Pos{p.Line, a}, Pos{p.Line, a + 1}
 	}
