@@ -147,7 +147,9 @@ func TestScenarioS2MouseOnly(t *testing.T) {
 	f.wait()
 	f.rclick(dst.Inner().X+4, row(dst, 1)) // app.log
 	f.clickMenuItem("Rename")
-	// The cursor starts before the extension: typing inserts there.
+	// The stem "app" starts selected (typing would replace it); → keeps it
+	// and puts the cursor before the extension.
+	f.key("Right", 0)
 	for _, r := range "-2026-11-05" {
 		f.rune(r, 0)
 	}

@@ -126,7 +126,7 @@ func TestEditorShiftExtendsAnyMove(t *testing.T) {
 	if s := e.SelectedText(); s != "server_name 한글.example.com;" {
 		t.Fatalf("Shift+End: %q", s)
 	}
-	f.key("Down", term.ModAlt|term.ModShift) // to the end of the document
+	f.key("Down", term.ModAlt|term.ModShift)                                   // to the end of the document
 	if s := e.SelectedText(); s != "server_name 한글.example.com;\nlisten 80;" { // the final newline is kept apart
 		t.Fatalf("Shift+Option+↓: %q", s)
 	}

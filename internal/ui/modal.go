@@ -53,9 +53,12 @@ type Prompt struct {
 	// the field is wiped right away (passwords never become Go strings).
 	OnSecret func([]rune)
 	OnCancel func()
-	Rect     wm.Rect
-	errMsg   string
-	focus    int // 0 field, 1 OK, 2 Cancel
+	// Clipboard returns the copied text for Ctrl+V (set by the desktop).
+	// Cmd+V on a Mac arrives as a paste event and needs no help.
+	Clipboard func() string
+	Rect      wm.Rect
+	errMsg    string
+	focus     int // 0 field, 1 OK, 2 Cancel
 }
 
 // NewPrompt creates a prompt with an initial value.
@@ -121,6 +124,13 @@ func (p *Prompt) HandleEvent(ev term.Event) bool {
 			return false
 		case "Esc":
 			return p.cancel()
+		case "Ctrl+V":
+			if p.Clipboard != nil && !p.Input.Password {
+				p.focus = 0
+				p.Input.Paste(p.Clipboard())
+				p.errMsg = ""
+			}
+			return false
 		case "Enter":
 			if p.focus == 2 {
 				return p.cancel()

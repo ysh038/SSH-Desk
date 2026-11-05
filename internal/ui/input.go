@@ -14,6 +14,9 @@ type Input struct {
 	Cursor   int // rune index
 	Password bool
 	offset   int // first visible rune
+	// Selected range [selA, selZ) (empty: none). A prefilled field starts
+	// fully selected, so typing or pasting replaces it, like GUI fields.
+	selA, selZ int
 }
 
 // InputResult is what an Input reports after a key.
@@ -29,7 +32,28 @@ const (
 // NewInput returns a field with text selected for editing (cursor at end).
 func NewInput(text string) *Input {
 	r := []rune(text)
-	return &Input{Text: r, Cursor: len(r)}
+	return &Input{Text: r, Cursor: len(r), selZ: len(r)}
+}
+
+// Select selects runes [a, z) (e.g. a file name without its extension).
+func (in *Input) Select(a, z int) {
+	a, z = min(max(a, 0), len(in.Text)), min(max(z, 0), len(in.Text))
+	in.selA, in.selZ = min(a, z), max(a, z)
+	in.Cursor = in.selZ
+}
+
+// Selection returns the selected text ("" if none).
+func (in *Input) Selection() string { return string(in.Text[in.selA:in.selZ]) }
+
+func (in *Input) hasSel() bool { return in.selZ > in.selA }
+
+func (in *Input) unselect() { in.selA, in.selZ = 0, 0 }
+
+// deleteSel removes the selected runes and puts the cursor there.
+func (in *Input) deleteSel() {
+	in.Text = append(in.Text[:in.selA:in.selA], in.Text[in.selZ:]...)
+	in.Cursor = in.selA
+	in.unselect()
 }
 
 // Value returns the text.
@@ -39,6 +63,7 @@ func (in *Input) Value() string { return string(in.Text) }
 func (in *Input) SetValue(s string) {
 	in.Text = []rune(s)
 	in.Cursor = len(in.Text)
+	in.selA, in.selZ = 0, len(in.Text)
 }
 
 // Clear wipes the text (used for passwords after use).
@@ -48,9 +73,13 @@ func (in *Input) Clear() {
 	}
 	in.Text = in.Text[:0]
 	in.Cursor, in.offset = 0, 0
+	in.unselect()
 }
 
 func (in *Input) insert(rs []rune) {
+	if in.hasSel() {
+		in.deleteSel()
+	}
 	t := make([]rune, 0, len(in.Text)+len(rs))
 	t = append(t, in.Text[:in.Cursor]...)
 	t = append(t, rs...)
@@ -68,7 +97,28 @@ func (in *Input) Paste(s string) {
 // HandleKey edits the text.
 func (in *Input) HandleKey(k term.Key) InputResult {
 	n := len(in.Text)
-	switch k.String() {
+	name := k.String()
+	if in.hasSel() {
+		switch name {
+		case "Left": // collapse to the start of the selection
+			in.Cursor = in.selA
+			in.unselect()
+			return InputChanged
+		case "Right":
+			in.Cursor = in.selZ
+			in.unselect()
+			return InputChanged
+		case "Backspace", "Delete":
+			in.deleteSel()
+			return InputChanged
+		case "Enter", "Esc":
+		default:
+			if !k.IsRune() || k.Mod&(term.ModCtrl|term.ModAlt|term.ModMeta) != 0 {
+				in.unselect() // Home, End, Ctrl+U, ...: act on the plain text
+			}
+		}
+	}
+	switch name {
 	case "Enter":
 		return InputSubmit
 	case "Esc":
@@ -108,6 +158,7 @@ func (in *Input) HandleKey(k term.Key) InputResult {
 
 // ClickAt moves the cursor to the display column x of the last drawn field.
 func (in *Input) ClickAt(x int) {
+	in.unselect()
 	col := 0
 	for i := in.offset; i < len(in.Text); i++ {
 		w := in.width(in.Text[i])
@@ -156,6 +207,9 @@ func (in *Input) Draw(s wm.Surface, focused bool) {
 			r = '*'
 		}
 		st := wm.StyleInput
+		if in.hasSel() && i >= in.selA && i < in.selZ {
+			st = wm.StyleSelection
+		}
 		if focused && i == in.Cursor {
 			st = wm.StyleInputCursor
 		}

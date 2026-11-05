@@ -219,6 +219,9 @@ func (a *App) handleBarKey(k term.Key) bool {
 	case "Alt+C":
 		a.matchCase = !a.matchCase
 		return true
+	case "Ctrl+V":
+		a.barInput().Paste(a.h.ClipboardText())
+		return true
 	case "Alt+A", "Ctrl+A":
 		if a.bar == barReplace && d != nil {
 			n := d.Ed.ReplaceAll(a.findIn.Value(), a.replIn.Value(), a.matchCase)

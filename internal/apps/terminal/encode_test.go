@@ -22,7 +22,7 @@ func TestEncodeKey(t *testing.T) {
 		{r(']', term.ModCtrl), Modes{}, "\x1d"},
 		{r('/', term.ModCtrl), Modes{}, "\x1f"},
 		{r('b', term.ModAlt), Modes{}, "\x1bb"},
-		{r('x', term.ModCtrl | term.ModAlt), Modes{}, "\x1b\x18"},
+		{r('x', term.ModCtrl|term.ModAlt), Modes{}, "\x1b\x18"},
 		{n("Enter", 0), Modes{}, "\r"},
 		{n("Backspace", 0), Modes{}, "\x7f"},
 		{n("Tab", term.ModShift), Modes{}, "\x1b[Z"},

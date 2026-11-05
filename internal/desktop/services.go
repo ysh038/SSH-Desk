@@ -108,7 +108,12 @@ func (d *Desktop) Confirm(title, msg string, buttons []string, onChoose func(int
 	d.ShowModal(ui.AsModal(dl, onChoose))
 }
 
-func (d *Desktop) Prompt(p *ui.Prompt) { d.ShowModal(p) }
+func (d *Desktop) Prompt(p *ui.Prompt) {
+	if p.Clipboard == nil {
+		p.Clipboard = d.ClipboardText // Ctrl+V pastes what Copy path / Copy copied
+	}
+	d.ShowModal(p)
+}
 
 func (d *Desktop) OpenMenu(app wm.App, x, y int, items []ui.MenuItem, onChoose func(string)) {
 	for _, w := range d.M.Windows() {

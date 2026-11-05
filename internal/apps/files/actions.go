@@ -89,10 +89,11 @@ func (a *App) startRename() {
 	}
 	a.renameName = sel[0].Name
 	a.moveCursorTo(a.renameName)
-	a.renaming = ui.NewInput(sel[0].Name)
-	// Select the stem like most file managers: cursor before the extension.
+	a.renaming = ui.NewInput(sel[0].Name) // all selected
+	// Files: select the stem like Finder and Explorer, so typing replaces
+	// the name and keeps the extension.
 	if ext := filepath.Ext(sel[0].Name); ext != "" && ext != sel[0].Name && !sel[0].IsDir {
-		a.renaming.Cursor = len([]rune(sel[0].Name)) - len([]rune(ext))
+		a.renaming.Select(0, len([]rune(sel[0].Name))-len([]rune(ext)))
 	}
 }
 

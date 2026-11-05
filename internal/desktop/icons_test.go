@@ -279,6 +279,19 @@ func TestDesktopIconShowInFilesAndCopyPath(t *testing.T) {
 		t.Fatal("the revealed file should be scrolled into view")
 	}
 
+	// A copied folder path pasted into Go to folder (Ctrl+L, Ctrl+V) replaces
+	// the prefilled current folder.
+	other := filepath.Join(f.root, "다른 폴더")
+	os.Mkdir(other, 0o755)
+	f.d.SetClipboardText(other)
+	f.rune('l', term.ModCtrl)
+	f.rune('v', term.ModCtrl)
+	f.key("Enter", 0)
+	f.settle()
+	if fm.Dir() != other {
+		t.Fatalf("Go to folder with a pasted path went to %s", fm.Dir())
+	}
+
 	// App icons have no path: both items are disabled.
 	f.key("F9", 0)
 	f.rune('d', 0)

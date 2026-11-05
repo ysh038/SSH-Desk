@@ -54,6 +54,7 @@ tuidesk는 서버(리눅스)에서 실행되므로 **사용자 PC의 터미널 �
 | 붙여넣기 | **Cmd+V**, Ctrl+V 🔶 | **Win+V**(=Cmd+V), Ctrl+V 🔶 | Ctrl+V ✅ |
 | 권한 | Ctrl+P, Option+return 🔶 | Ctrl+P, Alt+Enter 🔶 | Ctrl+P, Alt+Enter ✅ |
 | 숨김 파일 | Option+. 🔶 | Alt+. 🔶 | Alt+. ✅ |
+| 입력 칸(경로, 이름 등) | 미리 채워진 글은 **선택된 상태**로 열립니다. 바로 입력하거나 ⌘V/⌃V로 붙여넣으면 바뀌고, ←/→를 누르면 글을 그대로 두고 커서만 움직입니다. 파일 이름 바꾸기는 확장자를 뺀 이름만 선택됩니다 🔶 | 같음(Win+V/Ctrl+V) 🔶 | Ctrl+V |
 | 바탕화면 아이콘의 위치 열기 | 우클릭 › Show in Files(그 폴더를 열고 항목 선택) 🔶 | 같음 🔶 | Shift+F10 › f |
 | 아이콘/목록 보기 | View 메뉴(fn+F10), 경로 줄의 List·Icons 클릭 🔶 | View 메뉴(F10), 클릭 🔶 | F10 › View ✅ (VM) |
 | 바탕화면에 추가 | File › Add to desktop, 빈 바탕화면으로 드래그 🔶 | 같음 🔶 | File › Add to desktop ✅ |

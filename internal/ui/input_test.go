@@ -77,6 +77,7 @@ func TestPromptValidateAndSubmit(t *testing.T) {
 		return nil
 	}
 	p.Layout(wm.Rect{X: 0, Y: 0, W: 80, H: 24})
+	p.Input.HandleKey(key("End").Key) // keep the prefilled text
 	typeText(p.Input, "/x")
 	if p.HandleEvent(key("Enter")) {
 		t.Fatal("invalid value must keep the prompt open")
@@ -131,3 +132,37 @@ func TestErrorDialogDetails(t *testing.T) {
 }
 
 func runeKeyEvent(r rune) term.KeyEvent { return term.KeyEvent{Key: runeKey(r)} }
+
+// A prefilled field starts selected like a GUI text box: typing or pasting
+// replaces it, arrows keep it. Ctrl+V pastes the app clipboard in prompts.
+func TestInputPrefilledIsSelected(t *testing.T) {
+	in := NewInput("/etc/nginx")
+	in.Paste("/var/log/한글")
+	if in.Value() != "/var/log/한글" {
+		t.Fatalf("paste replaces the prefilled text: %q", in.Value())
+	}
+	in = NewInput("/etc")
+	in.HandleKey(key("Right").Key)
+	typeText(in, "/nginx")
+	if in.Value() != "/etc/nginx" {
+		t.Fatalf("→ keeps the text: %q", in.Value())
+	}
+	in = NewInput("old")
+	in.HandleKey(key("Backspace").Key)
+	if in.Value() != "" {
+		t.Fatalf("Backspace deletes the selection: %q", in.Value())
+	}
+	in = NewInput("report.txt")
+	in.Select(0, 6)
+	typeText(in, "메모")
+	if in.Value() != "메모.txt" {
+		t.Fatalf("stem selection: %q", in.Value())
+	}
+
+	p := NewPrompt("Go to folder", "Path:", "/home/me", nil)
+	p.Clipboard = func() string { return "/etc/nginx\n" }
+	p.HandleEvent(term.KeyEvent{Key: term.Key{Name: "Rune", Rune: 'v', Mod: term.ModCtrl}})
+	if p.Input.Value() != "/etc/nginx" {
+		t.Fatalf("Ctrl+V in a prompt: %q", p.Input.Value())
+	}
+}
