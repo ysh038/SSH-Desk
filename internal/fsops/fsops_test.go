@@ -420,3 +420,30 @@ func TestUniqueAndDuplicateNames(t *testing.T) {
 		t.Fatalf("dup = %q", got)
 	}
 }
+
+// Regression: removing x from a folder must not block changing its contents.
+func TestRecursiveChmodRemovingFolderExecute(t *testing.T) {
+	f, root := newFS(t)
+	site := filepath.Join(root, "www")
+	write(t, filepath.Join(site, "css", "a.css"), "")
+	dm, fm := fs.FileMode(0o755), fs.FileMode(0o644)
+	plan, err := PlanChmod([]string{site}, ExactChange(0o640), true, &dm, &fm)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec, err := f.Chmod(plan)
+	if err != nil {
+		t.Fatalf("chmod: %v", err)
+	}
+	info, _ := os.Stat(site)
+	if Octal(info.Mode()) != "640" {
+		t.Fatalf("www = %s", Octal(info.Mode()))
+	}
+	if err := f.Undo(rec); err != nil {
+		t.Fatalf("undo: %v", err)
+	}
+	info, _ = os.Stat(filepath.Join(site, "css", "a.css"))
+	if Octal(info.Mode()) != "644" {
+		t.Fatalf("a.css = %s", Octal(info.Mode()))
+	}
+}

@@ -565,8 +565,16 @@ func PlanChmod(paths []string, c Change, contents bool, dirMode, fileMode *fs.Fi
 
 // Chmod applies planned changes and records the old modes for undo. On the
 // first error it stops; the record covers what was changed.
+//
+// Deeper paths are changed first: if a folder loses its execute bit, its
+// contents would otherwise become unreachable halfway through. Undo runs in
+// reverse, so parents regain access before their children are restored.
 func (f *FS) Chmod(changes []ModeChange) (*Record, error) {
 	rec := &Record{Label: "Permissions"}
+	changes = append([]ModeChange(nil), changes...)
+	sort.SliceStable(changes, func(i, j int) bool {
+		return strings.Count(changes[i].Path, string(filepath.Separator)) > strings.Count(changes[j].Path, string(filepath.Separator))
+	})
 	for _, ch := range changes {
 		info, err := os.Lstat(ch.Path)
 		if err != nil {

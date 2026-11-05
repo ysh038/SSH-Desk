@@ -30,6 +30,8 @@ type services struct {
 	dragX     int
 	dragY     int
 	dragHover host.DropTarget
+	// swallowDragEnd drops the DragEnd that follows the Release of a file drop.
+	swallowDragEnd bool
 }
 
 func (s *services) init() { s.fs = fsops.New() }

@@ -1,6 +1,7 @@
 package term
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -85,4 +86,24 @@ func PadRight(s string, w int) string {
 		out = append(out, ' ')
 	}
 	return string(out)
+}
+
+// EscapeNonASCII replaces every non-ASCII rune with \uXXXX (or \UXXXXXXXX)
+// so names stay distinguishable on the Linux console, which has no Hangul
+// glyphs. ASCII control characters are shown as \xNN.
+func EscapeNonASCII(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		switch {
+		case r < 0x20 || r == 0x7f:
+			fmt.Fprintf(&b, "\\x%02X", r)
+		case r < 0x7f:
+			b.WriteRune(r)
+		case r <= 0xFFFF:
+			fmt.Fprintf(&b, "\\u%04X", r)
+		default:
+			fmt.Fprintf(&b, "\\U%08X", r)
+		}
+	}
+	return b.String()
 }

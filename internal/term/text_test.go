@@ -92,3 +92,13 @@ func TestAmbiguousRunesWideWhenRequested(t *testing.T) {
 		t.Errorf("RuneWidth('…') = %d, want 2", w)
 	}
 }
+
+func TestEscapeNonASCII(t *testing.T) {
+	bs := string(rune(92)) // backslash
+	if got, want := EscapeNonASCII("한글 a.txt"), bs+"uD55C"+bs+"uAE00 a.txt"; got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+	if got, want := EscapeNonASCII("x\ty🙂"), "x"+bs+"x09y"+bs+"U0001F642"; got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+}

@@ -54,7 +54,10 @@ func (d *Desktop) handleDrag(g term.Gesture) {
 	case term.GestureRelease, term.GestureDragEnd:
 		dr := d.svc.drag
 		d.endDrag()
-		if g.Kind == term.GestureRelease && dr != nil {
+		if dr != nil {
+			// The detector reports Release then DragEnd for the same input;
+			// the DragEnd must not reach the menu the drop opens.
+			d.svc.swallowDragEnd = g.Kind == term.GestureRelease
 			d.drop(*dr, w, t, g.X, g.Y)
 		}
 	}

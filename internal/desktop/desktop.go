@@ -119,6 +119,12 @@ func (d *Desktop) Handle(ev term.Event) {
 		d.toasts.Tick(t.Now)
 		return
 	}
+	if me, ok := ev.(term.MouseEvent); ok && d.svc.swallowDragEnd {
+		d.svc.swallowDragEnd = false
+		if me.Gesture.Kind == term.GestureDragEnd {
+			return
+		}
+	}
 	d.dropClosedModals()
 	if n := len(d.modals); n > 0 {
 		top := d.modals[n-1]
