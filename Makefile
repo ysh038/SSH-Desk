@@ -2,13 +2,19 @@ GO      ?= go
 LDFLAGS := -s -w
 DIST    := dist
 
-.PHONY: test vet tuidesk tuidesk-linux evlog evlog-linux wmdemo wmdemo-linux clean
+.PHONY: check-lite test vet tuidesk tuidesk-linux evlog evlog-linux wmdemo wmdemo-linux clean
 
 test:
 	$(GO) test ./...
 
 vet:
 	$(GO) vet ./...
+
+# CLAUDE.md rule 3: the lite build has no network code. net/url and
+# net/netip (pure parsing, pulled in by x/ansi for OSC 8 links) are allowed.
+check-lite:
+	@if GOOS=linux $(GO) list -deps ./cmd/tuidesk | grep -E '^(net|net/http|net/rpc|net/smtp|net/mail|crypto/tls)(/|$$)' | grep -vE '^net/(url|netip)$$'; then \
+		echo "lite build imports network packages (above)"; exit 1; else echo "lite build: no network packages"; fi
 
 tuidesk:
 	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/tuidesk ./cmd/tuidesk
