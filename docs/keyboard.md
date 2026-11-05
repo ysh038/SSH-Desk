@@ -54,6 +54,7 @@ tuidesk는 서버(리눅스)에서 실행되므로 **사용자 PC의 터미널 �
 | 붙여넣기 | **Cmd+V**, Ctrl+V 🔶 | **Win+V**(=Cmd+V), Ctrl+V 🔶 | Ctrl+V ✅ |
 | 권한 | Ctrl+P, Option+return 🔶 | Ctrl+P, Alt+Enter 🔶 | Ctrl+P, Alt+Enter ✅ |
 | 숨김 파일 | Option+. 🔶 | Alt+. 🔶 | Alt+. ✅ |
+| 바탕화면 아이콘의 위치 열기 | 우클릭 › Show in Files(그 폴더를 열고 항목 선택) 🔶 | 같음 🔶 | Shift+F10 › f |
 | 아이콘/목록 보기 | View 메뉴(fn+F10), 경로 줄의 List·Icons 클릭 🔶 | View 메뉴(F10), 클릭 🔶 | F10 › View ✅ (VM) |
 | 바탕화면에 추가 | File › Add to desktop, 빈 바탕화면으로 드래그 🔶 | 같음 🔶 | File › Add to desktop ✅ |
 | 실행취소 | Ctrl+Z 🔶 | Ctrl+Z 🔶 | ✅ |
@@ -73,6 +74,7 @@ Cmd(Windows 키) 조합은 받을 수 없으므로 **PC 표준 키 + Mac에서 �
 | 전체 선택 | Ctrl+A | ⌃A (규칙 B: 명령은 ⌃) | Ctrl+A |
 | 저장 / 찾기 / 실행취소 | Ctrl+S / Ctrl+F / Ctrl+Z | 같음 | 같음 |
 | 복사 / 붙여넣기 | Ctrl+C / Ctrl+V, Win+V | Ctrl+C / Cmd+V | 같음 |
+| 단어 / 빈칸 선택 | 더블클릭(빈칸에서는 이어진 빈칸 전체), 트리플클릭은 줄 | 같음 | — |
 | 선택한 글 옮기기 | 선택 영역을 끌어서 놓기(Ctrl/Alt를 누르고 놓으면 복사) 🔶 | 같음 🔶 | Ctrl+X → 이동 → Ctrl+V |
 
 - **PC 배열이라도 맥에 연결하면** Ctrl+←/→는 macOS가 가져가므로, 단어 이동은 Alt(=Option)+←/→로 합니다.
@@ -118,5 +120,20 @@ Cmd(Windows 키) 조합은 받을 수 없으므로 **PC 표준 키 + Mac에서 �
 3. 텍스트 칸에서 **Esc 키를 한 번 누르고**(`\033`으로 표시됨) 이어서 `[1;2A`를 입력 → 확인
 4. 같은 방법으로 **↓ 커서 아래로 + Shift** → `\033[1;2B`
 5. 이미 열린 창에도 바로 적용됩니다. 에디터에서 Shift+↓를 누르면 커서 위치부터 아랫줄 같은 열까지 선택됩니다.
+
+### Shift+Option+방향키 (단어·문서 단위 선택)
+
+Terminal.app은 기본 설정에서 Shift+Option+←를 Option+←와 같은 `ESC b`로 보내서 Shift가 사라집니다. 그래서 단어 단위로 이동만 하고 선택은 되지 않습니다. 위와 같은 방법으로 네 개를 추가합니다(수정키: **Shift와 Option 둘 다**). xterm 규칙에서 4 = 1 + Shift(1) + Alt(2)입니다.
+
+| 키 | 보낼 텍스트 | 에디터 동작 |
+|---|---|---|
+| ← + Shift+Option | `\033[1;4D` | 앞 단어 처음까지 선택 |
+| → + Shift+Option | `\033[1;4C` | 단어 끝까지 선택 |
+| ↑ + Shift+Option | `\033[1;4A` | 문서 처음까지 선택 |
+| ↓ + Shift+Option | `\033[1;4B` | 문서 끝까지 선택 |
+
+- 에디터는 Shift가 붙은 이동 키(방향키, Option+방향키, Home/End, PgUp/PgDn)를 모두 "이동 전 위치부터 이동한 위치까지 선택"으로 처리합니다.
+- 키보드 설정이 Mac이면 Option+→는 단어 **끝**에서 멈춥니다(macOS 방식). PC면 다음 단어 처음에서 멈춥니다(Windows 방식).
+- 설정 후 `./evlog`로 눌러 보면 `Alt+Shift+Left` 등으로 찍혀야 합니다.
 
 설정하지 않아도 쓸 수 있는 대체 방법: 메뉴 Edit › **Start / stop selecting**(F10 또는 ⌃K에서 "select" 검색)을 켠 뒤 방향키로 이동하면 선택됩니다. ⌃Space는 macOS가 입력 소스 전환에 쓰므로 맥에서는 메뉴로 켭니다.

@@ -153,6 +153,17 @@ func (a *App) navigate(dir, cursorName string) {
 	a.load()
 }
 
+// Reveal puts the cursor on name and selects it (Show in Files), now or
+// once the folder has loaded.
+func (a *App) Reveal(name string) {
+	a.selected = map[string]bool{name: true}
+	if a.loading {
+		a.wantCur = name
+		return
+	}
+	a.moveCursorTo(name)
+}
+
 // here is the current folder, cursor and scroll position.
 func (a *App) here() place {
 	p := place{dir: a.dir, offset: a.offset}

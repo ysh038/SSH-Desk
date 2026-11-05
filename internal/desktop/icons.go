@@ -189,8 +189,10 @@ func (d *Desktop) openFolder(dir string) {
 func (d *Desktop) iconMenu(i, x, y int) {
 	d.iconSel = i
 	ic := d.cfg.Icons[i]
+	t := d.target(ic)
 	d.openMenu([]ui.MenuItem{
 		{Label: "Open", Hotkey: 'o', Shortcut: "Enter", Action: "open"},
+		{Label: "Show in Files", Hotkey: 'f', Action: "reveal", Disabled: ic.Path == "" || !t.ok},
 		{Label: "Rename...", Hotkey: 'r', Action: "rename"},
 		{Label: "Copy path", Hotkey: 'c', Action: "copypath", Disabled: ic.Path == ""},
 		{Separator: true},
@@ -200,6 +202,8 @@ func (d *Desktop) iconMenu(i, x, y int) {
 		switch a {
 		case "open":
 			d.openIcon(i)
+		case "reveal":
+			d.revealIcon(t.path)
 		case "rename":
 			d.renameIcon(i)
 		case "copypath":
@@ -209,6 +213,22 @@ func (d *Desktop) iconMenu(i, x, y int) {
 			d.removeIcon(i)
 		}
 	}
+}
+
+// revealIcon opens the folder that holds path in a file manager with path
+// selected (like "Reveal in Finder").
+func (d *Desktop) revealIcon(path string) {
+	if d.NewFiles == nil || path == "" {
+		return
+	}
+	path = filepath.Clean(path)
+	dir := filepath.Dir(path)
+	app := d.NewFiles(dir)
+	if r, ok := app.(interface{ Reveal(name string) }); ok && dir != path {
+		r.Reveal(filepath.Base(path))
+	}
+	w := d.OpenWindow(app)
+	d.M.ResizeTo(w, min(84, d.Area().W-4), min(22, d.Area().H-2))
 }
 
 func (d *Desktop) renameIcon(i int) {

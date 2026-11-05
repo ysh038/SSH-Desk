@@ -1,6 +1,7 @@
 package desktop
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -238,5 +239,55 @@ func TestDropOntoDesktop(t *testing.T) {
 	f.clickMenuItem("Add to desktop")
 	if len(f.d.cfg.Icons) != 4 || f.d.cfg.Icons[3].Path != filepath.Join(f.root, "work", "a.txt") {
 		t.Fatal("Add to desktop from the menu")
+	}
+}
+
+// Right-click a file icon › Show in Files opens its folder with the file
+// selected; Copy path puts the full path on the clipboard (internal + OSC 52).
+func TestDesktopIconShowInFilesAndCopyPath(t *testing.T) {
+	f := newFM(t)
+	f.touch("notes/메모.txt", "x")
+	for i := range 40 { // enough files that the target is below the first screen
+		f.touch(fmt.Sprintf("notes/a%02d.txt", i), "x")
+	}
+	file := filepath.Join(f.root, "notes", "메모.txt")
+	f.withIcons(config.DesktopIcon{Name: "메모", Path: file}, config.DesktopIcon{Name: "Text editor", App: "editor"})
+	var osc52 string
+	f.d.SetClipboardWriter(func(s string) { osc52 = s })
+	f.draw()
+
+	x, y := f.iconCenter(0)
+	f.mouse(x, y, term.ButtonRight, 0)
+	f.mouse(x, y, term.ButtonNone, 0)
+	f.clickMenuItem("Copy path")
+	if f.d.ClipboardText() != file || osc52 != file {
+		t.Fatalf("copy path: internal %q, OSC 52 %q", f.d.ClipboardText(), osc52)
+	}
+
+	f.mouse(x, y, term.ButtonRight, 0)
+	f.mouse(x, y, term.ButtonNone, 0)
+	f.clickMenuItem("Show in Files")
+	f.settle()
+	fm, ok := f.d.M.Focused().App.(*files.App)
+	if !ok || fm.Dir() != filepath.Join(f.root, "notes") {
+		t.Fatalf("Show in Files opened %v", f.d.M.Focused().Name())
+	}
+	if sel := fm.Selection(); len(sel) != 1 || sel[0].Name != "메모.txt" {
+		t.Fatalf("selection %v", sel)
+	}
+	if !f.screenHas("메모.txt") {
+		t.Fatal("the revealed file should be scrolled into view")
+	}
+
+	// App icons have no path: both items are disabled.
+	f.key("F9", 0)
+	f.rune('d', 0)
+	x, y = f.iconCenter(1)
+	f.mouse(x, y, term.ButtonRight, 0)
+	f.mouse(x, y, term.ButtonNone, 0)
+	for _, it := range f.d.menu.Items {
+		if (it.Label == "Show in Files" || it.Label == "Copy path") && !it.Disabled {
+			t.Fatalf("%q should be disabled for an app icon", it.Label)
+		}
 	}
 }
