@@ -48,6 +48,27 @@
 
 메뉴와 리스트 안에서는 `↑/↓`, `Home/End`, `PgUp/PgDn`, `Enter`, `Esc`를 씁니다. 메뉴 항목의 밑줄 글자(단축 글자)를 눌러도 됩니다.
 
+### 파일 관리자 키 (앱이 먼저 받음, Phase 2)
+
+| 동작 | 키 | 비고 |
+|---|---|---|
+| 열기 / 폴더 진입 | Enter | 더블클릭 |
+| 상위 폴더 | Backspace | |
+| 선택 토글 | Space | |
+| 이름 바꾸기 | F2 | |
+| 새로고침 | F5 | |
+| 숨김 파일 토글 | Alt+. | Ctrl+H는 콘솔에서 Backspace와 같음 |
+| 경로 입력 | Ctrl+L | 경로 바 클릭 |
+| 필터 | 글자 입력 | Esc로 해제 |
+| 잘라내기 / 복사 / 붙여넣기 | Ctrl+X / Ctrl+C / Ctrl+V | |
+| 복제 | Ctrl+D | |
+| 휴지통으로 | Delete | |
+| 실행취소 | Ctrl+Z | |
+| 컨텍스트 메뉴 | Shift+F10, 우클릭, Ctrl+클릭 | 앱 메뉴가 먼저, 바깥 테두리는 창 메뉴 |
+| 권한 | 메뉴 › Permissions… | Alt+Enter 후보(콘솔 확인 후 확정) |
+
+앱은 F6~F9, Shift+F6, Ctrl+W, Ctrl+Q처럼 데스크톱 전역 키는 쓰지 않는다.
+
 ### 쓰지 않는 키
 - `Alt+방향키`, `Alt+F1~F12`: 콘솔 전환
 - `Ctrl+방향키`: macOS Mission Control
