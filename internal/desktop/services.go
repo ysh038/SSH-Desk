@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"tuidesk/internal/apps/blank"
+	"tuidesk/internal/config"
 	"tuidesk/internal/fsops"
 	"tuidesk/internal/host"
 	"tuidesk/internal/ui"
@@ -126,6 +127,7 @@ func (d *Desktop) SetClipboardText(s string) {
 }
 
 func (d *Desktop) Files() *host.Clipboard { return &d.svc.files }
+func (d *Desktop) Config() config.Config  { return d.cfg }
 func (d *Desktop) Console() bool          { return d.svc.console }
 func (d *Desktop) FS() *fsops.FS          { return d.svc.fs }
 

@@ -15,7 +15,7 @@ import (
 type MenuItem struct {
 	Label     string
 	Hotkey    rune   // single key that activates the item while the menu is open
-	Shortcut  string // global shortcut shown on the right, e.g. "F6"
+	Shortcut  string // binding shown on the right in the user's style, e.g. "F6", "Ctrl+S"
 	Action    string // identifier returned on activation
 	Disabled  bool
 	Separator bool
@@ -50,7 +50,7 @@ func NewMenu(items []MenuItem) *Menu {
 // Size is the frame size the menu needs.
 func (m *Menu) Size() (w, h int) {
 	for _, it := range m.Items {
-		w = max(w, term.Width(m.label(it))+2+term.Width(it.Shortcut))
+		w = max(w, term.Width(m.label(it))+2+term.Width(term.KeyLabel(it.Shortcut)))
 	}
 	return w + 4, len(m.Items) + 2
 }
@@ -211,8 +211,8 @@ func (m *Menu) Draw(c *wm.Canvas) {
 				x += term.RuneWidth(r)
 			}
 		}
-		if it.Shortcut != "" {
-			row.Text(inner-1-term.Width(it.Shortcut), 0, it.Shortcut, st)
+		if sc := term.KeyLabel(it.Shortcut); sc != "" {
+			row.Text(inner-1-term.Width(sc), 0, sc, st)
 		}
 	}
 }

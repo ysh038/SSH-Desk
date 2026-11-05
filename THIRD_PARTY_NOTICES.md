@@ -15,3 +15,4 @@ tarballs).
 | golang.org/x/sys | v0.38.0 | BSD-3-Clause | tcell dependency (terminal syscalls) |
 | golang.org/x/term | v0.37.0 | BSD-3-Clause | tcell dependency (raw mode) |
 | golang.org/x/text | v0.31.0 | BSD-3-Clause | tcell dependency (encodings) |
+| github.com/BurntSushi/toml | v1.6.0 | MIT | Reading/writing config.toml and snippet files (SPEC 7.4, 7.7) |

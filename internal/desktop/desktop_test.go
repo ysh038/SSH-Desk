@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"tuidesk/internal/config"
 	"tuidesk/internal/term"
 	"tuidesk/internal/wm"
 )
@@ -284,7 +285,7 @@ func TestHelpWindowSingleInstance(t *testing.T) {
 	c := h.draw()
 	found := false
 	for y := 0; y < c.H; y++ {
-		if strings.Contains(c.Row(y), "Shift+F10  Window menu") {
+		if strings.Contains(c.Row(y), "Shift+F10") && strings.Contains(c.Row(y), "Window menu") {
 			found = true
 		}
 	}
@@ -344,5 +345,49 @@ func TestResizeTerminalKeepsWindowsReachable(t *testing.T) {
 		if w.Rect.Y < 1 || w.Rect.Y > 10 || w.Rect.X > 40-wm.MinVisible {
 			t.Fatalf("window off screen: %+v", w.Rect)
 		}
+	}
+}
+
+func TestFirstRunAsksKeyboardAndShowsMacLabels(t *testing.T) {
+	defer term.SetLabelStyle(term.LabelPC)
+	h := newHarness(t, 1)
+	path := t.TempDir() + "/config.toml"
+	h.d.SetConfig(config.Default(), path)
+	if !h.d.DialogOpen() {
+		t.Fatal("first run should ask for the keyboard")
+	}
+	h.rune('m', 0) // "Mac keyboard"
+	if term.CurrentLabelStyle() != term.LabelMac {
+		t.Fatal("style not applied")
+	}
+	saved, _, err := config.Load(path)
+	if err != nil || saved.Keyboard != "mac" {
+		t.Fatalf("saved %+v err %v", saved, err)
+	}
+	c := h.draw()
+	if !strings.Contains(c.Row(h.d.H-1), "fn F9 Menu") {
+		t.Fatalf("taskbar hint = %q", c.Row(h.d.H-1))
+	}
+	// The window menu shows Mac labels too.
+	h.key("F10", term.ModShift)
+	c = h.draw()
+	found := false
+	for y := 0; y < c.H; y++ {
+		if strings.Contains(c.Row(y), "⌃W") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("menu should show ⌃W for Close")
+	}
+
+	// A saved choice is not asked again; the console always uses PC labels.
+	h2 := newHarness(t, 0)
+	h2.d.SetConsole(true)
+	cfg := config.Default()
+	cfg.Keyboard = "mac"
+	h2.d.SetConfig(cfg, path)
+	if h2.d.DialogOpen() || term.CurrentLabelStyle() != term.LabelPC {
+		t.Fatal("console: no question, PC labels")
 	}
 }

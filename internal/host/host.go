@@ -6,6 +6,7 @@ package host
 import (
 	"context"
 
+	"tuidesk/internal/config"
 	"tuidesk/internal/fsops"
 	"tuidesk/internal/ui"
 	"tuidesk/internal/wm"
@@ -73,4 +74,7 @@ type Host interface {
 	// Go runs work in the background with a progress popup (shown only if
 	// it takes a while) and calls done on the UI goroutine.
 	Go(title string, work Work, done func(error))
+
+	// Config returns the current settings.
+	Config() config.Config
 }

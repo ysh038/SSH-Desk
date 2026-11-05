@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"tuidesk/internal/apps/blank"
+	"tuidesk/internal/config"
 	"tuidesk/internal/term"
 	"tuidesk/internal/ui"
 	"tuidesk/internal/wm"
@@ -52,6 +53,8 @@ type Desktop struct {
 	modals     []ui.Modal
 	toasts     ui.Toasts
 	svc        services
+	cfg        config.Config
+	cfgPath    string
 	mode       Mode
 	topItems   []barItem
 	taskItems  []barItem
@@ -63,9 +66,82 @@ type Desktop struct {
 func New(w, h int, host string, now time.Time) *Desktop {
 	d := &Desktop{HostName: host, Now: now, M: &wm.Manager{}}
 	d.svc.init()
+	d.cfg = config.Default()
 	d.NewApp = func(n int) wm.App { return blank.New(n) }
 	d.Resize(w, h)
 	return d
+}
+
+// SetConfig installs settings loaded from path. When the keyboard style has
+// not been chosen yet (and this is not the Linux console), it asks once.
+func (d *Desktop) SetConfig(cfg config.Config, path string) {
+	d.cfg, d.cfgPath = cfg, path
+	d.applyConfig()
+	if cfg.Keyboard == "" && !d.svc.console {
+		d.Confirm("Keyboard", "Which keyboard do you use?\n\nShortcuts are shown for that keyboard, e.g.\nMac: ⌃S  ⌥↓  fn F2      PC: Ctrl+S  Alt+↓  F2\n\nYou can change this later in Menu › Settings.",
+			[]string{"Mac keyboard", "PC keyboard"}, func(c int) {
+				if c == 0 {
+					d.setKeyboard("mac")
+				} else {
+					d.setKeyboard("pc")
+				}
+			})
+	}
+}
+
+func (d *Desktop) applyConfig() {
+	style := term.LabelPC
+	if d.cfg.Keyboard == "mac" && !d.svc.console { // the console cannot draw ⌃⌥
+		style = term.LabelMac
+	}
+	term.SetLabelStyle(style)
+}
+
+func (d *Desktop) saveConfig() {
+	if d.cfgPath == "" {
+		return
+	}
+	if err := config.Save(d.cfgPath, d.cfg); err != nil {
+		d.Notify("Cannot save settings: "+err.Error(), true)
+	}
+}
+
+func (d *Desktop) setKeyboard(k string) {
+	d.cfg.Keyboard = k
+	d.applyConfig()
+	d.saveConfig()
+	d.Notify("Shortcuts are now shown for a "+map[string]string{"mac": "Mac", "pc": "PC"}[k]+" keyboard", false)
+}
+
+func (d *Desktop) openSettings(x, y int) {
+	mark := func(on bool) string {
+		if on {
+			return "[x] "
+		}
+		return "[ ] "
+	}
+	items := []ui.MenuItem{
+		{Label: mark(d.cfg.Keyboard == "mac") + "Mac keyboard (⌃ ⌥ fn)", Hotkey: 'm', Action: "kbd-mac"},
+		{Label: mark(d.cfg.Keyboard != "mac") + "PC keyboard (Ctrl Alt)", Hotkey: 'p', Action: "kbd-pc"},
+		{Separator: true},
+		{Label: mark(d.cfg.HintBar) + "Show shortcut hints", Hotkey: 'h', Action: "hints"},
+		{Label: mark(d.cfg.Backup) + "Keep .bak backup when saving", Hotkey: 'b', Action: "backup"},
+	}
+	d.openMenu(items, nil, x, y)
+	d.menuFn = func(a string) {
+		switch a {
+		case "kbd-mac":
+			d.setKeyboard("mac")
+		case "kbd-pc":
+			d.setKeyboard("pc")
+		case "hints":
+			d.cfg.HintBar = !d.cfg.HintBar
+			d.saveConfig()
+		case "backup":
+			d.cfg.Backup = !d.cfg.Backup
+			d.saveConfig()
+		}
+	}
 }
 
 // Area is the region windows live in (between the two bars).
@@ -215,6 +291,7 @@ func (d *Desktop) openLauncher(x, y int) {
 	items := []ui.MenuItem{
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
 		{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
+		{Label: "Settings", Hotkey: 's', Action: "settings"},
 	}
 	if wins := d.M.Windows(); len(wins) > 0 {
 		items = append(items, ui.MenuItem{Separator: true})
@@ -291,6 +368,8 @@ func (d *Desktop) run(action string, target *wm.Window) {
 		d.OpenWindow(d.NewApp(d.created + 1))
 	case action == "help":
 		d.showHelp()
+	case action == "settings":
+		d.openSettings(1, 2)
 	case action == "quit":
 		d.askQuit()
 	case action == "next":
@@ -336,25 +415,41 @@ func (d *Desktop) closeWindow(w *wm.Window) {
 	d.mode = ModeNormal
 }
 
-var helpLines = []string{
-	"Mouse",
-	"  Drag title bar: move       Drag bottom-right corner: resize",
-	"  [_] minimize  [^] maximize  [x] close  Double-click title: maximize",
-	"  Right click: window / file menu   Ctrl+click or Option+click: add to selection",
-	"",
-	"Keyboard",
-	"  F9         Menu            F6 / Shift+F6  Next / previous window",
-	"  Shift+F10  Window menu     F7 Move mode   F8 Size mode",
-	"  Ctrl+N     New window      Ctrl+W Close   Ctrl+Q Quit",
-	"  Tab / Shift+Tab: switch windows (when the app does not use Tab)",
-	"  Move/size mode: arrow keys, Enter or Esc to finish",
-	"",
-	"Files",
-	"  Enter open   Backspace up   Space select   F2 rename   F5 refresh",
-	"  Del trash    Ctrl+Z undo    Ctrl+C/X/V copy/cut/paste   Ctrl+D duplicate",
-	"  Ctrl+P / Alt+Enter permissions   Alt+. hidden   Ctrl+L go to folder",
-	"  Shift+arrows extend selection   Ctrl/Option+click add to selection",
-	"  Type to filter (Esc clears). Drag a selected row to move or copy.",
+type helpRow struct{ keys, what string }
+
+var helpSections = []struct {
+	title string
+	rows  []helpRow
+}{
+	{"Desktop", []helpRow{
+		{"F9", "Menu (launcher)"}, {"Ctrl+N", "New window (file manager at /)"},
+		{"F6 / Shift+F6", "Next / previous window"}, {"Shift+F10", "Window menu (also right click)"},
+		{"F7 / F8", "Move / size window with arrow keys"}, {"Ctrl+W", "Close window"},
+		{"Ctrl+Q", "Quit tuidesk"}, {"F1", "This help"},
+	}},
+	{"Files", []helpRow{
+		{"Enter", "Open"}, {"Backspace", "Parent folder"}, {"Space", "Select / unselect"},
+		{"Shift+Down", "Extend selection (Ctrl/Option+click adds one)"}, {"F2", "Rename"},
+		{"Delete", "Move to Trash"}, {"Ctrl+Z", "Undo"}, {"Ctrl+C / Ctrl+X / Ctrl+V", "Copy / cut / paste"},
+		{"Ctrl+D", "Duplicate"}, {"Ctrl+P", "Permissions"}, {"Ctrl+L", "Go to folder"},
+		{"F5", "Refresh"}, {"Alt+.", "Show hidden files"},
+	}},
+}
+
+func helpLines() []string {
+	lines := []string{
+		"Mouse: drag a title bar to move, drag the bottom-right corner to resize,",
+		"[_] minimize  [^] maximize  [x] close, double-click a title to maximize.",
+		"Type to filter files; drag selected files onto a folder to move or copy.",
+	}
+	for _, sec := range helpSections {
+		lines = append(lines, "", sec.title)
+		for _, r := range sec.rows {
+			k := term.KeyLabel(r.keys)
+			lines = append(lines, "  "+k+strings.Repeat(" ", max(26-term.Width(k), 1))+r.what)
+		}
+	}
+	return lines
 }
 
 func (d *Desktop) showHelp() {
@@ -362,8 +457,9 @@ func (d *Desktop) showHelp() {
 		d.M.Raise(d.help)
 		return
 	}
-	d.help = d.OpenWindow(&blank.Text{Name: "Help", Lines: helpLines})
-	d.M.ResizeTo(d.help, 78, len(helpLines)+2)
+	lines := helpLines()
+	d.help = d.OpenWindow(&blank.Text{Name: "Help", Lines: lines})
+	d.M.ResizeTo(d.help, 78, len(lines)+2)
 }
 
 // ---- keyboard ----
@@ -635,7 +731,8 @@ func (d *Desktop) drawTaskbar(c *wm.Canvas) {
 		d.taskItems = append(d.taskItems, barItem{r: wm.Rect{X: x, Y: y, W: lw, H: 1}, action: "raise:" + strconv.Itoa(w.ID)})
 		x += lw + 1
 	}
-	hint := " F9 Menu · F6 Next window · Shift+F10 Window menu · F1 Help "
+	hint := " " + term.KeyLabel("F9") + " Menu · " + term.KeyLabel("F6") + " Next window · " +
+		term.KeyLabel("Shift+F10") + " Window menu · " + term.KeyLabel("F1") + " Help "
 	if hx := d.W - term.Width(hint); hx > x {
 		s.Text(hx, 0, hint, wm.StyleBar)
 	}

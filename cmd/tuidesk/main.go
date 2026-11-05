@@ -10,6 +10,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"tuidesk/internal/apps/files"
+	"tuidesk/internal/config"
 	"tuidesk/internal/desktop"
 	"tuidesk/internal/tui"
 	"tuidesk/internal/wm"
@@ -33,6 +34,8 @@ func main() {
 	host, _ := os.Hostname()
 	d := desktop.New(w, h, host, time.Now())
 	d.SetConsole(os.Getenv("TERM") == "linux")
+	cfgPath := config.Path()
+	cfg, _, cfgErr := config.Load(cfgPath)
 	d.HomeDir, _ = os.Getwd()
 	if d.HomeDir == "" {
 		d.HomeDir, _ = os.UserHomeDir()
@@ -40,6 +43,10 @@ func main() {
 	d.NewFiles = func(dir string) wm.App { return files.New(d, dir) }
 	fw := d.OpenWindow(d.NewFiles(d.HomeDir))
 	d.M.ResizeTo(fw, min(90, w-4), min(24, h-4))
+	d.SetConfig(cfg, cfgPath)
+	if cfgErr != nil {
+		d.ShowError("Settings", "Could not read "+cfgPath+"; using defaults.", cfgErr.Error())
+	}
 	d.Notify("F9 Menu · F1 Help · Ctrl+Q Quit", false)
 
 	tui.NewLoop(s, d).Run()

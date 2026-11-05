@@ -75,3 +75,33 @@ func TestNormalizeAltEnterFromConsole(t *testing.T) {
 		t.Fatalf("got %s", got)
 	}
 }
+
+func TestFormatLabel(t *testing.T) {
+	cases := []struct {
+		in      string
+		pc, mac string
+	}{
+		{"Ctrl+S", "Ctrl+S", "⌃S"},
+		{"Alt+Down", "Alt+↓", "⌥↓"},
+		{"PgDn", "PgDn", "fn↓"},
+		{"Home", "Home", "fn←"},
+		{"F2", "F2", "fn F2"},
+		{"Shift+F10", "Shift+F10", "fn ⇧F10"},
+		{"Shift+Up", "Shift+↑", "⇧↑"},
+		{"Delete", "Delete", "fn⌫"},
+		{"Ctrl+Home / Alt+Up", "Ctrl+Home / Alt+↑", "⌃fn← / ⌥↑"},
+	}
+	for _, c := range cases {
+		if got := FormatLabel(c.in, LabelPC); got != c.pc {
+			t.Errorf("pc %s → %q", c.in, got)
+		}
+		if got := FormatLabel(c.in, LabelMac); got != c.mac {
+			t.Errorf("mac %s → %q", c.in, got)
+		}
+	}
+	for _, s := range []string{"⌃", "⌥", "⇧", "↑", "↩", "⌫"} {
+		if w := Width(s); w != 1 {
+			t.Errorf("%s width %d", s, w)
+		}
+	}
+}
