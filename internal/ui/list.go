@@ -67,9 +67,9 @@ func (l *List) HandleEvent(ev term.Event) ListResult {
 			l.Selected -= page
 		case "PgDn":
 			l.Selected += page
-		case "Home":
+		case "Home", "Ctrl+Home", "Alt+Up": // Alt+Up: Option+↑ on a Mac
 			l.Selected = 0
-		case "End":
+		case "End", "Ctrl+End", "Alt+Down":
 			l.Selected = n - 1
 		case "Enter":
 			return ListActivated

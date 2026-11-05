@@ -216,3 +216,19 @@ func TestMenuHotkeyHighlightedInPlace(t *testing.T) {
 		t.Fatalf("label without the letter keeps the suffix: %q", row)
 	}
 }
+
+func TestListJumpAliases(t *testing.T) {
+	l := &List{Src: bigSource(1000), Height: 20}
+	l.HandleEvent(term.KeyEvent{Key: term.Key{Name: "Down", Mod: term.ModAlt}}) // Option+↓
+	if l.Selected != 999 {
+		t.Fatalf("Option+Down → %d", l.Selected)
+	}
+	l.HandleEvent(term.KeyEvent{Key: term.Key{Name: "Home", Mod: term.ModCtrl}})
+	if l.Selected != 0 {
+		t.Fatalf("Ctrl+Home → %d", l.Selected)
+	}
+	l.HandleEvent(key("PgDn")) // one screen minus one line of overlap
+	if l.Selected != 19 {
+		t.Fatalf("PgDn → %d", l.Selected)
+	}
+}
