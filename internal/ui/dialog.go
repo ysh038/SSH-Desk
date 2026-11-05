@@ -18,6 +18,7 @@ type Dialog struct {
 	Rect   wm.Rect
 	Chosen int // set when DialogDone is returned (-1 = cancelled)
 	ID     string
+	Error  bool // draw the title in the error style
 }
 
 // DialogResult is what a Dialog reports after handling an event.
@@ -90,6 +91,16 @@ func (d *Dialog) HandleEvent(ev term.Event) DialogResult {
 			return d.done(d.Focused)
 		case "Esc":
 			return d.done(d.Cancel)
+		default:
+			// Button hotkey: first letter of a button label.
+			if ev.Key.IsRune() && ev.Key.Mod == 0 {
+				r := strings.ToLower(string(term.ShortcutRune(ev.Key.Rune, term.ModCtrl)))
+				for i, b := range d.Buttons {
+					if strings.HasPrefix(strings.ToLower(b), r) {
+						return d.done(i)
+					}
+				}
+			}
 		}
 	case term.MouseEvent:
 		g := ev.Gesture
@@ -110,7 +121,11 @@ func (d *Dialog) Draw(c *wm.Canvas) {
 	s := wm.NewSurface(c, d.Rect)
 	s.Clear(wm.StyleDialog)
 	s.Box(wm.Rect{X: 0, Y: 0, W: d.Rect.W, H: d.Rect.H}, wm.StyleDialog)
-	s.Sub(wm.Rect{X: 1, Y: 0, W: d.Rect.W - 2, H: 1}).Text(1, 0, " "+d.Title+" ", wm.StyleDialog)
+	titleStyle := wm.StyleDialog
+	if d.Error {
+		titleStyle = wm.StyleDialogError
+	}
+	s.Sub(wm.Rect{X: 1, Y: 0, W: d.Rect.W - 2, H: 1}).Text(1, 0, " "+d.Title+" ", titleStyle)
 	for i, l := range d.lines() {
 		s.Sub(wm.Rect{X: 2, Y: 2 + i, W: d.Rect.W - 4, H: 1}).Text(0, 0, l, wm.StyleDialog)
 	}

@@ -26,6 +26,12 @@ const (
 	StyleScrollbar
 	StyleScrollThumb
 	StyleSelected // selected list row
+	StyleInput
+	StyleInputCursor
+	StyleDialogError
+	StyleHeader // column headers / path bar
+	StyleMarked // selected (marked) file rows
+	StyleDropTarget
 
 	NumStyles
 )

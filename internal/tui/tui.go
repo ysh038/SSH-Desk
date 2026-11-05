@@ -269,6 +269,12 @@ func StylesFor(colors int) [wm.NumStyles]tcell.Style {
 	st[wm.StyleScrollbar] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorGray)
 	st[wm.StyleScrollThumb] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorSilver)
 	st[wm.StyleSelected] = b.Background(tcell.ColorTeal).Foreground(tcell.ColorWhite)
+	st[wm.StyleInput] = b.Background(tcell.ColorNavy).Foreground(tcell.ColorWhite)
+	st[wm.StyleInputCursor] = b.Background(tcell.ColorWhite).Foreground(tcell.ColorNavy)
+	st[wm.StyleDialogError] = b.Background(tcell.ColorSilver).Foreground(tcell.ColorMaroon).Bold(true)
+	st[wm.StyleHeader] = b.Background(tcell.ColorNavy).Foreground(tcell.ColorWhite)
+	st[wm.StyleMarked] = b.Background(tcell.ColorOlive).Foreground(tcell.ColorBlack)
+	st[wm.StyleDropTarget] = b.Background(tcell.ColorGreen).Foreground(tcell.ColorBlack).Bold(true)
 	if colors < 16 {
 		// Bright colors render as bold/blink on 8-color consoles; keep to the base 8.
 		st[wm.StyleFrame] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorWhite)
