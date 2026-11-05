@@ -11,6 +11,7 @@ import (
 
 	"tuidesk/internal/apps/blank"
 	"tuidesk/internal/config"
+	"tuidesk/internal/host"
 	"tuidesk/internal/term"
 	"tuidesk/internal/ui"
 	"tuidesk/internal/wm"
@@ -43,6 +44,8 @@ type Desktop struct {
 	NewFiles func(dir string) wm.App
 	// RootDir is where "New window" file managers start (default "/").
 	RootDir string
+	// OpenText opens a text file in the editor (set by main).
+	OpenText func(path string)
 	// HomeDir is where new file managers start.
 	HomeDir string
 	Quit    bool
@@ -241,7 +244,17 @@ func (d *Desktop) Handle(ev term.Event) {
 
 func (d *Desktop) askQuit() {
 	d.closeMenu()
-	d.Confirm("Quit", "Quit tuidesk?\nAll open windows will be closed.", []string{"Quit", "Cancel"}, func(choice int) {
+	msg := "Quit tuidesk?\nAll open windows will be closed."
+	unsaved := 0
+	for _, w := range d.M.Windows() {
+		if c, ok := w.App.(host.Closer); ok {
+			unsaved += c.Unsaved()
+		}
+	}
+	if unsaved > 0 {
+		msg = fmt.Sprintf("Quit tuidesk?\n%d file(s) have unsaved changes that will be lost.", unsaved)
+	}
+	d.Confirm("Quit", msg, []string{"Quit", "Cancel"}, func(choice int) {
 		if choice != 0 {
 			return
 		}
@@ -290,6 +303,7 @@ func (d *Desktop) openMenu(items []ui.MenuItem, target *wm.Window, x, y int) {
 func (d *Desktop) openLauncher(x, y int) {
 	items := []ui.MenuItem{
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
+		{Label: "Text editor", Hotkey: 'e', Action: "editor"},
 		{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
 		{Label: "Settings", Hotkey: 's', Action: "settings"},
 	}
@@ -370,6 +384,8 @@ func (d *Desktop) run(action string, target *wm.Window) {
 		d.M.ResizeTo(w, min(84, d.Area().W-4), min(22, d.Area().H-2))
 	case action == "new":
 		d.OpenWindow(d.NewApp(d.created + 1))
+	case action == "editor" && d.OpenText != nil:
+		d.OpenText("")
 	case action == "help":
 		d.showHelp()
 	case action == "settings":
@@ -406,6 +422,10 @@ func (d *Desktop) run(action string, target *wm.Window) {
 }
 
 func (d *Desktop) closeWindow(w *wm.Window) {
+	if c, ok := w.App.(host.Closer); ok && c.Unsaved() > 0 {
+		c.RequestClose(func() { d.CloseApp(w.App) })
+		return
+	}
 	if w.App != nil {
 		if err := w.App.Close(); err != nil {
 			d.Notify("Cannot close window: "+err.Error(), true)

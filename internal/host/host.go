@@ -36,6 +36,14 @@ type DropTarget interface {
 // file operations.
 type Refresher interface{ Refresh() }
 
+// Closer is implemented by apps that may need to ask before closing
+// (unsaved changes). RequestClose calls proceed when the window may close.
+type Closer interface {
+	RequestClose(proceed func())
+	// Unsaved is the number of documents with unsaved changes.
+	Unsaved() int
+}
+
 // Work is a long operation run off the UI goroutine. It must stop when ctx
 // is cancelled and may report progress.
 type Work func(ctx context.Context, progress func(fsops.Progress)) error
@@ -65,6 +73,12 @@ type Host interface {
 	// SetClipboardText copies text to the internal clipboard and, through
 	// OSC 52, to the user's local clipboard.
 	SetClipboardText(s string)
+	// ClipboardText returns the internal text clipboard.
+	ClipboardText() string
+	// OpenFile opens a text file in the editor (a new tab if one is open).
+	OpenFile(path string)
+	// CloseApp closes the window that shows app.
+	CloseApp(app wm.App)
 	Files() *Clipboard
 	BeginDrag(d Drag)
 	// Console reports a Linux console (TERM=linux): no Hangul glyphs.

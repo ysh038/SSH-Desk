@@ -22,6 +22,7 @@ type services struct {
 	poster func()
 
 	clipText  func(string) // OSC 52 writer, set by the terminal layer
+	text      string       // internal text clipboard
 	files     host.Clipboard
 	undo      []*fsops.Record
 	fs        *fsops.FS
@@ -130,8 +131,32 @@ func (d *Desktop) OpenBarMenu(app wm.App, x, y int, items []ui.MenuItem, onChoos
 func (d *Desktop) ShowPalette(cmds *ui.Commands) { d.ShowModal(ui.NewPalette(cmds)) }
 
 func (d *Desktop) SetClipboardText(s string) {
+	d.svc.text = s
 	if d.svc.clipText != nil {
 		d.svc.clipText(s)
+	}
+}
+
+func (d *Desktop) ClipboardText() string { return d.svc.text }
+
+func (d *Desktop) OpenFile(path string) {
+	if d.OpenText == nil {
+		d.Notify("No editor available", true)
+		return
+	}
+	d.OpenText(path)
+}
+
+func (d *Desktop) CloseApp(app wm.App) {
+	for _, w := range d.M.Windows() {
+		if w.App == app {
+			d.M.Remove(w)
+			if d.help == w {
+				d.help = nil
+			}
+			_ = app.Close()
+			return
+		}
 	}
 }
 

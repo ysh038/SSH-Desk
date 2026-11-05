@@ -37,6 +37,14 @@ func (a *App) buildCommands() {
 	a.cmds.Add(
 		// File
 		c("open", "File", "Open", "Open", []string{"Enter", "Alt+Down"}, "", hasSel, openCursor),
+		c("view", "File", "View read-only", "", nil, "", func() bool {
+			e, ok := a.cursorEntry()
+			return ok && e.Mode.IsRegular()
+		}, func() {
+			if e, ok := a.cursorEntry(); ok {
+				a.viewReadOnly(e)
+			}
+		}),
 		c("newfile", "File", "New file...", "", nil, "", nil, func() { a.newItem(false) }),
 		c("newfolder", "File", "New folder...", "", nil, "", nil, func() { a.newItem(true) }),
 		sep("File"),

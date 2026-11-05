@@ -39,6 +39,7 @@ type rule struct {
 
 // Lang is a highlighter.
 type Lang struct {
+	Key         string // map key: "nginx", "yaml", … (snippet files use it)
 	Name        string
 	rules       []rule
 	ColonIndent bool // new level after a trailing ':' (YAML, Python)
@@ -120,6 +121,12 @@ var langs = map[string]*Lang{
 		r(Var, `\[[^\]]*\]\([^)]*\)`),
 	}},
 	"text": {Name: "Text"},
+}
+
+func init() {
+	for k, l := range langs {
+		l.Key = k
+	}
 }
 
 // Detect picks a language from the path and the first line.

@@ -315,3 +315,42 @@ func (e *Editor) SelectLine(l int) {
 		e.Select(Pos{l, 0}, Pos{l, len(e.Lines[l])})
 	}
 }
+
+// Offset converts a position to a rune offset in the document ('\n' = 1).
+func (e *Editor) Offset(p Pos) int {
+	p = e.clamp(p)
+	n := 0
+	for l := 0; l < p.Line; l++ {
+		n += len(e.Lines[l]) + 1
+	}
+	return n + p.Col
+}
+
+// PosAt converts a rune offset back to a position.
+func (e *Editor) PosAt(off int) Pos {
+	for l, line := range e.Lines {
+		if off <= len(line) {
+			return Pos{l, max(off, 0)}
+		}
+		off -= len(line) + 1
+	}
+	last := len(e.Lines) - 1
+	return Pos{last, len(e.Lines[last])}
+}
+
+// Len is the document length in runes.
+func (e *Editor) Len() int {
+	last := len(e.Lines) - 1
+	return e.Offset(Pos{last, len(e.Lines[last])})
+}
+
+// WordBefore returns the word immediately before the cursor.
+func (e *Editor) WordBefore() string {
+	l := e.Lines[e.Cur.Line]
+	c := e.Cur.Col
+	s := c
+	for s > 0 && isWord(l[s-1]) {
+		s--
+	}
+	return string(l[s:c])
+}

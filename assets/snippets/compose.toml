@@ -1,0 +1,30 @@
+lang = "yaml"
+
+[[snippet]]
+trigger = "service"
+title = "docker-compose service"
+body = """
+${1:app}:
+  image: ${2:nginx:stable}
+  restart: unless-stopped
+  ports:
+    - "${3:8080}:${4:80}"
+  volumes:
+    - ${5:./data}:${6:/data}"""
+
+[[snippet]]
+trigger = "volume"
+title = "named volume"
+body = """
+volumes:
+  ${1:data}:"""
+
+[[snippet]]
+trigger = "healthcheck"
+title = "healthcheck"
+body = """
+healthcheck:
+  test: ["CMD", "curl", "-f", "${1:http://localhost/}"]
+  interval: 30s
+  timeout: 5s
+  retries: 3"""

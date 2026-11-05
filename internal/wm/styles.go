@@ -32,6 +32,17 @@ const (
 	StyleHeader // column headers / path bar
 	StyleMarked // selected (marked) file rows
 	StyleDropTarget
+	StyleGutter
+	StyleCurLine
+	StyleSelection
+	StyleBracket
+	StyleSynComment
+	StyleSynString
+	StyleSynKeyword
+	StyleSynNumber
+	StyleSynVar
+	StyleSynKey
+	StyleSynHeader
 
 	NumStyles
 )

@@ -1,0 +1,33 @@
+lang = "ini"
+
+[[snippet]]
+trigger = "service"
+title = "systemd service unit"
+body = """
+[Unit]
+Description=${1:My service}
+After=network.target
+
+[Service]
+Type=simple
+User=${2:www-data}
+WorkingDirectory=${3:/opt/app}
+ExecStart=${4:/opt/app/run}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target"""
+
+[[snippet]]
+trigger = "timer"
+title = "systemd timer unit"
+body = """
+[Unit]
+Description=${1:Run my job}
+
+[Timer]
+OnCalendar=${2:daily}
+Persistent=true
+
+[Install]
+WantedBy=timers.target"""

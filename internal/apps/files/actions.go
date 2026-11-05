@@ -37,12 +37,7 @@ func (a *App) open(e fsops.Entry) {
 	case e.IsDir:
 		a.navigate(e.Path, "")
 	case e.Mode.IsRegular() && fsops.IsText(e.Path):
-		v, err := viewer.Open(e.Path)
-		if err != nil {
-			a.h.ShowError("Cannot open file", a.display(e.Name)+": "+errText(err), "")
-			return
-		}
-		a.h.OpenWindow(v)
+		a.h.OpenFile(e.Path)
 	default:
 		kind := "binary file"
 		if e.Mode&0o111 != 0 {
@@ -51,6 +46,16 @@ func (a *App) open(e fsops.Entry) {
 		a.h.Confirm("Open", fmt.Sprintf("%s\n\nType: %s\nSize: %s\n\nRunning programs will be available with the terminal window (later phase).",
 			a.display(e.Name), kind, ui.HumanSize(e.Size)), []string{"OK"}, nil)
 	}
+}
+
+// viewReadOnly opens the read-only viewer.
+func (a *App) viewReadOnly(e fsops.Entry) {
+	v, err := viewer.Open(e.Path)
+	if err != nil {
+		a.h.ShowError("Cannot open file", a.display(e.Name)+": "+errText(err), "")
+		return
+	}
+	a.h.OpenWindow(v)
 }
 
 // ---- rename (inline) ----

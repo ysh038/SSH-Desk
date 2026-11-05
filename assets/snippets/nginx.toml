@@ -1,0 +1,72 @@
+lang = "nginx"
+
+[[snippet]]
+trigger = "server"
+title = "server block"
+body = """
+server {
+    listen ${1:80};
+    server_name ${2:example.com};
+
+    location / {
+        ${0}
+    }
+}"""
+
+[[snippet]]
+trigger = "location"
+title = "location block"
+body = """
+location ${1:/} {
+    ${0}
+}"""
+
+[[snippet]]
+trigger = "proxy"
+title = "reverse proxy (proxy_pass + headers)"
+body = """
+location ${1:/} {
+    proxy_pass http://${2:127.0.0.1:8080};
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}"""
+
+[[snippet]]
+trigger = "upstream"
+title = "upstream group"
+body = """
+upstream ${1:backend} {
+    server ${2:127.0.0.1:8080};
+    ${0}
+}"""
+
+[[snippet]]
+trigger = "ssl"
+title = "TLS settings"
+body = """
+listen 443 ssl;
+ssl_certificate ${1:/etc/ssl/certs/site.crt};
+ssl_certificate_key ${2:/etc/ssl/private/site.key};
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers on;"""
+
+[[snippet]]
+trigger = "gzip"
+title = "gzip compression"
+body = """
+gzip on;
+gzip_comp_level ${1:5};
+gzip_min_length 256;
+gzip_types text/plain text/css application/json application/javascript text/xml application/xml;"""
+
+[[snippet]]
+trigger = "redirect"
+title = "redirect HTTP to HTTPS"
+body = """
+server {
+    listen 80;
+    server_name ${1:example.com};
+    return 301 https://$host$request_uri;
+}"""

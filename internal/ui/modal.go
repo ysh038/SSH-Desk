@@ -49,6 +49,9 @@ type Prompt struct {
 	Input    *Input
 	Validate func(string) error // optional; an error keeps the prompt open
 	OnOK     func(string)
+	// OnSecret, when set, receives a copy of the runes instead of OnOK and
+	// the field is wiped right away (passwords never become Go strings).
+	OnSecret func([]rune)
 	OnCancel func()
 	Rect     wm.Rect
 	errMsg   string
@@ -78,6 +81,12 @@ func (p *Prompt) buttons() []wm.Rect {
 }
 
 func (p *Prompt) submit() bool {
+	if p.OnSecret != nil {
+		secret := append([]rune(nil), p.Input.Text...)
+		p.Input.Clear()
+		p.OnSecret(secret)
+		return true
+	}
 	v := p.Input.Value()
 	if p.Validate != nil {
 		if err := p.Validate(v); err != nil {
@@ -93,6 +102,7 @@ func (p *Prompt) submit() bool {
 }
 
 func (p *Prompt) cancel() bool {
+	p.Input.Clear()
 	if p.OnCancel != nil {
 		p.OnCancel()
 	}

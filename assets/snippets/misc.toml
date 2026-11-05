@@ -1,0 +1,20 @@
+lang = "*"
+
+[[snippet]]
+trigger = "cron"
+title = "crontab line (min hour day month weekday)"
+body = "${1:0} ${2:3} * * * ${3:/path/to/job} >> ${4:/var/log/job.log} 2>&1"
+
+[[snippet]]
+trigger = "logrotate"
+title = "logrotate block"
+body = """
+${1:/var/log/app/*.log} {
+    daily
+    rotate ${2:14}
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}"""

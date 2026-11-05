@@ -297,6 +297,20 @@ func StylesFor(colors int) [wm.NumStyles]tcell.Style {
 	st[wm.StyleHeader] = b.Background(tcell.ColorNavy).Foreground(tcell.ColorWhite)
 	st[wm.StyleMarked] = b.Background(tcell.ColorOlive).Foreground(tcell.ColorBlack)
 	st[wm.StyleDropTarget] = b.Background(tcell.ColorGreen).Foreground(tcell.ColorBlack).Bold(true)
+	st[wm.StyleGutter] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorGray)
+	st[wm.StyleCurLine] = b.Background(tcell.NewRGBColor(30, 30, 40)).Foreground(tcell.ColorSilver)
+	st[wm.StyleSelection] = b.Background(tcell.ColorNavy).Foreground(tcell.ColorWhite)
+	st[wm.StyleBracket] = b.Background(tcell.ColorOlive).Foreground(tcell.ColorBlack)
+	st[wm.StyleSynComment] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorGray)
+	st[wm.StyleSynString] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorGreen)
+	st[wm.StyleSynKeyword] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorAqua)
+	st[wm.StyleSynNumber] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorFuchsia)
+	st[wm.StyleSynVar] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorYellow)
+	st[wm.StyleSynKey] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorAqua)
+	st[wm.StyleSynHeader] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorYellow).Bold(true)
+	if colors < 256 {
+		st[wm.StyleCurLine] = st[wm.StyleBody] // no subtle grey on 8/16 colors
+	}
 	if colors < 16 {
 		// Bright colors render as bold/blink on 8-color consoles; keep to the base 8.
 		st[wm.StyleFrame] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorWhite)

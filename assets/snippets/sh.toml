@@ -1,0 +1,31 @@
+lang = "sh"
+
+[[snippet]]
+trigger = "bash"
+title = "bash script header"
+body = """
+#!/usr/bin/env bash
+set -euo pipefail
+
+${0}"""
+
+[[snippet]]
+trigger = "args"
+title = "argument parsing (getopts)"
+body = """
+while getopts "${1:hv}" opt; do
+    case "$opt" in
+        h) usage; exit 0 ;;
+        v) verbose=1 ;;
+        *) usage; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))"""
+
+[[snippet]]
+trigger = "func"
+title = "function"
+body = """
+${1:name}() {
+    ${0}
+}"""
