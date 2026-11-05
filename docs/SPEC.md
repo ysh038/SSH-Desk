@@ -48,7 +48,7 @@ S3. (선택, full 빌드) 내부망 LLM이 있는 환경에서 터미널 창에 
 | 문자 폭 | `github.com/mattn/go-runewidth` | 한글 2칸 폭 처리 |
 | 편집기 코어 | micro(MIT)의 buffer/highlight 로직을 참고·이식 | 검증된 구현, 문법 정의(YAML) 재사용 가능. 라이선스 고지 필수 |
 | PTY | `github.com/creack/pty` | 터미널 창용 |
-| VT 에뮬레이터 | Phase 4 스파이크에서 결정 (`charmbracelet/x/vt`, `hinshun/vt10x` 등 후보) | 성숙도 비교 필요 |
+| VT 에뮬레이터 | `charmbracelet/x/vt` (패치 사본 `third_party/vt`) + `creack/pty` | Phase 4 스파이크로 결정, ADR 0004 |
 | MCP | `github.com/modelcontextprotocol/go-sdk` | 공식 Go SDK (full 빌드 전용) |
 | 설정 | TOML | 사람이 손으로 고치기 쉬움 |
 
@@ -192,7 +192,10 @@ server {
 
 ### 7.5 터미널 창 (Phase 4)
 - PTY 기반 셸 창. 여러 개 열기 가능. 안에서 vim, htop, Claude Code 등 TUI 프로그램 실행 가능.
-- 파일 관리자의 "여기서 터미널 열기"와 연동.
+- 파일 관리자의 "여기서 터미널 열기"(Ctrl+T, 우클릭)와 연동. 실행 파일 더블클릭 → 확인 후 터미널 창에서 실행(끝나도 창 유지).
+- 터미널 창에서는 모든 키가 프로그램으로 간다. **Ctrl+]**만 예외로 터미널 메뉴(창 전환, 데스크톱 메뉴, 붙여넣기, 복사, 스크롤백, 닫기)를 연다(ADR 0004).
+- 프로그램이 마우스를 쓰면 마우스를 전달하고, 아니면 드래그 = 선택 복사, 휠 = 스크롤백(5000줄).
+- 실행 중인 프로그램이 있으면 창 닫기와 종료 전에 확인한다.
 - 터미널 창의 환경변수로 `TUIDESK_SOCKET`을 노출해 외부 도구가 데스크톱과 통신할 수 있게 한다(full 빌드).
 
 ### 7.6 클립보드
@@ -314,9 +317,9 @@ MVP = Phase 0 ~ 3.
 - 완료 기준: 시나리오 S1을 처음부터 끝까지 수행 가능 — ✅ 시나리오 테스트(`internal/desktop/s1_test.go`)로 파일 관리자 → 에디터 → 스니펫 → sudo 저장 → nginx -t까지 통과, 리눅스 콘솔 VM 확인(`docs/img/phase3-console-editor.png`). 실제 sudo·nginx가 있는 서버에서 확인 대기 (2026-11-05)
 
 ### Phase 4 — 터미널 창
-- [ ] VT 에뮬레이터 선택 스파이크 → PTY 셸 창
-- [ ] "여기서 터미널 열기", 앱 매니페스트(8.3 1단계)
-- 완료 기준: 터미널 창 안에서 htop, micro가 정상 동작
+- [x] VT 에뮬레이터 선택 스파이크 → PTY 셸 창 — x/vt 채택(한글 폭, DA1, 스크롤백), 오른쪽 끝 와이드 문자 패치, ADR 0004 (2026-11-05)
+- [x] "여기서 터미널 열기", 앱 매니페스트(8.3 1단계) — 파일 관리자 Ctrl+T·우클릭, 실행 파일 실행, `~/.config/tuidesk/apps/*.toml` → 런처·바탕화면 (`docs/examples/apps/`)
+- 완료 기준: 터미널 창 안에서 htop, micro가 정상 동작 — ✅ 리눅스 콘솔 VM에서 htop(색상, F6 정렬 메뉴, F10 종료), micro(입력·Ctrl+S·Ctrl+Q), 대체 화면 복귀, Ctrl+] 메뉴로 창 전환 확인(`docs/img/phase4-console-*.png`). 실제 셸 pty 테스트(`internal/desktop/terminal_test.go`, `-race` 통과). Terminal.app 실사용 확인 대기 (2026-11-05)
 
 ### Phase 5 — MCP 서버 (full 빌드)
 - [ ] 8.1 도구, 승인 다이얼로그, 감사 로그, 경로 화이트리스트

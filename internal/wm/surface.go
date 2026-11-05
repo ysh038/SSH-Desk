@@ -27,6 +27,14 @@ func (s Surface) Set(x, y int, r rune, st StyleID) int {
 	return s.c.Set(s.clip, s.area.X+x, s.area.Y+y, r, st)
 }
 
+// SetTerm writes a terminal cell with explicit colors at local (x, y).
+func (s Surface) SetTerm(x, y int, r rune, t TermStyle) int {
+	if x < 0 || y < 0 || x >= s.area.W || y >= s.area.H {
+		return term.RuneWidth(r)
+	}
+	return s.c.SetTerm(s.clip, s.area.X+x, s.area.Y+y, r, t)
+}
+
 // Text writes str at local (x, y) and returns the column after it.
 func (s Surface) Text(x, y int, str string, st StyleID) int {
 	for _, r := range str {

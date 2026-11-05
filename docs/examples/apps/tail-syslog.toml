@@ -1,0 +1,5 @@
+# Any shell command works (run with /bin/sh -c). hold = true keeps the
+# window open after the command ends so its output can be read.
+name = "System log"
+icon = "LOG"
+command = "tail -n 200 -f /var/log/syslog"

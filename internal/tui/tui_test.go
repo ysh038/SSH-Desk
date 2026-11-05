@@ -67,6 +67,7 @@ func TestCtrlLettersAndBacktab(t *testing.T) {
 		{tcell.NewEventKey(tcell.KeyBackspace2, 0, tcell.ModNone), "Backspace"},
 		{tcell.NewEventKey(tcell.KeyRune, '한', tcell.ModNone), "한"},
 		{tcell.NewEventKey(tcell.KeyCtrlUnderscore, 0, tcell.ModCtrl), "Ctrl+/"},
+		{tcell.NewEventKey(tcell.KeyCtrlRightSq, 0, tcell.ModCtrl), "Ctrl+]"},
 	}
 	for _, c := range cases {
 		if got := KeyFromTcell(c.ev).String(); got != c.want {

@@ -47,6 +47,11 @@ func main() {
 	fw := d.OpenWindow(d.NewFiles(d.HomeDir))
 	d.M.ResizeTo(fw, min(90, w-4), min(24, h-4))
 	d.SetConfig(cfg, cfgPath)
+	apps, appErrs := config.LoadApps(config.AppsDir(cfgPath))
+	d.SetApps(apps)
+	for _, err := range appErrs {
+		d.Notify("App manifest skipped: "+err.Error(), true)
+	}
 	if cfgErr != nil {
 		d.ShowError("Settings", "Could not read "+cfgPath+"; using defaults.", cfgErr.Error())
 	}

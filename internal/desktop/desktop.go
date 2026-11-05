@@ -65,6 +65,7 @@ type Desktop struct {
 	help       *wm.Window
 	iconSel    int // selected desktop icon (-1: none)
 	iconHover  int // desktop icon under a file drag (-1: none)
+	apps       []config.AppManifest
 }
 
 // New creates a desktop of w×h cells.
@@ -257,6 +258,15 @@ func (d *Desktop) askQuit() {
 	if unsaved > 0 {
 		msg = fmt.Sprintf("Quit tuidesk?\n%d file(s) have unsaved changes that will be lost.", unsaved)
 	}
+	var progs []string
+	for _, w := range d.M.Windows() {
+		if p := running(w); p != "" {
+			progs = append(progs, d.display(p))
+		}
+	}
+	if len(progs) > 0 {
+		msg += "\nStill running in terminals: " + strings.Join(progs, ", ") + "."
+	}
 	d.Confirm("Quit", msg, []string{"Quit", "Cancel"}, func(choice int) {
 		if choice != 0 {
 			return
@@ -306,10 +316,17 @@ func (d *Desktop) openMenu(items []ui.MenuItem, target *wm.Window, x, y int) {
 func (d *Desktop) openLauncher(x, y int) {
 	items := []ui.MenuItem{
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
+		{Label: "Terminal", Hotkey: 't', Action: "terminal"},
 		{Label: "Text editor", Hotkey: 'e', Action: "editor"},
 		{Label: "Show desktop", Hotkey: 'd', Action: "desktop"},
 		{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
 		{Label: "Settings", Hotkey: 's', Action: "settings"},
+	}
+	if len(d.apps) > 0 {
+		items = append(items, ui.MenuItem{Separator: true})
+		for i, a := range d.apps {
+			items = append(items, ui.MenuItem{Label: d.display(a.Name), Action: "app:" + strconv.Itoa(i)})
+		}
 	}
 	if wins := d.M.Windows(); len(wins) > 0 {
 		items = append(items, ui.MenuItem{Separator: true})
@@ -390,6 +407,12 @@ func (d *Desktop) run(action string, target *wm.Window) {
 		d.OpenWindow(d.NewApp(d.created + 1))
 	case action == "editor" && d.OpenText != nil:
 		d.OpenText("")
+	case action == "terminal":
+		d.OpenTerminal(d.selectedDir(), nil, false)
+	case strings.HasPrefix(action, "app:"):
+		if i, err := strconv.Atoi(strings.TrimPrefix(action, "app:")); err == nil && i < len(d.apps) {
+			d.runApp(d.apps[i])
+		}
 	case action == "help":
 		d.showHelp()
 	case action == "desktop":
@@ -434,10 +457,18 @@ func (d *Desktop) run(action string, target *wm.Window) {
 }
 
 func (d *Desktop) closeWindow(w *wm.Window) {
+	if d.confirmRunning(w, func() { d.forceClose(w) }) {
+		return
+	}
 	if c, ok := w.App.(host.Closer); ok && c.Unsaved() > 0 {
 		c.RequestClose(func() { d.CloseApp(w.App) })
 		return
 	}
+	d.forceClose(w)
+}
+
+// forceClose closes w without asking.
+func (d *Desktop) forceClose(w *wm.Window) {
 	if w.App != nil {
 		if err := w.App.Close(); err != nil {
 			d.Notify("Cannot close window: "+err.Error(), true)
@@ -460,6 +491,8 @@ var helpSections = []struct {
 	{"Desktop", []helpRow{
 		{"F9", "Menu (launcher)"}, {"Ctrl+N", "New window (file manager at /)"},
 		{"F9 > Show desktop", "Desktop icons: arrows, Enter opens, Delete removes"},
+		{"F9 > Terminal", "Shell window (every key goes to the shell)"},
+		{"Ctrl+]", "In a terminal: menu (windows, paste, copy, scroll back)"},
 		{"F6 / Shift+F6", "Next / previous window"}, {"Shift+F10", "Window menu (also right click)"},
 		{"F7 / F8", "Move / size window with arrow keys"}, {"Ctrl+W", "Close window"},
 		{"Ctrl+Q", "Quit tuidesk"}, {"F1", "This help"},
@@ -469,6 +502,7 @@ var helpSections = []struct {
 		{"Shift+Down", "Extend selection (Ctrl/Option+click adds one)"}, {"F2", "Rename"},
 		{"Delete", "Move to Trash"}, {"Ctrl+Z", "Undo"}, {"Ctrl+C / Ctrl+X / Ctrl+V", "Copy / cut / paste"},
 		{"Ctrl+D", "Duplicate"}, {"Ctrl+P", "Permissions"}, {"Ctrl+L", "Go to folder"},
+		{"Ctrl+T", "Open terminal here"},
 		{"F5", "Refresh"}, {"Alt+.", "Show hidden files"},
 	}},
 	{"Editor", []helpRow{

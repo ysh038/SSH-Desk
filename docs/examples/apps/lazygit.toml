@@ -1,0 +1,5 @@
+# {selected_dir}: the folder selected in the focused file manager.
+name = "lazygit"
+icon = "G"
+command = "lazygit"
+cwd = "{selected_dir}"

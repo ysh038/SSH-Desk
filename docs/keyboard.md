@@ -77,6 +77,21 @@ Cmd(Windows 키) 조합은 받을 수 없으므로 **PC 표준 키 + Mac에서 �
 - **Ctrl+A**: "명령은 ⌃" 규칙(ADR 0003 B)에 따라 전체 선택으로 정했습니다. 줄 처음은 fn←(Home)입니다.
 - **Cmd+←/→를 꼭 쓰고 싶다면**: Terminal.app의 프로파일 › 키보드 설정에서 Cmd 조합을 Home/End로 매핑할 수 있는지 확인이 필요합니다. 가능하면 설정 방법을 안내하겠습니다.
 
+## 3-1. 터미널 창 (Phase 4, ADR 0004)
+
+터미널 창이 포커스이면 **모든 키가 안의 프로그램으로** 갑니다(F9, F6, Ctrl+W, Ctrl+Q 포함). 데스크톱으로 돌아가는 키는 하나입니다.
+
+| 동작 | Mac 배열 | PC 배열 | 콘솔 |
+|---|---|---|---|
+| 터미널 메뉴 | ⌃] 🔶 | Ctrl+] 🔶 | Ctrl+] ✅ (VM) |
+| 다음 창 / 데스크톱 메뉴 | ⌃] 후 n / m 🔶 | Ctrl+] 후 n / m 🔶 | ✅ (VM) |
+| 붙여넣기 | ⌘V(붙여넣기 이벤트), ⌃] 후 v 🔶 | Win+V, Ctrl+] 후 v 🔶 | Ctrl+] 후 v |
+| 스크롤백 | 휠, Shift+fn↑/↓ 🔶, ⌃] 후 s | 휠, Shift+PgUp/PgDn 🔶, Ctrl+] 후 s | Ctrl+] 후 s (Shift가 사라짐) |
+| 선택 복사 | 드래그(프로그램이 마우스를 안 쓸 때) 🔶 | 같음 🔶 | Ctrl+] 후 t (화면 전체 복사) |
+| 터미널 열기 | F9 › Terminal, 파일 관리자 ⌃T 🔶 | F9 › Terminal, Ctrl+T 🔶 | ✅ (VM) |
+
+- 프로그램이 마우스를 쓰면(htop, mc, micro) 클릭과 휠은 프로그램으로 갑니다. 창 제목 줄과 테두리는 그대로 데스크톱이 처리합니다.
+
 ## 4. 실측 방법 (`evlog`)
 
 서버에서 `~/sanghoon/evlog -label <이름>`을 실행한 뒤 아래 키를 차례로 누르고, 로그 파일을 넘겨주세요. 아무것도 찍히지 않는 키도 그 자체가 결과입니다. 키보드별로 한 번씩, 각각 `-label mac-kbd`와 `-label pc-kbd`로 실행합니다.
@@ -90,6 +105,7 @@ Cmd(Windows 키) 조합은 받을 수 없으므로 **PC 표준 키 + Mac에서 �
 7. Delete(⌦) · Shift+Delete: Mac 배열은 fn+delete
 8. Cmd(Win)+← · → · ↑ · ↓: 아무것도 안 찍히는 것이 예상 결과
 9. 마우스: Ctrl+클릭 · Option(Alt)+클릭 · Shift+클릭. 로그의 `mod=` 값을 확인합니다.
+10. Ctrl+] (터미널 메뉴 키): `Ctrl+]` 또는 0x1D로 찍혀야 합니다.
 
 ## 5. Terminal.app 설정: Shift+↑/↓ 보내기
 

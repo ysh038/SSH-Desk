@@ -163,7 +163,11 @@ func (l *Loop) render() {
 			if cell.Width == 0 {
 				continue // right half of a wide glyph: tcell skips it
 			}
-			l.S.SetContent(x, y, cell.Rune, nil, l.Styles[cell.Style])
+			st := l.Styles[cell.Style]
+			if cell.Style == wm.StyleTerm {
+				st = TermStyle(cell.T, l.Styles[wm.StyleBody])
+			}
+			l.S.SetContent(x, y, cell.Rune, nil, st)
 			l.CellsWritten++
 		}
 	}
@@ -204,6 +208,12 @@ func KeyFromTcell(ev *tcell.EventKey) term.Key {
 		return term.Key{Name: "Rune", Rune: rune('a' + (k - tcell.KeyCtrlA)), Mod: mod | term.ModCtrl}
 	case k >= tcell.KeyF1 && k <= tcell.KeyF64:
 		return term.Key{Name: fmt.Sprintf("F%d", int(k-tcell.KeyF1)+1), Mod: mod}
+	case k == tcell.KeyCtrlRightSq: // ^] opens the terminal window menu
+		return term.Key{Name: "Rune", Rune: ']', Mod: mod | term.ModCtrl}
+	case k == tcell.KeyCtrlBackslash:
+		return term.Key{Name: "Rune", Rune: '\\', Mod: mod | term.ModCtrl}
+	case k == tcell.KeyCtrlCarat:
+		return term.Key{Name: "Rune", Rune: '^', Mod: mod | term.ModCtrl}
 	case k == tcell.KeyCtrlUnderscore: // terminals send Ctrl+/ as ^_ (0x1F)
 		return term.Key{Name: "Rune", Rune: '/', Mod: mod | term.ModCtrl}
 	case k == tcell.KeyBacktab:
@@ -263,6 +273,30 @@ func MouseFromTcell(ev *tcell.EventMouse) term.MouseInput {
 		in.Button = term.ButtonMiddle
 	}
 	return in
+}
+
+// TermStyle converts a terminal cell style; default colors come from def.
+func TermStyle(t wm.TermStyle, def tcell.Style) tcell.Style {
+	st := def
+	conv := func(c wm.TermColor) tcell.Color {
+		switch c &^ 0xFFFFFF {
+		case wm.TermPalette:
+			return tcell.PaletteColor(int(c & 0xFF))
+		case wm.TermRGB:
+			return tcell.NewHexColor(int32(c & 0xFFFFFF))
+		}
+		return tcell.ColorDefault
+	}
+	if t.FG != 0 {
+		st = st.Foreground(conv(t.FG))
+	}
+	if t.BG != 0 {
+		st = st.Background(conv(t.BG))
+	}
+	a := t.Attr
+	return st.Bold(a&wm.AttrBold != 0).Dim(a&wm.AttrDim != 0).Italic(a&wm.AttrItalic != 0).
+		Underline(a&wm.AttrUnderline != 0).Blink(a&wm.AttrBlink != 0).Reverse(a&wm.AttrReverse != 0).
+		StrikeThrough(a&wm.AttrStrike != 0)
 }
 
 // StylesFor maps style IDs to colors. Below 16 colors (Linux console) only

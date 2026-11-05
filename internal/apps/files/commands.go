@@ -51,6 +51,7 @@ func (a *App) buildCommands() {
 		c("rename", "File", "Rename", "Rename", []string{"F2"}, "", one, a.startRename),
 		c("duplicate", "File", "Duplicate", "", []string{"Ctrl+D"}, "", hasSel, a.duplicate),
 		c("copypath", "File", "Copy path", "", nil, "", nil, a.copyPath),
+		c("terminal", "File", "Open terminal here", "", []string{"Ctrl+T"}, "", nil, func() { a.h.OpenTerminal(a.dir, nil, false) }),
 		c("pin", "File", "Add to desktop", "", nil, "", hasSel, func() { a.h.AddToDesktop(paths(a.Selection())) }),
 		sep("File"),
 		c("perms", "File", "Permissions...", "", []string{"Ctrl+P", "Alt+Enter"}, "", hasSel, a.permissions),

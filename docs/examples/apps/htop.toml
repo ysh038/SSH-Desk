@@ -1,0 +1,8 @@
+# Copy to ~/.config/tuidesk/apps/htop.toml. It appears in the launcher (F9)
+# and can be put on the desktop with:
+#   [[desktop_icon]]
+#   name = "htop"
+#   app = "htop"
+name = "htop"
+icon = "TOP"
+command = "htop"

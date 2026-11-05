@@ -14,6 +14,7 @@ type Cell struct {
 	Rune  rune
 	Width int8
 	Style StyleID
+	T     TermStyle // colors of a StyleTerm cell (zero otherwise)
 }
 
 // Canvas is a grid of cells. All writes keep wide glyphs consistent: a wide
@@ -61,6 +62,15 @@ func (c *Canvas) blank(x, y int) {
 // drawn. A wide rune whose right half would fall outside clip is drawn as a
 // space instead.
 func (c *Canvas) Set(clip Rect, x, y int, r rune, s StyleID) int {
+	return c.put(clip, x, y, r, s, TermStyle{})
+}
+
+// SetTerm is Set for a terminal cell with explicit colors (StyleTerm).
+func (c *Canvas) SetTerm(clip Rect, x, y int, r rune, t TermStyle) int {
+	return c.put(clip, x, y, r, StyleTerm, t)
+}
+
+func (c *Canvas) put(clip Rect, x, y int, r rune, s StyleID, t TermStyle) int {
 	clip = clip.Intersect(Rect{0, 0, c.W, c.H})
 	w := term.RuneWidth(r)
 	if w == 0 {
@@ -88,9 +98,9 @@ func (c *Canvas) Set(clip Rect, x, y int, r rune, s StyleID) int {
 		}
 	}
 
-	*c.raw(x, y) = Cell{Rune: r, Width: int8(w), Style: s}
+	*c.raw(x, y) = Cell{Rune: r, Width: int8(w), Style: s, T: t}
 	if w == 2 {
-		*c.raw(x+1, y) = Cell{Rune: 0, Width: 0, Style: s}
+		*c.raw(x+1, y) = Cell{Rune: 0, Width: 0, Style: s, T: t}
 	}
 	return adv
 }

@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -51,7 +52,7 @@ func TestBadFileReportsErrorAndUsesDefaults(t *testing.T) {
 func TestDesktopIcons(t *testing.T) {
 	dir := t.TempDir()
 	p := filepath.Join(dir, "c.toml")
-	if got, _, _ := Load(p); len(got.Icons) != 5 || got.Icons[0].Path != "~" || got.Icons[4].App != "editor" {
+	if got, _, _ := Load(p); len(got.Icons) != 6 || got.Icons[0].Path != "~" || got.Icons[4].App != "terminal" {
 		t.Fatalf("default icons %+v", got.Icons)
 	}
 	// A file with its own icons replaces the defaults (not appended).
@@ -67,5 +68,22 @@ func TestDesktopIcons(t *testing.T) {
 	}
 	if got, _, _ := Load(p); len(got.Icons) != 0 {
 		t.Fatalf("emptied icons came back: %+v", got.Icons)
+	}
+}
+
+func TestLoadApps(t *testing.T) {
+	dir := t.TempDir()
+	os.WriteFile(filepath.Join(dir, "lazygit.toml"), []byte("icon = \"G\"\ncommand = \"lazygit\"\ncwd = \"{selected_dir}\"\n"), 0o644)
+	os.WriteFile(filepath.Join(dir, "top.toml"), []byte("name = \"시스템 모니터\"\ncommand = \"htop\"\n"), 0o644)
+	os.WriteFile(filepath.Join(dir, "bad.toml"), []byte("name = \"x\"\n"), 0o644)
+	apps, errs := LoadApps(dir)
+	if len(apps) != 2 || apps[0].Name != "lazygit" || apps[0].Cwd != "{selected_dir}" || apps[1].Name != "시스템 모니터" {
+		t.Fatalf("apps %+v", apps)
+	}
+	if len(errs) != 1 || !strings.Contains(errs[0].Error(), "bad.toml") {
+		t.Fatalf("errs %v", errs)
+	}
+	if apps, errs := LoadApps(filepath.Join(dir, "none")); len(apps)+len(errs) != 0 {
+		t.Fatal("missing folder is fine")
 	}
 }

@@ -93,6 +93,13 @@ type Host interface {
 	// it takes a while) and calls done on the UI goroutine.
 	Go(title string, work Work, done func(error))
 
+	// OpenTerminal opens a terminal window running argv (empty: the shell)
+	// in dir. hold keeps the window open after the program ends.
+	OpenTerminal(dir string, argv []string, hold bool)
+	// DesktopAction runs a desktop command for apps that take every key
+	// (terminal): "next", "prev", "launcher", "windowmenu", "close".
+	DesktopAction(action string)
+
 	// AddToDesktop pins files or folders as desktop icons (SPEC 7.1).
 	AddToDesktop(paths []string)
 

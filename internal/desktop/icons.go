@@ -75,6 +75,20 @@ func (d *Desktop) target(ic config.DesktopIcon) iconTarget {
 
 func (d *Desktop) iconText(ic config.DesktopIcon) string {
 	if ic.Path == "" {
+		if ic.App == "terminal" {
+			return "[>_ ]"
+		}
+		if m, ok := d.findApp(ic.App); ok && m.Icon != "" {
+			icon := []rune(m.Icon)
+			if len(icon) > 3 {
+				icon = icon[:3]
+			}
+			t := string(icon)
+			for term.Width(t) < 3 {
+				t += " "
+			}
+			return "[" + t + "]"
+		}
 		return "[APP]"
 	}
 	p := iconPath(ic.Path)
@@ -145,8 +159,14 @@ func (d *Desktop) openIcon(i int) {
 			d.openFolder(d.HomeDir)
 		case "help":
 			d.run("help", nil)
+		case "terminal":
+			d.OpenTerminal(d.HomeDir, nil, false)
 		default:
-			d.Notify("Unknown app: "+ic.App, true)
+			if m, ok := d.findApp(ic.App); ok {
+				d.runApp(m)
+			} else {
+				d.Notify("Unknown app: "+d.display(ic.App)+" (no manifest in ~/.config/tuidesk/apps)", true)
+			}
 		}
 	case !t.ok:
 		d.Notify("Not found: "+d.display(t.path), true)

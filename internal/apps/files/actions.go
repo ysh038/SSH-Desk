@@ -36,16 +36,37 @@ func (a *App) open(e fsops.Entry) {
 	switch {
 	case e.IsDir:
 		a.navigate(e.Path, "")
+	case e.Mode.IsRegular() && e.Mode&0o111 != 0:
+		// SPEC 7.2: executables run in a terminal window after asking.
+		text := fsops.IsText(e.Path)
+		buttons := []string{"Run in terminal", "Cancel"}
+		if text {
+			buttons = []string{"Run in terminal", "Edit", "Cancel"}
+		}
+		a.h.Confirm("Open", fmt.Sprintf("%s is executable.\n\nSize: %s\nRun it in a terminal window?", a.display(e.Name), ui.HumanSize(e.Size)),
+			buttons, func(c int) {
+				switch {
+				case c == 0:
+					a.h.OpenTerminal(a.dir, []string{e.Path}, true)
+				case c == 1 && text:
+					a.h.OpenFile(e.Path)
+				}
+			})
 	case e.Mode.IsRegular() && fsops.IsText(e.Path):
 		a.h.OpenFile(e.Path)
 	default:
-		kind := "binary file"
-		if e.Mode&0o111 != 0 {
-			kind = "executable"
-		}
-		a.h.Confirm("Open", fmt.Sprintf("%s\n\nType: %s\nSize: %s\n\nRunning programs will be available with the terminal window (later phase).",
-			a.display(e.Name), kind, ui.HumanSize(e.Size)), []string{"OK"}, nil)
+		a.h.Confirm("Open", fmt.Sprintf("%s\n\nType: binary file\nSize: %s\n\nUse View read-only to look inside.",
+			a.display(e.Name), ui.HumanSize(e.Size)), []string{"OK"}, nil)
 	}
+}
+
+// SelectedDir is the folder an external app starts in ({selected_dir}): a
+// single selected folder, else the folder shown.
+func (a *App) SelectedDir() string {
+	if sel := a.Selection(); len(sel) == 1 && sel[0].IsDir {
+		return sel[0].Path
+	}
+	return a.dir
 }
 
 // viewReadOnly opens the read-only viewer.
@@ -434,7 +455,7 @@ func (a *App) contextMenu(x, y int, onItems bool) {
 			{Separator: true},
 			{Label: "New file", Hotkey: 'f', Action: "newfile"},
 			{Label: "New folder", Hotkey: 'n', Action: "newfolder"},
-			{Label: "Open terminal here", Action: "terminal", Disabled: true},
+			{Label: "Open terminal here", Hotkey: 'm', Shortcut: "Ctrl+T", Action: "terminal"},
 		}
 	} else {
 		view := "Icon view"
@@ -455,7 +476,7 @@ func (a *App) contextMenu(x, y int, onItems bool) {
 			{Label: "Go to folder...", Hotkey: 'g', Shortcut: "Ctrl+L", Action: "goto"},
 			{Label: view, Hotkey: 'v', Action: "toggleview"},
 			{Label: "Copy path", Hotkey: 'a', Action: "copypath"},
-			{Label: "Open terminal here", Action: "terminal", Disabled: true},
+			{Label: "Open terminal here", Hotkey: 'm', Shortcut: "Ctrl+T", Action: "terminal"},
 		}
 	}
 	a.h.OpenMenu(a, x, y, items, a.runAction)
@@ -500,6 +521,8 @@ func (a *App) runAction(action string) {
 		a.rebuild()
 	case "goto":
 		a.promptPath()
+	case "terminal":
+		a.h.OpenTerminal(a.dir, nil, false)
 	case "toggleview":
 		a.setIcons(!a.icons)
 	case "pin":

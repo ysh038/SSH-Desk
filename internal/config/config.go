@@ -22,7 +22,8 @@ type Validator struct {
 }
 
 // DesktopIcon is a desktop shortcut (SPEC 7.1): a folder or file (Path,
-// "~" = home) or a built-in app (App: "editor", "files", "help").
+// "~" = home), a built-in app (App: "terminal", "editor", "files", "help") or
+// an app manifest by name (SPEC 8.3).
 type DesktopIcon struct {
 	Name string `toml:"name"`
 	Path string `toml:"path,omitempty"`
@@ -64,6 +65,7 @@ func Default() Config {
 			{Name: "Root /", Path: "/"},
 			{Name: "/etc", Path: "/etc"},
 			{Name: "Logs", Path: "/var/log"},
+			{Name: "Terminal", App: "terminal"},
 			{Name: "Text editor", App: "editor"},
 		},
 	}

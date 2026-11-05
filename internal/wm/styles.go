@@ -43,6 +43,34 @@ const (
 	StyleSynVar
 	StyleSynKey
 	StyleSynHeader
+	// StyleTerm cells carry their own colors in Cell.T (terminal windows).
+	StyleTerm
 
 	NumStyles
 )
+
+// TermColor is a terminal color: 0 = the default color, otherwise
+// TermPalette|index (0-255) or TermRGB|0xRRGGBB.
+type TermColor uint32
+
+const (
+	TermPalette TermColor = 1 << 24
+	TermRGB     TermColor = 2 << 24
+)
+
+// Terminal text attributes.
+const (
+	AttrBold uint8 = 1 << iota
+	AttrDim
+	AttrItalic
+	AttrUnderline
+	AttrBlink
+	AttrReverse
+	AttrStrike
+)
+
+// TermStyle is the explicit style of a StyleTerm cell.
+type TermStyle struct {
+	FG, BG TermColor
+	Attr   uint8
+}
