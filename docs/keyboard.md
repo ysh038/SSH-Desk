@@ -34,6 +34,7 @@ tuidesk는 서버(리눅스)에서 실행되므로 **사용자 PC의 터미널 �
 | 다음/이전 창 | fn+F6 / fn+Shift+F6, Tab / Shift+Tab 🔶 | F6 / Shift+F6, Tab / Shift+Tab 🔶 | F6 ✅ / Shift+F6(→F16) ✅ |
 | 창 메뉴 | fn+Shift+F10, 우클릭 ✅ | Shift+F10, 우클릭 ✅ | Shift+F10(→F20) ✅ |
 | 창 닫기 / 종료 | Ctrl+W / Ctrl+Q 🔶 | Ctrl+W / Ctrl+Q 🔶 | ✅ |
+| 바탕화면 아이콘 | F9 › Show desktop → 방향키, return, fn+delete(제거) 🔶 | F9 › Show desktop → 방향키, Enter, Delete 🔶 | 같음 ✅ (VM) |
 
 ### 파일 관리자
 | 동작 | Mac 배열 | PC 배열 (맥에 연결) | 콘솔 |
@@ -52,6 +53,8 @@ tuidesk는 서버(리눅스)에서 실행되므로 **사용자 PC의 터미널 �
 | 붙여넣기 | **Cmd+V**, Ctrl+V 🔶 | **Win+V**(=Cmd+V), Ctrl+V 🔶 | Ctrl+V ✅ |
 | 권한 | Ctrl+P, Option+return 🔶 | Ctrl+P, Alt+Enter 🔶 | Ctrl+P, Alt+Enter ✅ |
 | 숨김 파일 | Option+. 🔶 | Alt+. 🔶 | Alt+. ✅ |
+| 아이콘/목록 보기 | View 메뉴(fn+F10), 경로 줄의 List·Icons 클릭 🔶 | View 메뉴(F10), 클릭 🔶 | F10 › View ✅ (VM) |
+| 바탕화면에 추가 | File › Add to desktop, 빈 바탕화면으로 드래그 🔶 | 같음 🔶 | File › Add to desktop ✅ |
 | 실행취소 | Ctrl+Z 🔶 | Ctrl+Z 🔶 | ✅ |
 
 ※ Terminal.app은 기본 설정에서 Home/End/PgUp/PgDn을 **터미널 화면 스크롤**에 쓰고, Shift를 함께 눌러야 앱으로 보낸다고 알려져 있습니다. PC 키보드의 Home/End 키도 같은 영향을 받습니다. 실측이 필요합니다.
