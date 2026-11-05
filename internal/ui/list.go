@@ -24,6 +24,8 @@ type List struct {
 	Selected int
 	Offset   int // first visible row
 	Height   int // visible rows, set by Draw (or by the owner before handling keys)
+
+	scrolled bool // the wheel moved the view: keep it until the selection moves
 }
 
 // ListResult is what a List reports after handling an event.
@@ -39,11 +41,13 @@ func (l *List) clamp() {
 	n := l.Src.Len()
 	l.Selected = min(max(l.Selected, 0), max(n-1, 0))
 	h := max(l.Height, 1)
-	if l.Selected < l.Offset {
-		l.Offset = l.Selected
-	}
-	if l.Selected >= l.Offset+h {
-		l.Offset = l.Selected - h + 1
+	if !l.scrolled {
+		if l.Selected < l.Offset {
+			l.Offset = l.Selected
+		}
+		if l.Selected >= l.Offset+h {
+			l.Offset = l.Selected - h + 1
+		}
 	}
 	l.Offset = min(max(l.Offset, 0), max(n-h, 0))
 }
@@ -58,6 +62,7 @@ func (l *List) HandleEvent(ev term.Event) ListResult {
 	page := max(l.Height-1, 1)
 	switch ev := ev.(type) {
 	case term.KeyEvent:
+		l.scrolled = false
 		switch ev.Key.String() {
 		case "Up":
 			l.Selected--
@@ -88,6 +93,7 @@ func (l *List) HandleEvent(ev term.Event) ListResult {
 				l.Offset += 3
 			}
 			l.Offset = min(max(l.Offset, 0), max(n-max(l.Height, 1), 0))
+			l.scrolled = true
 		case term.GesturePress, term.GestureClick:
 			if g.Button != term.ButtonLeft {
 				return ListNone

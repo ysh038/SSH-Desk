@@ -232,3 +232,26 @@ func TestListJumpAliases(t *testing.T) {
 		t.Fatalf("PgDn → %d", l.Selected)
 	}
 }
+
+func TestListWheelKeepsViewUntilKey(t *testing.T) {
+	l := &List{Src: bigSource(1000), Height: 20}
+	wheel := func(w term.Wheel) {
+		l.HandleEvent(term.MouseEvent{Gesture: term.Gesture{Kind: term.GestureWheel, Wheel: w}})
+		l.clamp() // what Draw does
+	}
+	for range 4 {
+		wheel(term.WheelDown)
+	}
+	if l.Offset != 12 || l.Selected != 0 {
+		t.Fatalf("wheel down: offset %d selected %d", l.Offset, l.Selected)
+	}
+	wheel(term.WheelUp)
+	if l.Offset != 9 {
+		t.Fatalf("wheel up: offset %d", l.Offset)
+	}
+	l.HandleEvent(key("Down"))
+	l.clamp()
+	if l.Selected != 1 || l.Offset != 1 {
+		t.Fatalf("Down after wheel: offset %d selected %d", l.Offset, l.Selected)
+	}
+}

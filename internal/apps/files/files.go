@@ -48,6 +48,7 @@ type App struct {
 
 	cursor   int // index into view
 	offset   int
+	scrolled bool // the wheel moved the view: Draw keeps it until the cursor moves
 	selected map[string]bool
 	anchor   int
 
@@ -254,6 +255,7 @@ func (a *App) pageItems() int { return max(a.visRows()-1, 1) * a.ncols() }
 // ensureVisible scrolls so the cursor is shown. offset is the first visible
 // item and always starts a grid row.
 func (a *App) ensureVisible() {
+	a.scrolled = false
 	n, h := a.ncols(), a.visRows()
 	or, cr := a.offset/n, a.cursor/n
 	if cr < or {
@@ -535,6 +537,7 @@ func (a *App) handleMouse(g term.Gesture) bool {
 		case term.WheelDown:
 			a.scrollRows(step)
 		}
+		a.scrolled = true
 		return true
 	case term.GesturePress:
 		vi, _ := a.itemAt(g.X, g.Y)
@@ -691,7 +694,13 @@ func (a *App) DropHover(x, y int, on bool) {
 
 func (a *App) Draw(s wm.Surface, focused bool) {
 	a.vw, a.vh = s.Size()
-	a.ensureVisible()
+	if a.scrolled {
+		// Keep the wheel position (the cursor may be off screen); only
+		// re-align it after a resize or a view change.
+		a.offset = a.clampOffsetRow(a.offset/a.ncols()) * a.ncols()
+	} else {
+		a.ensureVisible()
+	}
 	a.chrome.DrawBar(s)
 	a.chrome.DrawHints(s)
 	a.drawPath(s)
