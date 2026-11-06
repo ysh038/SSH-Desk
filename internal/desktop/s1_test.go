@@ -20,15 +20,31 @@ type fakeRunner struct {
 	stdins [][]byte
 	// failCheck makes "sh -c <check>" fail with this output.
 	failCheck string
+	// nopasswd emulates a NOPASSWD sudoers entry: sudo never reads a password.
+	nopasswd bool
 }
 
 func (r *fakeRunner) run(_ context.Context, name string, args []string, stdin []byte) ([]byte, error) {
 	r.calls = append(r.calls, name+" "+strings.Join(args, " "))
 	r.stdins = append(r.stdins, append([]byte(nil), stdin...))
-	if name == "sudo" && len(args) > 8 && args[4] == "sh" && strings.Contains(args[6], "tee") {
-		// Emulate: first line is the password, the rest is the file.
-		_, body, _ := bytes.Cut(stdin, []byte("\n"))
-		path := args[8]
+	if name == "sudo" && args[0] == "-n" && !r.nopasswd {
+		return []byte("sudo: a password is required\n"), &exitErr{}
+	}
+	sh := -1
+	for i := range args {
+		if args[i] == "sh" && i+1 < len(args) && args[i+1] == "-c" {
+			sh = i
+			break
+		}
+	}
+	if name == "sudo" && sh >= 0 && len(args) == sh+6 && strings.Contains(args[sh+2], "tee") {
+		// Emulate sudo: it reads the password line only when it needs one,
+		// so with NOPASSWD everything on stdin reaches tee.
+		body := stdin
+		if !r.nopasswd {
+			_, body, _ = bytes.Cut(stdin, []byte("\n"))
+		}
+		path := args[sh+4]
 		os.Chmod(path, 0o644)
 		err := os.WriteFile(path, body, 0o644)
 		os.Chmod(path, 0o444)
@@ -137,6 +153,7 @@ func TestScenarioS1EditNginxWithSudo(t *testing.T) {
 		t.Fatal("expected the sudo question")
 	}
 	f.key("Enter", 0) // "Save with sudo"
+	f.settle()        // sudo probe: a password is required
 	if !f.screenHas("(sudo)") {
 		t.Fatal("expected the password prompt")
 	}
@@ -154,14 +171,66 @@ func TestScenarioS1EditNginxWithSudo(t *testing.T) {
 	if d.Ed.Modified() {
 		t.Fatal("document should be saved")
 	}
-	if len(r.calls) != 2 || !strings.HasPrefix(r.calls[0], "sudo -S -k -p  sh -c") || r.calls[1] != "sudo -S -k -p  sh -c nginx -t" {
+	if len(r.calls) != 3 || r.calls[0] != "sudo -n -k sh -c :" ||
+		!strings.HasPrefix(r.calls[1], "sudo -S -k -p  sh -c") || r.calls[2] != "sudo -S -k -p  sh -c nginx -t" {
 		t.Fatalf("calls %q", r.calls)
 	}
-	if !bytes.HasPrefix(r.stdins[0], []byte("s3cret\n")) || string(r.stdins[1]) != "s3cret\n" {
+	if len(r.stdins[0]) != 0 {
+		t.Fatal("the sudo probe must not get the password")
+	}
+	if !bytes.HasPrefix(r.stdins[1], []byte("s3cret\n")) || string(r.stdins[2]) != "s3cret\n" {
 		t.Fatal("password must be passed on stdin to sudo")
 	}
 	if !f.screenHas("Saved nginx.conf with sudo") && !f.screenHas("nginx -t: OK") {
 		t.Fatal("expected save/check toasts")
+	}
+}
+
+// With NOPASSWD sudo, sudo never reads a password from stdin, so a password
+// sent there would be written into the file. tuidesk must not ask for one.
+func TestEditorSudoSaveNoPasswordNeeded(t *testing.T) {
+	f := newFM(t)
+	f.touch("etc/한글 hosts", "127.0.0.1 localhost\n")
+	path := filepath.Join(f.root, "etc/한글 hosts")
+	os.Chmod(path, 0o444)
+	cfg := config.Default()
+	cfg.Validators = []config.Validator{{Pattern: f.root + "/etc/*", Command: "check {file}", Sudo: true}}
+	cfg.Keyboard = "pc"
+	f.d.SetConfig(cfg, "")
+	r := &fakeRunner{nopasswd: true}
+	f.withEditor(r)
+	f.d.OpenText(path)
+	f.settle()
+	d := f.editor().Doc()
+	if d == nil || !d.Sudo {
+		t.Fatalf("doc %+v", d)
+	}
+
+	f.typeText("# 서버\n")
+	want := d.Ed.Text()
+	f.rune('s', term.ModCtrl)
+	if !f.screenHas("Save it with sudo?") {
+		t.Fatal("expected the sudo question")
+	}
+	f.key("Enter", 0) // "Save with sudo"
+	f.settle()
+	if f.screenHas("(sudo)") {
+		t.Fatal("no password prompt expected with NOPASSWD sudo")
+	}
+
+	data, _ := os.ReadFile(path)
+	if string(data) != want {
+		t.Fatalf("file:\n%q\nwant:\n%q", data, want)
+	}
+	if d.Ed.Modified() {
+		t.Fatal("document should be saved")
+	}
+	if len(r.calls) != 3 || r.calls[0] != "sudo -n -k sh -c :" ||
+		!strings.HasPrefix(r.calls[1], "sudo -n -k sh -c") || !strings.HasPrefix(r.calls[2], "sudo -n -k sh -c check ") {
+		t.Fatalf("calls %q", r.calls)
+	}
+	if string(r.stdins[1]) != want || len(r.stdins[2]) != 0 {
+		t.Fatalf("stdins %q", r.stdins)
 	}
 }
 

@@ -168,17 +168,52 @@ func currentUser() string {
 }
 
 // askSudo confirms, asks for the password and saves through `sudo tee`.
+//
+// When sudo needs no password (NOPASSWD) it would not read one from stdin,
+// so the password line would end up in the file. A non-interactive probe
+// decides first: no password needed → save without asking for one.
 func (a *App) askSudo(d *Doc, data []byte, after func()) {
 	a.h.Confirm("Permission denied", fmt.Sprintf("%s cannot write %s.\nSave it with sudo?", currentUser(), a.display(d.Path)),
 		[]string{"Save with sudo", "Cancel"}, func(c int) {
 			if c != 0 {
 				return
 			}
-			p := ui.NewPrompt("sudo", "Password for "+currentUser()+" (sudo):", "", nil)
-			p.Input.Password = true
-			p.OnSecret = func(pw []rune) { a.sudoWrite(d, data, pw, after) }
-			a.h.Prompt(p)
+			run := a.runSave
+			a.h.Go("Checking sudo", func(ctx context.Context, _ func(fsops.Progress)) error {
+				_, err := run(ctx, "sudo", sudoArgs(false, "sh", "-c", ":"), nil)
+				return err
+			}, func(err error) {
+				if err == nil {
+					a.sudoWrite(d, data, nil, after)
+					return
+				}
+				p := ui.NewPrompt("sudo", "Password for "+currentUser()+" (sudo):", "", nil)
+				p.Input.Password = true
+				p.OnSecret = func(pw []rune) { a.sudoWrite(d, data, pw, after) }
+				a.h.Prompt(p)
+			})
 		})
+}
+
+// sudoArgs builds sudo's arguments. -k ignores cached credentials, so the
+// probe and the save see the same policy. With a password, sudo reads it as
+// the first line of stdin (-S, no prompt text); without one, -n makes sudo
+// fail instead of asking.
+func sudoArgs(withPassword bool, cmd ...string) []string {
+	args := []string{"-n", "-k"}
+	if withPassword {
+		args = []string{"-S", "-k", "-p", ""}
+	}
+	return append(args, cmd...)
+}
+
+// sudoInput is the stdin for a sudo command: password line first when there
+// is a password, then rest.
+func sudoInput(pw []rune, rest []byte) []byte {
+	if pw == nil {
+		return append([]byte(nil), rest...)
+	}
+	return secretInput(pw, rest)
 }
 
 // sudoScript keeps a .bak copy (when $2 is 1) and writes stdin to $1. tee
@@ -225,10 +260,11 @@ func (a *App) sudoWrite(d *Doc, data []byte, pw []rune, after func()) {
 	run := a.runSave
 	a.h.Go("Saving with sudo", func(ctx context.Context, _ func(fsops.Progress)) error {
 		defer wipeRunes(pw)
-		in := secretInput(pw, data)
+		withPw := pw != nil
+		in := sudoInput(pw, data)
 		defer wipe(in)
 		var err error
-		saveOut, err = run(ctx, "sudo", []string{"-S", "-k", "-p", "", "sh", "-c", sudoScript, "sh", path, backup}, in)
+		saveOut, err = run(ctx, "sudo", sudoArgs(withPw, "sh", "-c", sudoScript, "sh", path, backup), in)
 		if err != nil {
 			return err
 		}
@@ -237,8 +273,8 @@ func (a *App) sudoWrite(d *Doc, data []byte, pw []rune, after func()) {
 			var out []byte
 			var cerr error
 			if v.Sudo {
-				pin := secretInput(pw, nil)
-				out, cerr = run(ctx, "sudo", []string{"-S", "-k", "-p", "", "sh", "-c", cmd}, pin)
+				pin := sudoInput(pw, nil)
+				out, cerr = run(ctx, "sudo", sudoArgs(withPw, "sh", "-c", cmd), pin)
 				wipe(pin)
 			} else {
 				out, cerr = run(ctx, "sh", []string{"-c", cmd}, nil)
