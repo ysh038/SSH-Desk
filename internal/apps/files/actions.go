@@ -36,6 +36,13 @@ func (a *App) open(e fsops.Entry) {
 	switch {
 	case e.IsDir:
 		a.goTo(e.Path, "")
+	case e.Mode.IsRegular() && fsops.IsTarName(e.Name):
+		a.h.Confirm("Open", fmt.Sprintf("%s is a tar archive.\n\nSize: %s\nExtract it into this folder?", a.display(e.Name), ui.HumanSize(e.Size)),
+			[]string{"Extract here", "Cancel"}, func(c int) {
+				if c == 0 {
+					a.extractPaths([]string{e.Path})
+				}
+			})
 	case e.Mode.IsRegular() && e.Mode&0o111 != 0:
 		// SPEC 7.2: executables run in a terminal window after asking.
 		text := fsops.IsText(e.Path)
@@ -445,6 +452,9 @@ func (a *App) contextMenu(x, y int, onItems bool) {
 			{Label: "Paste", Hotkey: 'p', Shortcut: "Ctrl+V", Action: "paste", Disabled: len(cb.Paths) == 0},
 			{Label: "Duplicate", Hotkey: 'd', Shortcut: "Ctrl+D", Action: "duplicate"},
 			{Separator: true},
+			{Label: "Extract here", Hotkey: 'h', Action: "extract", Disabled: len(a.archives()) == 0},
+			{Label: "Compress to .tar.gz...", Hotkey: 'z', Action: "compress"},
+			{Separator: true},
 			{Label: "Move to Trash", Hotkey: 't', Shortcut: "Delete", Action: "trash"},
 			{Label: "Delete permanently", Hotkey: 'e', Shortcut: "Shift+Delete", Action: "delete"},
 			{Separator: true},
@@ -528,5 +538,9 @@ func (a *App) runAction(action string) {
 		a.setIcons(!a.icons)
 	case "pin":
 		a.h.AddToDesktop(paths(a.Selection()))
+	case "extract":
+		a.extract()
+	case "compress":
+		a.compress()
 	}
 }
