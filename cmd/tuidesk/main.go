@@ -19,6 +19,9 @@ import (
 )
 
 func main() {
+	if run, code := handleArgs(os.Args[1:], os.Stdout, os.Stderr); !run {
+		os.Exit(code)
+	}
 	s, err := tcell.NewScreen()
 	if err == nil {
 		err = s.Init()
