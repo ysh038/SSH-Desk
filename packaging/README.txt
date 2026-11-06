@@ -8,6 +8,7 @@ network access, no root needed.
 Contents
   tuidesk                 the program
   install.sh              installer
+  rollback.sh             undo the last install
   SHA256SUMS              checksums of the files in this folder
   examples/apps/          example launcher entries (htop, lazygit, ...)
   LICENSE                 MIT license
@@ -38,6 +39,14 @@ Settings
 
 Update
   Unpack the new version and run its install.sh the same way.
+
+Undo an install (something went wrong)
+  ./rollback.sh                       (or: sudo ./rollback.sh --system)
+  After an update this puts back the version that was replaced; after a
+  first install it removes tuidesk and the empty folders the install made.
+  Only the last install can be undone. Settings are never touched.
+  The record lives in ~/.local/state/tuidesk (system: /var/lib/tuidesk),
+  so rollback.sh from any tuidesk package works, not only this one.
 
 Uninstall
   ./install.sh --uninstall            (or: sudo ./install.sh --uninstall --system)

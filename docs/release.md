@@ -16,7 +16,7 @@ make package          # = scripts/package.sh
 | `tuidesk-<버전>-src.tar.gz` | 소스 + `vendor/`(폐쇄망 안에서 직접 빌드할 때) |
 | `SHA256SUMS` | 위 세 압축 파일의 체크섬 |
 
-압축 파일 하나의 구성: `tuidesk`(정적 바이너리, lite 빌드), `install.sh`, `README.txt`(영어, 서버 콘솔용), `SHA256SUMS`(안의 파일들), `LICENSE`, `THIRD_PARTY_NOTICES.md`, `examples/apps/*.toml`.
+압축 파일 하나의 구성: `tuidesk`(정적 바이너리, lite 빌드), `install.sh`, `rollback.sh`, `README.txt`(영어, 서버 콘솔용), `SHA256SUMS`(안의 파일들), `LICENSE`, `THIRD_PARTY_NOTICES.md`, `examples/apps/*.toml`.
 스니펫 같은 기본 데이터는 바이너리에 내장되어 있어 따로 넣지 않습니다.
 
 `package.sh`가 하는 일:
@@ -41,7 +41,21 @@ sudo ./install.sh --system    # 모두: /usr/local/bin/tuidesk
 - 임시 파일에 복사한 뒤 이름을 바꿔 덮어씀 → 실행 중인 tuidesk가 있어도 안전, 복사가 실패해도 깨진 바이너리가 남지 않음
 - 사용자 설치면 `~/.config/tuidesk/{apps,snippets}` 폴더만 만듦. `config.toml`은 만들거나 덮어쓰지 않음(첫 실행 때 tuidesk가 만듦)
 - root로 실행하면 기본이 `--system`. 시스템 설치는 홈 폴더를 건드리지 않음
-- `--uninstall`: 바이너리만 지우고 설정은 남김
+- `--uninstall`: 바이너리만 지우고 설정은 남김(설치 기록도 지움)
+
+## 설치 되돌리기 (rollback.sh)
+
+```bash
+./rollback.sh                 # ./install.sh 로 설치했을 때
+sudo ./rollback.sh --system   # sudo ./install.sh --system 으로 설치했을 때
+```
+
+- **업그레이드였으면** 바뀌기 전 바이너리로 복원, **첫 설치였으면** 바이너리와 설치가 만든 빈 폴더를 지움
+- `config.toml` 등 설정은 어느 경우에도 건드리지 않음(첫 설치를 되돌려도 tuidesk를 한 번 실행해 설정이 생겼으면 그 폴더는 남김)
+- 한 단계만 되돌림. 같은 버전을 다시 설치해도 직전 버전 백업은 유지
+- 설치 기록 위치: 사용자 `~/.local/state/tuidesk/`, 시스템 `/var/lib/tuidesk/`, `--prefix DIR`이면 `DIR/lib/tuidesk/`
+  (`install.state` + 바뀌기 전 바이너리 `previous`). 패키지 폴더와 무관하므로 어느 버전 패키지의 `rollback.sh`로도 됨
+- `rollback.sh`는 `install.sh --rollback`을 부르는 얇은 래퍼(옵션 해석을 한 곳에서 하기 위해)
 - `~/.local/bin`이 PATH에 없으면 안내(Ubuntu는 이 폴더가 있으면 다음 로그인부터 PATH에 넣음)
 
 ## 폐쇄망 안에서 소스로 빌드
@@ -58,6 +72,7 @@ Go는 `go.mod`의 `go` 버전(현재 1.24.2) 이상이 필요합니다. 그보�
 
 Ubuntu 22.04.5 / 24.04 VM(`scripts/ubuntu-vm.sh`, [ubuntu-vm.md](ubuntu-vm.md))에서 `tester` 사용자로 확인:
 체크섬, 압축 풀기 경고 없음, 다른 아키텍처 거부, 사용자 설치·로그인 셸 PATH, 재설치 시 `config.toml` 유지, 손상 파일 거부, sudo 없는 `--system` 실패 안내, `sudo --system` 설치(root 소유), 제거.
+되돌리기: 새 사용자로 첫 설치→되돌리기(폴더까지 원상태), v1→v2→되돌리기(v1 복원, 설정 유지), 같은 버전 재설치 후 되돌리기, 제거 후 되돌리기 없음, 시스템 설치 되돌리기(sudo 없으면 거부).
 VM은 arm64라 arm64 패키지로 설치했고, amd64 패키지는 거부되는 것을 확인했습니다. 소스 tarball은 빈 모듈 캐시 + `GOPROXY=off`로 빌드되는 것을 확인했습니다.
 
 ## 아직 없는 것

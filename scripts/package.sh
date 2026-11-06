@@ -45,10 +45,10 @@ for arch in amd64 arm64; do
 	mkdir -p "$dir/examples/apps"
 	CGO_ENABLED=0 GOOS=linux GOARCH="$arch" "$GO" build -trimpath \
 		-ldflags "-s -w -X main.version=$VERSION" -o "$dir/tuidesk" ./cmd/tuidesk
-	for f in install.sh README.txt; do
+	for f in install.sh rollback.sh README.txt; do
 		sed -e "s/@VERSION@/$VERSION/g" -e "s/@ARCH@/$arch/g" "packaging/$f" > "$dir/$f"
 	done
-	chmod 755 "$dir/install.sh"
+	chmod 755 "$dir/install.sh" "$dir/rollback.sh"
 	cp LICENSE THIRD_PARTY_NOTICES.md "$dir/"
 	cp docs/examples/apps/*.toml "$dir/examples/apps/"
 	(cd "$dir" && find . -type f ! -name SHA256SUMS | sed 's|^\./||' | LC_ALL=C sort |
