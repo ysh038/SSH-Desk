@@ -142,6 +142,9 @@ func (r *Record) Len() int {
 
 // Paths returns the paths the operation produced (destinations).
 func (r *Record) Paths() []string {
+	if r == nil {
+		return nil
+	}
 	var out []string
 	for _, s := range r.steps {
 		if s.kind != stepTrashed {
