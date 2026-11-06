@@ -1,8 +1,13 @@
 GO      ?= go
 LDFLAGS := -s -w
 DIST    := dist
+# Version baked into tuidesk (--version) and package names. Tag a release
+# (git tag v0.1.0) to get a clean version; otherwise the commit is used.
+# Source tarballs carry a VERSION file instead of .git.
+VERSION ?= $(shell cat VERSION 2>/dev/null || git describe --tags --always --dirty 2>/dev/null || echo dev)
+TD_LDFLAGS := $(LDFLAGS) -X main.version=$(VERSION)
 
-.PHONY: check-lite test vet tuidesk tuidesk-linux evlog evlog-linux wmdemo wmdemo-linux clean
+.PHONY: check-lite test vet package tuidesk tuidesk-linux evlog evlog-linux wmdemo wmdemo-linux clean
 
 test:
 	$(GO) test ./...
@@ -17,12 +22,18 @@ check-lite:
 		echo "lite build imports network packages (above)"; exit 1; else echo "lite build: no network packages"; fi
 
 tuidesk:
-	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/tuidesk ./cmd/tuidesk
+	CGO_ENABLED=0 $(GO) build -trimpath -ldflags "$(TD_LDFLAGS)" -o $(DIST)/tuidesk ./cmd/tuidesk
 
 # Static Linux binaries of the desktop (lite build).
 tuidesk-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/tuidesk-linux-amd64 ./cmd/tuidesk
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/tuidesk-linux-arm64 ./cmd/tuidesk
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -trimpath -ldflags "$(TD_LDFLAGS)" -o $(DIST)/tuidesk-linux-amd64 ./cmd/tuidesk
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -trimpath -ldflags "$(TD_LDFLAGS)" -o $(DIST)/tuidesk-linux-arm64 ./cmd/tuidesk
+
+# Offline install packages for closed-network servers (SPEC 11):
+# dist/release/tuidesk-<version>-linux-{amd64,arm64}.tar.gz, a source
+# tarball with vendored modules, and SHA256SUMS.
+package:
+	VERSION=$(VERSION) scripts/package.sh
 
 # Local (macOS) build of the Phase 0 event logger.
 evlog:

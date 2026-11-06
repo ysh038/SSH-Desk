@@ -340,6 +340,7 @@ MVP = Phase 0 ~ 3.
 - `install.sh`: `/usr/local/bin` 또는 `~/.local/bin` 설치, 설정 디렉터리 생성, 기존 설정 덮어쓰지 않음
 - 폐쇄망 내부에서 직접 빌드할 수 있도록 `go mod vendor` 결과 포함한 소스 tarball도 제공
 - `tuidesk doctor`: TERM, 색상 수, 마우스 지원 여부, 한글 폭, OSC52 진단
+- 구현 상태(2026-11-06): 패키지(`make package`, `scripts/package.sh`), `install.sh`, `SHA256SUMS`, 오프라인 README, vendor 소스 tarball, `tuidesk --version` 완료 — [release.md](release.md). `tuidesk doctor`는 아직 없음
 
 ## 12. 라이선스 메모
 
