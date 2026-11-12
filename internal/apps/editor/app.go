@@ -14,6 +14,7 @@ import (
 
 	core "tuidesk/internal/editor"
 	"tuidesk/internal/host"
+	"tuidesk/internal/sudo"
 	"tuidesk/internal/syntax"
 	"tuidesk/internal/term"
 	"tuidesk/internal/ui"
@@ -80,7 +81,7 @@ type App struct {
 	moving   bool     // pressed inside the selection
 	moveDrag bool     // and the mouse moved: dropAt is the target
 	dropAt   core.Pos // where the text would land
-	runSave  saveRunner
+	runSave  sudo.Runner
 	snip     *session
 }
 
@@ -93,7 +94,7 @@ type tabHit struct {
 // New returns an empty editor window; use Open to add files.
 func New(h host.Host) *App {
 	a := &App{h: h, findIn: ui.NewInput(""), replIn: ui.NewInput(""), gotoIn: ui.NewInput("")}
-	a.runSave = execRunner
+	a.runSave = sudo.Exec
 	a.buildCommands()
 	a.chrome = host.NewChrome(h, a, &a.cmds)
 	return a

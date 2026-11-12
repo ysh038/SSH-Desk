@@ -2,38 +2,26 @@ package editor
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
-	"os/exec"
 	"os/user"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"tuidesk/internal/config"
 	core "tuidesk/internal/editor"
 	"tuidesk/internal/fsops"
+	"tuidesk/internal/sudo"
 	"tuidesk/internal/syntax"
 	"tuidesk/internal/ui"
 )
-
-// saveRunner runs a program with stdin and returns its combined output.
-// Tests replace it; production uses execRunner.
-type saveRunner func(ctx context.Context, name string, args []string, stdin []byte) ([]byte, error)
-
-func execRunner(ctx context.Context, name string, args []string, stdin []byte) ([]byte, error) {
-	cmd := exec.CommandContext(ctx, name, args...)
-	cmd.Stdin = bytes.NewReader(stdin)
-	return cmd.CombinedOutput()
-}
 
 // save writes the active document. saveAs asks for a path. after runs once
 // the document is saved.
@@ -180,7 +168,7 @@ func (a *App) askSudo(d *Doc, data []byte, after func()) {
 			}
 			run := a.runSave
 			a.h.Go("Checking sudo", func(ctx context.Context, _ func(fsops.Progress)) error {
-				_, err := run(ctx, "sudo", sudoArgs(false, "sh", "-c", ":"), nil)
+				_, err := run(ctx, "sudo", sudo.ProbeArgs(), nil)
 				return err
 			}, func(err error) {
 				if err == nil {
@@ -195,52 +183,9 @@ func (a *App) askSudo(d *Doc, data []byte, after func()) {
 		})
 }
 
-// sudoArgs builds sudo's arguments. -k ignores cached credentials, so the
-// probe and the save see the same policy. With a password, sudo reads it as
-// the first line of stdin (-S, no prompt text); without one, -n makes sudo
-// fail instead of asking.
-func sudoArgs(withPassword bool, cmd ...string) []string {
-	args := []string{"-n", "-k"}
-	if withPassword {
-		args = []string{"-S", "-k", "-p", ""}
-	}
-	return append(args, cmd...)
-}
-
-// sudoInput is the stdin for a sudo command: password line first when there
-// is a password, then rest.
-func sudoInput(pw []rune, rest []byte) []byte {
-	if pw == nil {
-		return append([]byte(nil), rest...)
-	}
-	return secretInput(pw, rest)
-}
-
 // sudoScript keeps a .bak copy (when $2 is 1) and writes stdin to $1. tee
 // writes in place, so owner and mode of the existing file are kept.
 const sudoScript = `if [ "$2" = 1 ] && [ -f "$1" ]; then cp -p -- "$1" "$1.bak" 2>/dev/null; fi; tee -- "$1" >/dev/null`
-
-// secretInput builds password + "\n" + rest without creating strings.
-func secretInput(pw []rune, rest []byte) []byte {
-	buf := make([]byte, 0, len(pw)*3+1+len(rest))
-	for _, r := range pw {
-		buf = utf8.AppendRune(buf, r)
-	}
-	buf = append(buf, '\n')
-	return append(buf, rest...)
-}
-
-func wipe(b []byte) {
-	for i := range b {
-		b[i] = 0
-	}
-}
-
-func wipeRunes(r []rune) {
-	for i := range r {
-		r[i] = 0
-	}
-}
 
 type checkResult struct {
 	cmd string
@@ -259,12 +204,12 @@ func (a *App) sudoWrite(d *Doc, data []byte, pw []rune, after func()) {
 	var results []checkResult
 	run := a.runSave
 	a.h.Go("Saving with sudo", func(ctx context.Context, _ func(fsops.Progress)) error {
-		defer wipeRunes(pw)
+		defer sudo.WipeRunes(pw)
 		withPw := pw != nil
-		in := sudoInput(pw, data)
-		defer wipe(in)
+		in := sudo.Input(pw, data)
+		defer sudo.Wipe(in)
 		var err error
-		saveOut, err = run(ctx, "sudo", sudoArgs(withPw, "sh", "-c", sudoScript, "sh", path, backup), in)
+		saveOut, err = run(ctx, "sudo", sudo.Args(withPw, "sh", "-c", sudoScript, "sh", path, backup), in)
 		if err != nil {
 			return err
 		}
@@ -273,9 +218,9 @@ func (a *App) sudoWrite(d *Doc, data []byte, pw []rune, after func()) {
 			var out []byte
 			var cerr error
 			if v.Sudo {
-				pin := sudoInput(pw, nil)
-				out, cerr = run(ctx, "sudo", sudoArgs(withPw, "sh", "-c", cmd), pin)
-				wipe(pin)
+				pin := sudo.Input(pw, nil)
+				out, cerr = run(ctx, "sudo", sudo.Args(withPw, "sh", "-c", cmd), pin)
+				sudo.Wipe(pin)
 			} else {
 				out, cerr = run(ctx, "sh", []string{"-c", cmd}, nil)
 			}
@@ -285,10 +230,8 @@ func (a *App) sudoWrite(d *Doc, data []byte, pw []rune, after func()) {
 	}, func(err error) {
 		if err != nil {
 			msg := "sudo could not save the file."
-			if bytes.Contains(saveOut, []byte("incorrect password")) || bytes.Contains(saveOut, []byte("Sorry, try again")) {
-				msg = "The sudo password was not accepted."
-			} else if bytes.Contains(saveOut, []byte("not in the sudoers")) || bytes.Contains(saveOut, []byte("may not run sudo")) {
-				msg = currentUser() + " is not allowed to use sudo on this server."
+			if m := sudo.Explain(saveOut, currentUser()); m != "" {
+				msg = m
 			}
 			a.h.ShowError("Save with sudo failed", msg, strings.TrimSpace(string(saveOut))+"\n"+err.Error())
 			return
