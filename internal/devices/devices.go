@@ -318,3 +318,43 @@ func UsageBar(width int, used float64) string {
 	}
 	return "[" + strings.Repeat("#", n) + strings.Repeat("-", inner-n) + "]"
 }
+
+// RemovableDisks returns the removable disks in vols as disk path → name
+// for messages ("SanDisk Ultra Fit (한글 USB)").
+func RemovableDisks(vols []Volume) map[string]string {
+	out := map[string]string{}
+	for _, v := range vols {
+		if v.Kind != Removable || v.Disk == "" {
+			continue
+		}
+		name := v.Model
+		if name == "" {
+			name = v.DiskName
+		}
+		if _, seen := out[v.Disk]; !seen && v.Label != "" {
+			name += " (" + v.Label + ")"
+		}
+		if _, seen := out[v.Disk]; !seen {
+			out[v.Disk] = name
+		}
+	}
+	return out
+}
+
+// DiffDisks compares two RemovableDisks results and returns the names of
+// the disks that appeared and disappeared, each sorted.
+func DiffDisks(old, cur map[string]string) (added, removed []string) {
+	for d, n := range cur {
+		if _, ok := old[d]; !ok {
+			added = append(added, n)
+		}
+	}
+	for d, n := range old {
+		if _, ok := cur[d]; !ok {
+			removed = append(removed, n)
+		}
+	}
+	sort.Strings(added)
+	sort.Strings(removed)
+	return added, removed
+}

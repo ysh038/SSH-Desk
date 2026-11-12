@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -15,6 +16,7 @@ import (
 	"tuidesk/internal/apps/viewer"
 	"tuidesk/internal/config"
 	"tuidesk/internal/desktop"
+	"tuidesk/internal/devices"
 	"tuidesk/internal/tui"
 	"tuidesk/internal/wm"
 )
@@ -48,7 +50,12 @@ func main() {
 	}
 	d.NewFiles = func(dir string) wm.App { return files.New(d, dir) }
 	d.OpenText = func(path string) { openText(d, path) }
-	d.NewMyPC = func() wm.App { return mypc.New(d, mypc.SystemDeps()) }
+	pcDeps := mypc.SystemDeps()
+	d.NewMyPC = func() wm.App { return mypc.New(d, pcDeps) }
+	// Hot-plug (ADR 0005): the kernel wakes the monitor; nothing polls.
+	mon := mypc.NewMonitor(d, pcDeps.Source)
+	mon.Check()
+	go func() { _ = devices.Watch(context.Background(), mon.Trigger) }()
 	fw := d.OpenWindow(d.NewFiles(d.HomeDir))
 	d.M.ResizeTo(fw, min(90, w-4), min(24, h-4))
 	d.SetConfig(cfg, cfgPath)

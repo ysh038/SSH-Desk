@@ -357,3 +357,23 @@ func TestListFallsBackToOldColumn(t *testing.T) {
 		t.Errorf("error: %v", err)
 	}
 }
+
+func TestDiffDisks(t *testing.T) {
+	vols, err := Build([]byte(lsblkNew), fstab, mountinfo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cur := RemovableDisks(vols)
+	want := map[string]string{"/dev/sdb": "SanDisk Ultra Fit (한글 USB)", "/dev/sdc": "WD Elements 25A2 (DATA)", "/dev/sdd": "Generic Flash Disk"}
+	if !reflect.DeepEqual(cur, want) {
+		t.Fatalf("removable disks %q", cur)
+	}
+	old := map[string]string{"/dev/sdc": "WD Elements 25A2 (DATA)", "/dev/sdx": "Old Stick"}
+	added, removed := DiffDisks(old, cur)
+	if !reflect.DeepEqual(added, []string{"Generic Flash Disk", "SanDisk Ultra Fit (한글 USB)"}) || !reflect.DeepEqual(removed, []string{"Old Stick"}) {
+		t.Errorf("added %q removed %q", added, removed)
+	}
+	if a, r := DiffDisks(cur, cur); len(a)+len(r) != 0 {
+		t.Errorf("no change: %q %q", a, r)
+	}
+}

@@ -53,6 +53,7 @@ func (a *App) buildCommands() {
 		c("copypath", "File", "Copy path", "", nil, "", nil, a.copyPath),
 		c("terminal", "File", "Open terminal here", "", []string{"Ctrl+T"}, "", nil, func() { a.h.OpenTerminal(a.dir, nil, false) }),
 		c("pin", "File", "Add to desktop", "", nil, "", hasSel, func() { a.h.AddToDesktop(paths(a.Selection())) }),
+		c("eject", "File", "Eject this drive", "", nil, "", nil, func() { a.h.EjectDir(a.dir) }),
 		sep("File"),
 		c("extract", "File", "Extract here", "", nil, "", func() bool { return len(a.archives()) > 0 }, a.extract),
 		c("compress", "File", "Compress to .tar.gz...", "", nil, "", hasSel, a.compress),
@@ -84,6 +85,7 @@ func (a *App) buildCommands() {
 			}
 		}),
 		c("root", "Go", "Root folder (/)", "", nil, "", nil, func() { a.goTo("/", "") }),
+		c("mypc", "Go", "My PC (drives and USB)", "", nil, "", nil, func() { a.h.DesktopAction("mypc") }),
 
 		// View
 		c("refresh", "View", "Refresh", "", []string{"F5"}, "", nil, a.Refresh),

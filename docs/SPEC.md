@@ -243,7 +243,7 @@ server {
   - 쓰기 버퍼를 비우는 동안 진행 표시("Writing remaining data… Do not remove the drive")를 띄운다. `target is busy`면 원인(가능하면 사용 중인 프로세스)을 팝업으로 보여 주고 강제 언마운트는 하지 않는다.
   - 포맷, 파티션 편집, fstab 수정은 **비목표**다(실수 한 번이 치명적).
 - 핫플러그: 장치가 꽂히거나 뽑히면 목록을 갱신하고 토스트로 알린다. 고정 주기 전체 재렌더링은 하지 않는다(감지 방식은 ADR 0005에서 결정 — 커널 uevent netlink 소켓 또는 `/proc/self/mountinfo` 변경 알림, 실패 시 F5 수동 새로고침).
-- 파일 관리자 연동: 마운트된 이동식 장치를 Go 메뉴에 보여 주고, 그 안을 보고 있을 때 File › Eject를 쓸 수 있다.
+- 파일 관리자 연동: Go › My PC로 이 창을 열고, File › Eject this drive로 지금 보고 있는 폴더가 있는 드라이브를 Eject한다(My PC 창이 열리며 진행 상황을 보여 준다).
 - 리눅스 콘솔: 사용량 막대와 아이콘은 ASCII로 그린다. 한글 라벨은 파일명과 같은 방식으로 이스케이프한다.
 
 ## 8. AI / MCP 통합 (full 빌드 전용, 기본 OFF)
@@ -365,15 +365,16 @@ MVP = Phase 0 ~ 3.
 
 방향 변경: AI/MCP보다 "OS에 더 가까운 기능"을 먼저 한다. 그 첫 번째가 My PC(7.8)다. MCP 서버와 AI 패널은 Phase 6, 7로 미뤘다.
 
-- [x] ADR 0005: 장치 목록 수집(lsblk JSON), 마운트 방식(sudo mount), 핫플러그 감지 방식 — 핫플러그는 잠정
+- [x] ADR 0005: 장치 목록 수집(lsblk JSON), 마운트 방식(sudo mount), 핫플러그 감지 방식
 - [x] `internal/devices`: lsblk 파싱, 분류(시스템/이동식/네트워크/숨김), 사용량, 마운트 위치 이름 정리, mount/umount/전원 끄기 명령 생성 — 순수 함수 + 픽스처 테스트(한글 라벨, 신·구 lsblk 출력). WSL Ubuntu 26.04의 실제 lsblk로 목록 확인 (2026-11-12)
 - [x] sudo 실행 코드를 에디터에서 공용 패키지(`internal/sudo`)로 분리 — S1 시나리오 테스트 통과
 - [x] 마운트/언마운트/Eject 실행기: `sudo mount`/`umount`, 테스트 대역 — 비밀번호 흐름은 `host.RunSudo`. 실제 sudo·USB 장치로는 아직 확인하지 못함
 - [x] My PC 앱 창(`internal/apps/mypc`): Places/Drives/Removable/Network 목록, 사용량 막대, 우클릭·메뉴 바·명령 검색, Properties. 키: Enter 열기(필요하면 마운트), Ctrl+U 언마운트, Ctrl+E Eject, Ctrl+P 속성, F5 새로고침
 - [x] 안전장치: 시스템 파일시스템 보호, 사용 중인 창 확인(파일 창은 상위 폴더로 이동, 에디터·터미널은 막고 안내), busy 에러 팝업, 진행 표시("do not remove the drive") — 사용 중인 프로세스 이름 표시는 없음
 - [x] 런처(F9 › My PC)·바탕화면 기본 아이콘 — 이미 바탕화면 아이콘을 저장한 설정 파일에는 자동으로 추가되지 않음(런처로 열기)
-- [ ] 핫플러그 감지 → 목록 갱신 + 토스트 (지금은 F5)
-- [ ] 파일 관리자 연동(Go 메뉴, File › Eject)
+- [x] 핫플러그 감지 → 목록 갱신 + 토스트 — `devices.Watch`(커널 uevent + mountinfo, poll로 대기)와 `mypc.Monitor`(1초 모아서 한 번 스캔, "USB drive connected" / "Drive disconnected" 알림, 열려 있는 My PC 창 갱신). 시작할 때 이미 꽂혀 있던 장치는 알리지 않음
+- [x] 파일 관리자 연동: Go › My PC, File › Eject this drive(지금 보는 폴더가 있는 드라이브를 Eject, 내장 디스크면 언마운트, 시스템 디스크면 안내만). Go 메뉴에 장치를 하나씩 나열하는 것은 하지 않음
+- 확인(2026-11-12, 실제 동작): WSL Ubuntu 26.04에서 root로 임시 이미지 파일(ext4, loop)을 마운트 스크립트로 마운트 → 한글 파일 쓰기 → 목록·사용량 확인 → 언마운트 스크립트로 해제(마운트 폴더 삭제 확인), 실패한 마운트가 만든 폴더를 지우는 것, 마운트·언마운트 때 감시가 이벤트를 받는 것까지 확인. **남은 확인: 실제 USB 메모리(vfat/exFAT의 uid·utf8 옵션, 전원 끄기), sudo 비밀번호 입력, 리눅스 콘솔·Terminal.app 화면**
 - 확인(2026-11-12): 시나리오 테스트 `internal/desktop/mypc_test.go`(마우스 S4, 키보드 전용, 안전장치)를 WSL Ubuntu 26.04에서 통과, 같은 환경의 실제 lsblk로 창 표시 확인
 - 완료 기준: 시나리오 S4를 마우스만으로, 그리고 키보드만으로 수행 가능. Ubuntu VM에서 loop 장치와 QEMU USB 저장 장치로 확인, 실제 서버의 USB 메모리로 확인
 

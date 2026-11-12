@@ -461,3 +461,16 @@ func (d *Desktop) openMyPC() {
 	d.mypc = d.OpenWindow(d.NewMyPC())
 	d.M.ResizeTo(d.mypc, min(88, d.Area().W-4), min(20, d.Area().H-2))
 }
+
+// EjectDir ejects the drive that holds dir through the My PC window
+// (host.Host).
+func (d *Desktop) EjectDir(dir string) {
+	d.openMyPC()
+	if d.mypc == nil {
+		d.Notify("My PC is not available", true)
+		return
+	}
+	if e, ok := d.mypc.App.(interface{ EjectPath(dir string) }); ok {
+		e.EjectPath(dir)
+	}
+}

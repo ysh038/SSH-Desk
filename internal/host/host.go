@@ -107,6 +107,8 @@ type Host interface {
 	OpenFolder(dir string)
 	// Apps returns the app of every open window (to ask them, e.g. DirUser).
 	Apps() []wm.App
+	// EjectDir ejects the drive that holds dir (shown in My PC).
+	EjectDir(dir string)
 
 	// Config returns the current settings.
 	Config() config.Config

@@ -100,6 +100,7 @@ type App struct {
 	loading bool
 	err     error
 	gen     int
+	after   func() // runs once the device scan is done
 
 	cmds   ui.Commands
 	chrome *host.Chrome
@@ -165,6 +166,7 @@ func (a *App) reload() {
 			a.vols, a.usage = vols, use
 		}
 		a.rebuildKeeping(keep)
+		a.runAfter()
 	})
 }
 
@@ -712,5 +714,53 @@ func (a *App) Draw(s wm.Surface, focused bool) {
 			line.Clear(st)
 			line.Text(0, 0, a.line(r, textW), st)
 		}
+	}
+}
+
+// EjectPath ejects (or, for a fixed disk, unmounts) the drive that holds
+// dir: the file manager's "Eject this drive". It waits for a device scan
+// that is still running.
+func (a *App) EjectPath(dir string) {
+	a.after = func() {
+		best, found := -1, ""
+		for i, v := range a.vols {
+			if v.Kind != devices.Fixed && v.Kind != devices.Removable {
+				continue
+			}
+			for _, m := range v.Mounts {
+				if host.Inside(m, dir) && len(m) >= len(found) {
+					best, found = i, m
+				}
+			}
+		}
+		if best < 0 {
+			a.h.Notify("Cannot eject: "+a.display(dir)+" is not on a drive listed in My PC", true)
+			return
+		}
+		v := a.vols[best]
+		for i, r := range a.rows {
+			if r.vol == best {
+				a.sel = i
+				a.ensureVisible()
+			}
+		}
+		switch {
+		case v.Ejectable:
+			a.eject(v)
+		case v.CanUnmount():
+			a.unmount(v)
+		default:
+			a.h.Notify("Cannot eject: "+a.display(dir)+" is on a system drive", true)
+		}
+	}
+	if !a.loading {
+		a.runAfter()
+	}
+}
+
+func (a *App) runAfter() {
+	if f := a.after; f != nil {
+		a.after = nil
+		f()
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"tuidesk/internal/apps/files"
 	"tuidesk/internal/apps/mypc"
@@ -366,5 +367,97 @@ func TestMyPCSafety(t *testing.T) {
 	h.settle()
 	if h.screenHas("/dev/sdb1") || !h.screenHas("Plug in a USB drive") {
 		t.Error("the unplugged stick is still listed")
+	}
+}
+
+func (p *fakePC) plug(on bool) {
+	p.mu.Lock()
+	p.plugged = on
+	p.mu.Unlock()
+}
+
+// Hot-plug: the monitor announces a stick that appears or disappears and
+// the open My PC window follows without F5. A burst of kernel events
+// causes one scan.
+func TestHotPlugNotifiesAndRefreshes(t *testing.T) {
+	h := newPC(t)
+	h.pc.plug(false)
+	scans := 0
+	src := devices.Source{ReadFile: h.pc.readFile, Run: func(ctx context.Context, n string, a []string, in []byte) ([]byte, error) {
+		scans++
+		return h.pc.lsblk(ctx, n, a, in)
+	}}
+	mon := mypc.NewMonitor(h.d, src)
+	mon.Check() // what is connected at startup is not news
+	h.settle()
+	h.key("F9", 0)
+	h.rune('m', 0)
+	h.settle()
+	h.window().Rect = wm.Rect{X: 1, Y: 1, W: 98, H: 14}
+	if h.screenHas("connected") || h.screenHas("/dev/sdb1") {
+		t.Fatal("nothing is plugged in yet")
+	}
+
+	h.pc.plug(true)
+	mon.Check()
+	h.settle()
+	if !h.screenHas("USB drive connected: SanDisk Ultra Fit (한글 USB)") || !h.screenHas("/dev/sdb1") {
+		t.Fatal("plugging in is not announced or not listed")
+	}
+
+	h.pc.plug(false)
+	mon.Check()
+	h.settle()
+	if !h.screenHas("Drive disconnected: SanDisk Ultra Fit (한글 USB)") || h.screenHas("/dev/sdb1") {
+		t.Fatal("unplugging is not announced or still listed")
+	}
+
+	// Three events in a row → one scan after the delay.
+	mon.Delay = 20 * time.Millisecond
+	before := scans
+	mon.Trigger()
+	mon.Trigger()
+	mon.Trigger()
+	time.Sleep(150 * time.Millisecond)
+	h.settle()
+	if scans != before+1 {
+		t.Errorf("%d scans for one burst", scans-before)
+	}
+}
+
+// File manager: File > Eject this drive ejects the stick the folder is on
+// and Go > My PC opens the window.
+func TestFilesEjectThisDrive(t *testing.T) {
+	h := newPC(t)
+	h.pc.nopasswd = true
+	dir := filepath.Join(h.media, "한글 USB")
+	os.MkdirAll(filepath.Join(dir, "photos"), 0o755)
+	h.pc.mounted["/dev/sdb1"] = dir
+	fa, _ := h.open(filepath.Join(dir, "photos"), wm.Rect{X: 1, Y: 14, W: 98, H: 14})
+
+	h.rune('k', term.ModCtrl)
+	h.typeText("eject")
+	h.key("Enter", 0)
+	h.settle()
+	h.settle()
+	if len(h.pc.mounted) != 0 || len(h.pc.ejected) != 1 {
+		t.Fatalf("mounted %v ejected %v calls %q", h.pc.mounted, h.pc.ejected, h.pc.calls)
+	}
+	if fa.Dir() != h.media {
+		t.Errorf("file window stayed in %q", fa.Dir())
+	}
+	h.window() // My PC opened to show what happened
+
+	// A folder on the system disk: nothing runs, a notice explains.
+	before := h.pc.sudoCalls()
+	fb, w2 := h.open(h.root, wm.Rect{X: 1, Y: 14, W: 98, H: 14})
+	_ = fb
+	h.d.M.Raise(w2)
+	h.rune('k', term.ModCtrl)
+	h.typeText("eject")
+	h.key("Enter", 0)
+	h.settle()
+	if h.pc.sudoCalls() != before || !h.screenHas("Cannot eject: ") {
+		t.Errorf("system folder: %d sudo calls", h.pc.sudoCalls()-before)
 	}
 }
