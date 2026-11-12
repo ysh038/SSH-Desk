@@ -28,7 +28,7 @@ S2. 파일 정리: 로그 파일 여러 개를 드래그 박스로 선택 → �
 
 S3. (선택, full 빌드) 내부망 LLM이 있는 환경에서 터미널 창에 Claude Code 등 MCP 클라이언트를 실행 → tuidesk의 MCP 서버에 자동 연결 → "지금 열린 파일의 location 블록 검토해줘" 같은 요청 시 에디터의 현재 파일/선택 영역을 컨텍스트로 사용, 파일 수정은 승인 후 반영.
 
-S4. USB 사용: 서버에 USB 메모리를 꽂음 → "USB drive connected" 알림 → This PC 창에 장치가 나타남 → Enter(더블클릭)로 마운트하고 파일 창에서 열림 → 파일 복사 → This PC에서 "Eject" → "Safe to remove" 알림 후 뽑음. `lsblk`, `mount`, `umount` 명령을 직접 치지 않는다.
+S4. USB 사용: 서버에 USB 메모리를 꽂음 → "USB drive connected" 알림 → My PC 창에 장치가 나타남 → Enter(더블클릭)로 마운트하고 파일 창에서 열림 → 파일 복사 → My PC에서 "Eject" → "Safe to remove" 알림 후 뽑음. `lsblk`, `mount`, `umount` 명령을 직접 치지 않는다.
 
 ## 4. "너무 무거워지지 않을까?"에 대한 설계 원칙
 
@@ -217,9 +217,9 @@ server {
 - `~/.config/tuidesk/config.toml`: 테마, 키맵 재정의, 드롭 기본 동작, 검사기 규칙, 바탕화면 아이콘, AI/MCP 활성화.
 - 설정 앱(창)에서 주요 항목 변경 가능.
 
-### 7.8 This PC — 장치와 드라이브 (Phase 5, 2026-11-12 추가)
+### 7.8 My PC — 장치와 드라이브 (Phase 5, 2026-11-12 추가)
 - 목표: Windows의 "내 PC"처럼 이 서버에 붙은 저장 장치를 한 화면에서 보고, USB 마운트·언마운트·안전 제거를 명령 없이 한다. lite 빌드에 포함한다(네트워크 코드 없음).
-- 여는 방법: 런처(F9) › This PC, 바탕화면 기본 아이콘, 파일 관리자 Go 메뉴.
+- 여는 방법: 런처(F9) › My PC, 바탕화면 기본 아이콘, 파일 관리자 Go 메뉴.
 - 화면 구성(위에서 아래로)
   - **Places**: Home, `/`, Trash.
   - **Drives**: 마운트된 디스크 파일시스템. 이름(라벨 또는 마운트 위치), 장치(`/dev/sda2`), 파일시스템, 사용량 막대(`[######----] 61% 120 GB free of 300 GB`). 90% 이상은 경고색. `tmpfs`, `squashfs`(snap), `overlay` 같은 가상 파일시스템은 기본으로 숨기고 View 메뉴로 켠다.
@@ -361,15 +361,15 @@ MVP = Phase 0 ~ 3.
 - [x] "여기서 터미널 열기", 앱 매니페스트(8.3 1단계) — 파일 관리자 Ctrl+T·우클릭, 실행 파일 실행, `~/.config/tuidesk/apps/*.toml` → 런처·바탕화면 (`docs/examples/apps/`)
 - 완료 기준: 터미널 창 안에서 htop, micro가 정상 동작 — ✅ 리눅스 콘솔 VM에서 htop(색상, F6 정렬 메뉴, F10 종료), micro(입력·Ctrl+S·Ctrl+Q), 대체 화면 복귀, Ctrl+] 메뉴로 창 전환 확인(`docs/img/phase4-console-*.png`). 실제 셸 pty 테스트(`internal/desktop/terminal_test.go`, `-race` 통과). Terminal.app 실사용 확인 대기 (2026-11-05)
 
-### Phase 5 — This PC: 장치와 드라이브 (2026-11-12 변경)
+### Phase 5 — My PC: 장치와 드라이브 (2026-11-12 변경)
 
-방향 변경: AI/MCP보다 "OS에 더 가까운 기능"을 먼저 한다. 그 첫 번째가 This PC(7.8)다. MCP 서버와 AI 패널은 Phase 6, 7로 미뤘다.
+방향 변경: AI/MCP보다 "OS에 더 가까운 기능"을 먼저 한다. 그 첫 번째가 My PC(7.8)다. MCP 서버와 AI 패널은 Phase 6, 7로 미뤘다.
 
 - [x] ADR 0005: 장치 목록 수집(lsblk JSON), 마운트 방식(sudo mount), 핫플러그 감지 방식 — 핫플러그는 잠정
 - [x] `internal/devices`: lsblk 파싱, 분류(시스템/이동식/네트워크/숨김), 사용량, 마운트 위치 이름 정리, mount/umount/전원 끄기 명령 생성 — 순수 함수 + 픽스처 테스트(한글 라벨, 신·구 lsblk 출력). WSL Ubuntu 26.04의 실제 lsblk로 목록 확인 (2026-11-12)
 - [x] sudo 실행 코드를 에디터에서 공용 패키지(`internal/sudo`)로 분리 — S1 시나리오 테스트 통과
 - [ ] 마운트/언마운트/Eject 실행기: `sudo mount`/`umount`, 테스트 대역
-- [ ] This PC 앱 창: Places/Drives/Removable/Network 목록, 사용량 막대, 우클릭·메뉴 바·명령 검색, Properties
+- [ ] My PC 앱 창: Places/Drives/Removable/Network 목록, 사용량 막대, 우클릭·메뉴 바·명령 검색, Properties
 - [ ] 안전장치: 시스템 파일시스템 보호, 사용 중인 창 확인, busy 에러 팝업, 쓰기 완료 진행 표시
 - [ ] 핫플러그 감지 → 목록 갱신 + 토스트
 - [ ] 파일 관리자 연동(Go 메뉴, File › Eject), 런처·바탕화면 기본 아이콘
@@ -406,6 +406,6 @@ MVP = Phase 0 ~ 3.
 - 아이콘 보기에서 Nerd Font 사용 여부(사용자 맥에 폰트 설치 필요)
 - 같은 서버 다중 사용자 사용 시 설정/휴지통 분리 정책
 - root로 실행했을 때의 정책(경고만 / 차단)
-- This PC 다음에 넣을 "OS에 가까운 기능"의 순서(후보: 작업 관리자(프로세스), systemd 서비스 관리, 시스템 정보, 로그 보기, 네트워크 상태)
-- This PC 핫플러그 감지 방식(ADR 0005에서 결정)
+- My PC 다음에 넣을 "OS에 가까운 기능"의 순서(후보: 작업 관리자(프로세스), systemd 서비스 관리, 시스템 정보, 로그 보기, 네트워크 상태)
+- My PC 핫플러그 감지 방식(ADR 0005에서 결정)
 - 리눅스 콘솔에서 한글 표시 방식(`?` 대체 / `\uXXXX` 이스케이프 / 상태줄에 원래 이름 별도 표시 등)

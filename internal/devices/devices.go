@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// Kind is the section of the This PC window a volume is shown in.
+// Kind is the section of the My PC window a volume is shown in.
 type Kind int
 
 const (
