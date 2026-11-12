@@ -544,3 +544,30 @@ func (a *App) runAction(action string) {
 		a.compress()
 	}
 }
+
+// UsesDir reports that this window shows dir or a folder inside it
+// (host.DirUser).
+func (a *App) UsesDir(dir string) string {
+	if host.Inside(dir, a.dir) {
+		return "a file window"
+	}
+	return ""
+}
+
+// LeaveDir moves out of dir to its parent folder before dir goes away, and
+// forgets the history steps that led into it (host.DirLeaver).
+func (a *App) LeaveDir(dir string) {
+	keep := func(ps []place) []place {
+		out := ps[:0]
+		for _, p := range ps {
+			if !host.Inside(dir, p.dir) {
+				out = append(out, p)
+			}
+		}
+		return out
+	}
+	a.back, a.fwd = keep(a.back), keep(a.fwd)
+	if host.Inside(dir, a.dir) {
+		a.navigate(filepath.Dir(strings.TrimRight(dir, "/")), "")
+	}
+}

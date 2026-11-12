@@ -222,7 +222,7 @@ server {
 - 여는 방법: 런처(F9) › My PC, 바탕화면 기본 아이콘, 파일 관리자 Go 메뉴.
 - 화면 구성(위에서 아래로)
   - **Places**: Home, `/`, Trash.
-  - **Drives**: 마운트된 디스크 파일시스템. 이름(라벨 또는 마운트 위치), 장치(`/dev/sda2`), 파일시스템, 사용량 막대(`[######----] 61% 120 GB free of 300 GB`). 90% 이상은 경고색. `tmpfs`, `squashfs`(snap), `overlay` 같은 가상 파일시스템은 기본으로 숨기고 View 메뉴로 켠다.
+  - **Drives**: 마운트된 디스크 파일시스템. 이름(라벨 또는 마운트 위치), 장치(`/dev/sda2`), 파일시스템, 사용량 막대(`[######----] 61% 120 GB free of 300 GB`). 90% 이상은 `almost full`을 함께 적는다(16색 콘솔에서도 구분되게 색이 아니라 글자로). `tmpfs`, `squashfs`(snap), `overlay` 같은 가상 파일시스템은 기본으로 숨기고 View 메뉴로 켠다.
   - **Removable devices**: USB 등 이동식 장치의 파티션. 마운트되지 않은 것도 보여 준다(`Not mounted`). 파일시스템이 없는 장치는 `No filesystem`으로 표시만 한다.
   - **Network**: NFS/CIFS 마운트는 표시와 열기만 한다(연결·해제는 범위 밖).
 - 동작 (마우스 / 키보드)
@@ -368,11 +368,13 @@ MVP = Phase 0 ~ 3.
 - [x] ADR 0005: 장치 목록 수집(lsblk JSON), 마운트 방식(sudo mount), 핫플러그 감지 방식 — 핫플러그는 잠정
 - [x] `internal/devices`: lsblk 파싱, 분류(시스템/이동식/네트워크/숨김), 사용량, 마운트 위치 이름 정리, mount/umount/전원 끄기 명령 생성 — 순수 함수 + 픽스처 테스트(한글 라벨, 신·구 lsblk 출력). WSL Ubuntu 26.04의 실제 lsblk로 목록 확인 (2026-11-12)
 - [x] sudo 실행 코드를 에디터에서 공용 패키지(`internal/sudo`)로 분리 — S1 시나리오 테스트 통과
-- [ ] 마운트/언마운트/Eject 실행기: `sudo mount`/`umount`, 테스트 대역
-- [ ] My PC 앱 창: Places/Drives/Removable/Network 목록, 사용량 막대, 우클릭·메뉴 바·명령 검색, Properties
-- [ ] 안전장치: 시스템 파일시스템 보호, 사용 중인 창 확인, busy 에러 팝업, 쓰기 완료 진행 표시
-- [ ] 핫플러그 감지 → 목록 갱신 + 토스트
-- [ ] 파일 관리자 연동(Go 메뉴, File › Eject), 런처·바탕화면 기본 아이콘
+- [x] 마운트/언마운트/Eject 실행기: `sudo mount`/`umount`, 테스트 대역 — 비밀번호 흐름은 `host.RunSudo`. 실제 sudo·USB 장치로는 아직 확인하지 못함
+- [x] My PC 앱 창(`internal/apps/mypc`): Places/Drives/Removable/Network 목록, 사용량 막대, 우클릭·메뉴 바·명령 검색, Properties. 키: Enter 열기(필요하면 마운트), Ctrl+U 언마운트, Ctrl+E Eject, Ctrl+P 속성, F5 새로고침
+- [x] 안전장치: 시스템 파일시스템 보호, 사용 중인 창 확인(파일 창은 상위 폴더로 이동, 에디터·터미널은 막고 안내), busy 에러 팝업, 진행 표시("do not remove the drive") — 사용 중인 프로세스 이름 표시는 없음
+- [x] 런처(F9 › My PC)·바탕화면 기본 아이콘 — 이미 바탕화면 아이콘을 저장한 설정 파일에는 자동으로 추가되지 않음(런처로 열기)
+- [ ] 핫플러그 감지 → 목록 갱신 + 토스트 (지금은 F5)
+- [ ] 파일 관리자 연동(Go 메뉴, File › Eject)
+- 확인(2026-11-12): 시나리오 테스트 `internal/desktop/mypc_test.go`(마우스 S4, 키보드 전용, 안전장치)를 WSL Ubuntu 26.04에서 통과, 같은 환경의 실제 lsblk로 창 표시 확인
 - 완료 기준: 시나리오 S4를 마우스만으로, 그리고 키보드만으로 수행 가능. Ubuntu VM에서 loop 장치와 QEMU USB 저장 장치로 확인, 실제 서버의 USB 메모리로 확인
 
 ### Phase 6 — MCP 서버 (full 빌드)

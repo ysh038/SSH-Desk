@@ -103,6 +103,11 @@ type Host interface {
 	// AddToDesktop pins files or folders as desktop icons (SPEC 7.1).
 	AddToDesktop(paths []string)
 
+	// OpenFolder opens a file manager window on dir.
+	OpenFolder(dir string)
+	// Apps returns the app of every open window (to ask them, e.g. DirUser).
+	Apps() []wm.App
+
 	// Config returns the current settings.
 	Config() config.Config
 }

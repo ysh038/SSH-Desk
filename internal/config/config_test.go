@@ -52,7 +52,7 @@ func TestBadFileReportsErrorAndUsesDefaults(t *testing.T) {
 func TestDesktopIcons(t *testing.T) {
 	dir := t.TempDir()
 	p := filepath.Join(dir, "c.toml")
-	if got, _, _ := Load(p); len(got.Icons) != 6 || got.Icons[0].Path != "~" || got.Icons[4].App != "terminal" {
+	if got, _, _ := Load(p); len(got.Icons) != 7 || got.Icons[0].Path != "~" || got.Icons[4].App != "terminal" || got.Icons[6].App != "mypc" {
 		t.Fatalf("default icons %+v", got.Icons)
 	}
 	// A file with its own icons replaces the defaults (not appended).

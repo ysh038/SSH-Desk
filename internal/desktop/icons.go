@@ -78,6 +78,9 @@ func (d *Desktop) iconText(ic config.DesktopIcon) string {
 		if ic.App == "terminal" {
 			return "[>_ ]"
 		}
+		if ic.App == "mypc" {
+			return "[PC ]"
+		}
 		if m, ok := d.findApp(ic.App); ok && m.Icon != "" {
 			icon := []rune(m.Icon)
 			if len(icon) > 3 {
@@ -157,6 +160,8 @@ func (d *Desktop) openIcon(i int) {
 			d.run("editor", nil)
 		case "files":
 			d.openFolder(d.HomeDir)
+		case "mypc":
+			d.openMyPC()
 		case "help":
 			d.run("help", nil)
 		case "terminal":
@@ -425,4 +430,34 @@ func (d *Desktop) dropOnDesktop(dr host.Drag, x, y int) {
 			}
 		}
 	}
+}
+
+// OpenFolder opens a file manager window on dir (host.Host).
+func (d *Desktop) OpenFolder(dir string) { d.openFolder(dir) }
+
+// Apps returns the app of every open window (host.Host).
+func (d *Desktop) Apps() []wm.App {
+	var out []wm.App
+	for _, w := range d.M.Windows() {
+		if w.App != nil {
+			out = append(out, w.App)
+		}
+	}
+	return out
+}
+
+// openMyPC shows the My PC window (SPEC 7.8), raising it when it is
+// already open.
+func (d *Desktop) openMyPC() {
+	if d.NewMyPC == nil {
+		return
+	}
+	for _, w := range d.M.Windows() {
+		if w == d.mypc {
+			d.M.Raise(w)
+			return
+		}
+	}
+	d.mypc = d.OpenWindow(d.NewMyPC())
+	d.M.ResizeTo(d.mypc, min(88, d.Area().W-4), min(20, d.Area().H-2))
 }

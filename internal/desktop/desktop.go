@@ -46,9 +46,12 @@ type Desktop struct {
 	RootDir string
 	// OpenText opens a text file in the editor (set by main).
 	OpenText func(path string)
+	// NewMyPC creates the My PC window (SPEC 7.8, set by main).
+	NewMyPC func() wm.App
 	// HomeDir is where new file managers start.
 	HomeDir string
 	Quit    bool
+	mypc    *wm.Window
 
 	menu       *ui.Menu
 	menuTarget *wm.Window
@@ -316,6 +319,7 @@ func (d *Desktop) openMenu(items []ui.MenuItem, target *wm.Window, x, y int) {
 func (d *Desktop) openLauncher(x, y int) {
 	items := []ui.MenuItem{
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
+		{Label: "My PC", Hotkey: 'm', Action: "mypc", Disabled: d.NewMyPC == nil},
 		{Label: "Terminal", Hotkey: 't', Action: "terminal"},
 		{Label: "Text editor", Hotkey: 'e', Action: "editor"},
 		{Label: "Show desktop", Hotkey: 'd', Action: "desktop"},
@@ -407,6 +411,8 @@ func (d *Desktop) run(action string, target *wm.Window) {
 		d.OpenWindow(d.NewApp(d.created + 1))
 	case action == "editor" && d.OpenText != nil:
 		d.OpenText("")
+	case action == "mypc":
+		d.openMyPC()
 	case action == "terminal":
 		d.OpenTerminal(d.selectedDir(), nil, false)
 	case strings.HasPrefix(action, "app:"):
@@ -491,6 +497,8 @@ var helpSections = []struct {
 	{"Desktop", []helpRow{
 		{"F9", "Menu (launcher)"}, {"Ctrl+N", "New window (file manager at /)"},
 		{"F9 > Show desktop", "Desktop icons: arrows, Enter opens, Delete removes"},
+		{"F9 > My PC", "Drives and USB devices: Enter opens (mounts first)"},
+		{"Ctrl+U / Ctrl+E", "In My PC: unmount / eject (safe to remove)"},
 		{"F9 > Terminal", "Shell window (every key goes to the shell)"},
 		{"Ctrl+]", "In a terminal: menu (windows, paste, copy, scroll back)"},
 		{"F6 / Shift+F6", "Next / previous window"}, {"Shift+F10", "Window menu (also right click)"},

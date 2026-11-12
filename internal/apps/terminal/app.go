@@ -524,3 +524,16 @@ func (a *App) runMenu(action string) {
 		a.h.DesktopAction(action)
 	}
 }
+
+// UsesDir reports that the program in this terminal is working in dir or
+// below it (host.DirUser): the drive would be busy.
+func (a *App) UsesDir(dir string) string {
+	if a.s == nil || a.exited {
+		return ""
+	}
+	cwd, err := os.Readlink("/proc/" + strconv.Itoa(a.s.Pid()) + "/cwd")
+	if err != nil || !host.Inside(dir, cwd) {
+		return ""
+	}
+	return "a terminal window (" + a.Title() + ")"
+}

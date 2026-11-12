@@ -11,6 +11,7 @@ import (
 
 	editorapp "tuidesk/internal/apps/editor"
 	"tuidesk/internal/apps/files"
+	"tuidesk/internal/apps/mypc"
 	"tuidesk/internal/apps/viewer"
 	"tuidesk/internal/config"
 	"tuidesk/internal/desktop"
@@ -47,6 +48,7 @@ func main() {
 	}
 	d.NewFiles = func(dir string) wm.App { return files.New(d, dir) }
 	d.OpenText = func(path string) { openText(d, path) }
+	d.NewMyPC = func() wm.App { return mypc.New(d, mypc.SystemDeps()) }
 	fw := d.OpenWindow(d.NewFiles(d.HomeDir))
 	d.M.ResizeTo(fw, min(90, w-4), min(24, h-4))
 	d.SetConfig(cfg, cfgPath)

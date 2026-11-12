@@ -669,3 +669,21 @@ func (a *App) drawStatus(row wm.Surface, d *Doc) {
 	}
 	row.Text(1, 0, strings.Join(parts, " · "), wm.StyleBodyDim)
 }
+
+// UsesDir reports open files in dir or below it (host.DirUser): saving them
+// after the drive is gone would write into the empty mount folder.
+func (a *App) UsesDir(dir string) string {
+	n := 0
+	for _, d := range a.docs {
+		if d.Path != "" && host.Inside(dir, d.Path) {
+			n++
+		}
+	}
+	switch n {
+	case 0:
+		return ""
+	case 1:
+		return "1 file open in the editor"
+	}
+	return strconv.Itoa(n) + " files open in the editor"
+}
