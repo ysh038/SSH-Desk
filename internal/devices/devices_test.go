@@ -377,3 +377,17 @@ func TestDiffDisks(t *testing.T) {
 		t.Errorf("no change: %q %q", a, r)
 	}
 }
+
+func TestModelName(t *testing.T) {
+	for _, c := range []struct{ vendor, model, want string }{
+		{"SanDisk ", "Ultra Fit", "SanDisk Ultra Fit"},
+		{"QEMU    ", "QEMU HARDDISK", "QEMU HARDDISK"}, // vendor repeated in the model
+		{"", "Samsung SSD 870", "Samsung SSD 870"},
+		{"Generic", "", "Generic"},
+		{"삼성", "외장  디스크", "삼성 외장 디스크"},
+	} {
+		if got := modelName(c.vendor, c.model); got != c.want {
+			t.Errorf("modelName(%q, %q) = %q, want %q", c.vendor, c.model, got, c.want)
+		}
+	}
+}

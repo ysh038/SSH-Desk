@@ -64,6 +64,16 @@ func (v Volume) MountPoint() string {
 	return best
 }
 
+// modelName joins vendor and model for display ("SanDisk Ultra Fit").
+// Some devices repeat the vendor in the model ("QEMU" + "QEMU HARDDISK").
+func modelName(vendor, model string) string {
+	v, m := strings.Join(strings.Fields(vendor), " "), strings.Join(strings.Fields(model), " ")
+	if v == "" || strings.HasPrefix(strings.ToLower(m), strings.ToLower(v)) {
+		return m
+	}
+	return strings.TrimSpace(v + " " + m)
+}
+
 // containers hold other volumes, not files.
 var containers = map[string]bool{"LVM2_member": true, "crypto_LUKS": true, "linux_raid_member": true, "zfs_member": true}
 
@@ -174,7 +184,7 @@ func collect(n, top *node, out *[]Volume) {
 	v := Volume{
 		Name: n.Name, Dev: devPath(n), FSType: n.FSType, Label: n.Label,
 		UUID: n.UUID, PartUUID: n.PartUUID, Size: int64(n.Size),
-		Model:    strings.Join(strings.Fields(top.Vendor+" "+top.Model), " "),
+		Model:    modelName(top.Vendor, top.Model),
 		Tran:     top.Tran,
 		ReadOnly: bool(n.RO),
 		Swap:     n.FSType == "swap",
