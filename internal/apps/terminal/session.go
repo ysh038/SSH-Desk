@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/vt"
@@ -18,6 +19,10 @@ const (
 	drainChunk   = 256 << 10 // bytes fed to the emulator per UI turn
 	maxPending   = 1 << 20   // reader blocks above this (backpressure)
 	scrollbackSz = 5000      // lines kept above the screen
+
+	// startPty retries ENXIO this often, this far apart.
+	ptyRetries   = 10
+	ptyRetryWait = 10 * time.Millisecond
 )
 
 // Spec says what to run.
@@ -87,10 +92,7 @@ func Start(spec Spec, w, h int, post func(func())) (*Session, error) {
 	if len(argv) == 0 {
 		argv = []string{Shell()}
 	}
-	cmd := exec.Command(argv[0], argv[1:]...)
-	cmd.Dir = spec.Dir
-	cmd.Env = childEnv(spec.Env)
-	f, err := pty.StartWithSize(cmd, &pty.Winsize{Cols: uint16(max(w, 1)), Rows: uint16(max(h, 1))})
+	cmd, f, err := startPty(argv, spec, w, h)
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +116,27 @@ func Start(spec Spec, w, h int, post func(func())) (*Session, error) {
 	go s.replyLoop()
 	go s.readLoop()
 	return s, nil
+}
+
+// startPty starts argv on a new pty. Right after another terminal was
+// closed, macOS can hand out a pty that is still being torn down and setting
+// it up fails with ENXIO ("device not configured"); a moment later it works,
+// so that one error is retried a few times.
+func startPty(argv []string, spec Spec, w, h int) (*exec.Cmd, *os.File, error) {
+	size := &pty.Winsize{Cols: uint16(max(w, 1)), Rows: uint16(max(h, 1))}
+	for try := 0; ; try++ {
+		cmd := exec.Command(argv[0], argv[1:]...)
+		cmd.Dir = spec.Dir
+		cmd.Env = childEnv(spec.Env)
+		f, err := pty.StartWithSize(cmd, size)
+		if err == nil {
+			return cmd, f, nil
+		}
+		if !errors.Is(err, syscall.ENXIO) || try >= ptyRetries {
+			return nil, nil, err
+		}
+		time.Sleep(ptyRetryWait)
+	}
 }
 
 func (s *Session) setMode(m ansi.Mode, on bool) {
