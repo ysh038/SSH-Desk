@@ -51,6 +51,7 @@ type Loop struct {
 
 	// Stats for tests and diagnostics.
 	Frames, CellsWritten int
+	Timers               int // wake-up timers armed
 }
 
 type tickData struct{}
@@ -95,6 +96,17 @@ func (l *Loop) Run() {
 
 // Dispatch handles one tcell event and re-renders.
 func (l *Loop) Dispatch(ev tcell.Event) {
+	if in, ok := ev.(*tcell.EventInterrupt); ok {
+		if _, tick := in.Data().(tickData); tick {
+			// The timer has fired: whatever NextWake says next needs a new
+			// one, even the same instant (a timer can fire a moment early).
+			l.wakeAt = time.Time{}
+		}
+	}
+	// The handler only learns the time from ticks. Tell it before every
+	// event, so that what the event starts (a notification) is timed from
+	// now and not from the last clock minute.
+	l.H.Handle(term.TickEvent{Now: l.Now()})
 	switch ev := ev.(type) {
 	case *tcell.EventResize:
 		w, h := ev.Size()
@@ -123,7 +135,6 @@ func (l *Loop) Dispatch(ev tcell.Event) {
 	case *tcell.EventInterrupt:
 		switch ev.Data().(type) {
 		case tickData:
-			l.H.Handle(term.TickEvent{Now: l.Now()})
 		case flushData:
 			if p, ok := l.H.(poster); !ok || !p.Flush() {
 				return
@@ -187,6 +198,7 @@ func (l *Loop) schedule() {
 		return
 	}
 	l.wakeAt = at
+	l.Timers++
 	if l.timer != nil {
 		l.timer.Stop()
 	}

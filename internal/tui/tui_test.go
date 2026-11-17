@@ -22,7 +22,8 @@ func newSim(t *testing.T) (*Loop, *desktop.Desktop, tcell.SimulationScreen) {
 	d.OpenWindow(d.NewApp(1))
 	d.OpenWindow(d.NewApp(2))
 	l := NewLoop(s, d)
-	l.Now = func() time.Time { return d.Now.Add(time.Minute) }
+	start := d.Now
+	l.Now = func() time.Time { return start } // time stands still unless a test moves it
 	l.render()
 	return l, d, s
 }
@@ -98,6 +99,8 @@ func TestPasteIsCollected(t *testing.T) {
 
 func TestTickUpdatesClock(t *testing.T) {
 	l, d, s := newSim(t)
+	next := d.Now.Add(time.Minute)
+	l.Now = func() time.Time { return next }
 	l.Dispatch(tcell.NewEventInterrupt(tickData{}))
 	if d.Now.Format("15:04") != "09:01" {
 		t.Fatalf("now = %v", d.Now)
@@ -141,5 +144,38 @@ func TestWorkPostedBeforeLoopIsDelivered(t *testing.T) {
 	}
 	if !ran {
 		t.Fatal("queued work was never flushed")
+	}
+}
+
+// Regression (found in the QEMU USB VM): a timer that fires a moment before
+// the clock minute left NextWake unchanged, the loop took that for "already
+// armed" and never ticked again: the clock froze and notifications stayed.
+func TestTimerFiringEarlyIsArmedAgain(t *testing.T) {
+	l, d, _ := newSim(t)
+	start := d.Now
+	now := start.Add(59*time.Second + 990*time.Millisecond) // 10 ms early
+	l.Now = func() time.Time { return now }
+	armed := l.Timers
+	l.Dispatch(tcell.NewEventInterrupt(tickData{}))
+	if l.Timers != armed+1 || !l.wakeAt.Equal(start.Add(time.Minute)) {
+		t.Fatalf("no new timer for the minute after an early tick (timers %d -> %d, wakeAt %v)", armed, l.Timers, l.wakeAt)
+	}
+	now = start.Add(time.Minute)
+	l.Dispatch(tcell.NewEventInterrupt(tickData{}))
+	if d.Now.Format("15:04") != "09:01" || !l.wakeAt.Equal(start.Add(2*time.Minute)) {
+		t.Fatalf("now = %v, wakeAt = %v", d.Now, l.wakeAt)
+	}
+}
+
+// A notification raised long after the last tick (a USB drive is plugged in
+// while nobody types) stays for its full time, counted from the event.
+func TestNotificationIsTimedFromTheEvent(t *testing.T) {
+	l, d, _ := newSim(t)
+	now := d.Now.Add(30 * time.Second)
+	l.Now = func() time.Time { return now }
+	d.Post(func() { d.Notify("USB drive connected", false) })
+	l.Dispatch(tcell.NewEventInterrupt(flushData{}))
+	if want := now.Add(4 * time.Second); !d.NextWake().Equal(want) {
+		t.Fatalf("notification ends at %v, want %v", d.NextWake(), want)
 	}
 }
