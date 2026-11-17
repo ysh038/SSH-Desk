@@ -51,3 +51,32 @@ scripts/ubuntu-vm.sh ssh 24.04      # tester로 접속
 - 루트 소유 파일(예: `/etc/hosts`) 편집 후 저장 → sudo 비밀번호 입력 → `.bak` 생성
 - Terminal.app 마우스·키 동작([compat-matrix.md](compat-matrix.md)의 S 열)
 - 로케일을 바꿔 실행했을 때 한글 표시
+
+## USB 테스트 VM (QEMU) — My PC 확인용
+
+위의 vz VM에는 USB를 꽂을 수 없습니다(맥에 꽂은 USB도 VM으로 넘어가지 않습니다). My PC(SPEC 7.8)의 S4 시나리오는 같은 Ubuntu VM을 **QEMU**로 띄운 `scripts/usb-vm.sh`로 확인합니다. 이미지 파일 하나를 USB 메모리처럼 꽂았다 뽑습니다.
+
+```bash
+scripts/usb-vm.sh up            # VM 생성·시작(24.04), tuidesk 배포. 이름은 tuidesk-usb-2404
+scripts/usb-vm.sh ssh           # tester로 접속(비밀번호 tuidesk) → ~/bin/tuidesk 실행
+scripts/usb-vm.sh plug          # 다른 터미널에서: USB 꽂기 (FAT32, 라벨 TUIDESK)
+scripts/usb-vm.sh unplug        # USB 뽑기
+scripts/usb-vm.sh plug exfat    # exFAT 스틱으로 꽂기
+scripts/usb-vm.sh deploy        # 코드를 고친 뒤 다시 배포
+scripts/usb-vm.sh stop          # 끝나면 (지울 때는 delete)
+```
+
+- 스틱은 `.cache/usb/stick-vfat.img`(64MB, 파티션 하나)입니다. 처음 꽂을 때 `hdiutil`로 만들고 그 뒤로는 그대로 쓰므로, 복사한 파일이 뽑았다 꽂아도 남아 있습니다. 빈 스틱이 필요하면 이미지를 지웁니다.
+- 꽂기·뽑기는 Lima가 열어 둔 QMP 소켓(`~/.lima/tuidesk-usb-2404/qmp.sock`)으로 `usb-storage` 장치를 넣고 빼는 것입니다(`scripts/qmp.py`).
+- Rosetta가 없으므로 arm64 바이너리로 실행됩니다.
+- tuidesk에서 Eject하면 VM 안에서는 장치가 사라지지만 QEMU에는 꽂힌 상태로 남습니다. 다시 꽂으려면 `unplug` 후 `plug` 합니다(실제로도 뽑았다가 다시 꽂는 것과 같습니다).
+- Ubuntu 클라우드 이미지 커널에는 exFAT 드라이버가 없습니다(`linux-modules-extra` 필요). 그래서 `plug exfat`은 "드라이버가 없는 서버"의 에러 흐름("This server cannot read that filesystem")을 확인하는 용도입니다.
+
+### S4 확인 순서
+
+1. `ssh`로 들어가 `~/bin/tuidesk` 실행. 다른 터미널에서 `plug` → 2~3초 뒤 "USB drive connected: ..." 알림.
+2. `F9` › `My PC` (또는 바탕화면 `[PC ]` 아이콘) → **Removable devices**에 `TUIDESK /dev/sda1 vfat Not mounted`.
+3. 그 줄에서 Enter(또는 더블클릭) → sudo 비밀번호(`tuidesk`) → `/media/tester/TUIDESK`가 파일 창으로 열림.
+4. 홈의 파일을 그 창으로 복사(`Ctrl+C` → `Ctrl+V` 또는 드래그). 한글 파일명으로 해 봅니다.
+5. My PC에서 `Ctrl+E`(또는 우클릭 › Eject, 파일 창의 File › Eject this drive) → 비밀번호 → "Safe to remove ..." 알림, 이어서 "Drive disconnected: ..." 알림. 열려 있던 파일 창은 `/media/tester`로 올라갑니다.
+6. `unplug`.

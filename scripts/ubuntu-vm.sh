@@ -30,7 +30,10 @@ need_ver() {
 	[[ -n "${1:-}" ]] || die "missing Ubuntu version (e.g. 22.04 or 24.04)"
 	[[ "$1" =~ ^[0-9]{2}\.[0-9]{2}$ ]] || die "version must look like 24.04, got '$1'"
 }
-vm_name() { echo "tuidesk-ubuntu-${1//./}"; }
+# TUIDESK_VM_KIND=usb (set by scripts/usb-vm.sh): a second VM per release that
+# runs under QEMU instead of vz, so USB drives can be plugged in (ADR 0005).
+VM_KIND="${TUIDESK_VM_KIND:-ubuntu}"
+vm_name() { echo "tuidesk-$VM_KIND-${1//./}"; }
 vm_status() { limactl list --format '{{.Status}}' "$1" 2>/dev/null || true; }
 vm_port() { limactl list --format '{{.SSHLocalPort}}' "$1"; }
 guest_root() { limactl shell --workdir / "$1" sudo bash -s; }
@@ -49,7 +52,9 @@ cmd_up() {
 		# stdout is not a terminal, so run it under a pseudo-terminal then.
 		local tty=()
 		[[ -t 1 ]] || tty=(script -q /dev/null)
-		"${tty[@]+"${tty[@]}"}" limactl start -y --name "$name" --vm-type vz --rosetta --mount-none \
+		local vm=(--vm-type vz --rosetta)
+		[[ "$VM_KIND" == usb ]] && vm=(--vm-type qemu)
+		"${tty[@]+"${tty[@]}"}" limactl start -y --name "$name" "${vm[@]}" --mount-none \
 			--set '.containerd.system=false | .containerd.user=false' \
 			--cpus 2 --memory 2 --disk 10 "template:ubuntu-$1"
 		;;
@@ -113,7 +118,7 @@ cmd_ssh() {
 
 cmd_stop() { need_ver "${1:-}"; limactl stop "$(vm_name "$1")"; }
 cmd_delete() { need_ver "${1:-}"; limactl delete --force "$(vm_name "$1")"; }
-cmd_list() { limactl list | awk 'NR == 1 || $1 ~ /^tuidesk-ubuntu-/'; }
+cmd_list() { limactl list | awk 'NR == 1 || $1 ~ /^tuidesk-(ubuntu|usb)-/'; }
 
 case "${1:-}" in
 up) shift; cmd_up "$@" ;;

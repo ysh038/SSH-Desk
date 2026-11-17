@@ -376,7 +376,10 @@ MVP = Phase 0 ~ 3.
 - [x] 파일 관리자 연동: Go › My PC, File › Eject this drive(지금 보는 폴더가 있는 드라이브를 Eject, 내장 디스크면 언마운트, 시스템 디스크면 안내만). Go 메뉴에 장치를 하나씩 나열하는 것은 하지 않음
 - 확인(2026-11-12, 실제 동작): WSL Ubuntu 26.04에서 root로 임시 이미지 파일(ext4, loop)을 마운트 스크립트로 마운트 → 한글 파일 쓰기 → 목록·사용량 확인 → 언마운트 스크립트로 해제(마운트 폴더 삭제 확인), 실패한 마운트가 만든 폴더를 지우는 것, 마운트·언마운트 때 감시가 이벤트를 받는 것까지 확인. **남은 확인: 실제 USB 메모리(vfat/exFAT의 uid·utf8 옵션, 전원 끄기), sudo 비밀번호 입력, 리눅스 콘솔·Terminal.app 화면**
 - 확인(2026-11-12): 시나리오 테스트 `internal/desktop/mypc_test.go`(마우스 S4, 키보드 전용, 안전장치)를 WSL Ubuntu 26.04에서 통과, 같은 환경의 실제 lsblk로 창 표시 확인
-- 완료 기준: 시나리오 S4를 마우스만으로, 그리고 키보드만으로 수행 가능. Ubuntu VM에서 loop 장치와 QEMU USB 저장 장치로 확인, 실제 서버의 USB 메모리로 확인
+- 확인(2026-11-17, QEMU USB): 맥에서 Ubuntu 24.04 VM을 QEMU로 띄우고(`scripts/usb-vm.sh`, [ubuntu-vm.md](ubuntu-vm.md)) 이미지 파일을 USB 저장 장치로 꽂아, 일반 사용자 `tester`(sudo가 비밀번호를 물음)로 ssh 접속해 S4를 처음부터 끝까지 수행. 키보드만으로: 꽂기 → "USB drive connected" 알림 → F9 › My PC → Enter → sudo 비밀번호 → `/media/tester/TUIDESK`(vfat, `nosuid,nodev,uid=,gid=,utf8`)가 파일 창으로 열림 → 한글 이름 파일 복사 → Ctrl+E → 비밀번호 → "Safe to remove" → 장치 사라짐, 마운트 폴더 삭제, 파일 창은 상위 폴더로 이동, "Drive disconnected" 알림. 마우스만으로(비밀번호 입력 제외): 메뉴 › My PC → 우클릭 › Mount → 더블클릭으로 열기 → 파일 창 File › Eject this drive. exFAT 스틱은 이 VM 커널에 드라이버가 없어 "This server cannot read that filesystem" 에러와 마운트 폴더 정리까지 확인(성공 경로는 미확인)
+  - 이 확인에서 찾아 고친 것: 타이머가 조금 일찍 깨면 다시 걸리지 않아 시계가 멈추고 알림이 화면에 남던 문제, 알림 시간이 마지막 시계 틱부터 계산되던 문제(`internal/tui`), 장치 이름에 제조사가 두 번 나오던 것("QEMU QEMU HARDDISK")
+- **남은 확인(2026-11-17 기준)**: 실제 서버의 실제 USB 메모리(전원 끄기 후 LED, exFAT 마운트 성공 경로), 리눅스 콘솔·Terminal.app 화면. loop 장치는 "가상"으로 분류되어 My PC에서 마운트를 내놓지 않으므로 완료 기준에서 뺌
+- 완료 기준: 시나리오 S4를 마우스만으로, 그리고 키보드만으로 수행 가능. Ubuntu VM에서 QEMU USB 저장 장치로 확인(✅ 2026-11-17), 실제 서버의 USB 메모리로 확인(대기)
 
 ### Phase 6 — MCP 서버 (full 빌드)
 - [ ] 8.1 도구, 승인 다이얼로그, 감사 로그, 경로 화이트리스트
