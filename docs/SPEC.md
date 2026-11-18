@@ -269,6 +269,30 @@ server {
 - 파일 관리자 연동: Go › My PC로 이 창을 열고, File › Eject this drive로 지금 보고 있는 폴더가 있는 드라이브를 Eject한다(My PC 창이 열리며 진행 상황을 보여 준다).
 - 리눅스 콘솔: 사용량 막대와 아이콘은 ASCII로 그린다. 한글 라벨은 파일명과 같은 방식으로 이스케이프한다.
 
+### 7.9 작업 관리자 — Task Manager (Phase 6, 2026-11-18 추가)
+- 목표: 이 서버에서 돌고 있는 프로그램을 보고, CPU·메모리를 많이 쓰는 것을 찾고, 멈춘 것을 끝낸다. `ps`, `top`, `kill`을 치지 않아도 된다. lite 빌드에 포함한다.
+- 여는 방법: 런처(F9) › Task Manager. 바탕화면 아이콘으로 두려면 설정 파일에 `app = "tasks"`.
+- 화면(위에서 아래로)
+  - 요약 줄: CPU 막대와 %, 메모리 막대와 사용량, 부하(1분), 가동 시간, 스왑(쓰고 있을 때만).
+  - 안내 줄: `10 of 116 · my processes · filter: ...`
+  - 목록: PID, User, CPU %(코어 하나 = 100), Memory(RSS), State, Command(명령줄 전체). 제목 줄을 클릭하면 그 열로 정렬, 다시 클릭하면 반대 순서.
+- 동작 (마우스 / 키보드)
+  - 기본은 **내 프로세스만**. View › Show processes of all users(Ctrl+A)로 전체. 커널 스레드는 View › Show kernel threads를 켜야 보인다.
+  - 필터: 글자를 치면 이름·명령줄·사용자·PID에서 찾는다(파일 창과 같은 방식). Esc로 지운다.
+  - End task(Delete): 확인 후 SIGTERM. Force quit(Shift+Delete): 확인 후 SIGKILL. 우클릭 메뉴 / Shift+F10, 메뉴 바, 명령 검색에도 있다.
+  - Properties(Enter, 더블클릭, Ctrl+P): 부모 프로세스, 상태, 스레드 수, 작업 폴더, 실행 파일, 명령줄. Open its working folder, Copy PID, Copy command line.
+  - 갱신: 기본 2초. View 메뉴에서 1초 / 2초 / 5초 / 일시 정지(F5로 수동 갱신). 선택은 PID를 따라가므로 목록이 바뀌어도 다른 줄로 튀지 않는다.
+- 안전
+  - PID 1, 커널 스레드, tuidesk 자신은 끝낼 수 없다(이유를 알려 준다).
+  - tuidesk가 그 안에서 돌고 있는 프로그램(셸, sshd 세션)을 끝내려 하면 "접속이 끊길 수 있다"는 경고를 확인창에 넣는다.
+  - 다른 사용자의 프로세스는 확인창에서 미리 알리고 `sudo kill`로 보낸다(비밀번호 규칙은 7.2.1). root로 실행한다고 가정하지 않는다.
+  - 그사이 이미 끝난 프로세스는 에러가 아니라 알림으로 처리한다.
+- 정보 수집: `/proc`을 직접 읽는다(ADR 0006). 파싱·정렬·필터·CPU 계산은 순수 함수(`internal/procs`)로 두고 픽스처로 테스트한다. `/proc`이 없는 시스템(macOS 개발 환경)에서는 창에 그 사실을 알린다.
+- 렌더링: 창이 열려 있는 동안에만 이 창의 타이머가 돈다. 닫으면 멈춘다(CLAUDE.md 규칙 9).
+- My PC 연동: Unmount/Eject가 `target is busy`로 실패하면 그 폴더를 쓰고 있는 프로세스(작업 폴더, 열린 파일)를 이름과 PID로 보여 준다. 다른 사용자의 프로세스는 root 없이는 볼 수 없어 빠진다.
+- 리눅스 콘솔: 한글 명령줄은 파일명과 같은 방식으로 이스케이프한다.
+- 비목표(지금은): 프로세스 트리 보기, 우선순위(nice) 변경, 일시 정지/재개 신호, 프로세스별 열린 파일 목록, CPU 그래프.
+
 ## 8. AI / MCP 통합 (full 빌드 전용, 기본 OFF)
 
 원칙
@@ -386,7 +410,7 @@ MVP = Phase 0 ~ 3.
 
 ### Phase 5 — My PC: 장치와 드라이브 (2026-11-12 변경)
 
-방향 변경: AI/MCP보다 "OS에 더 가까운 기능"을 먼저 한다. 그 첫 번째가 My PC(7.8)다. MCP 서버와 AI 패널은 Phase 6, 7로 미뤘다.
+방향 변경: AI/MCP보다 "OS에 더 가까운 기능"을 먼저 한다. 그 첫 번째가 My PC(7.8)다. MCP 서버와 AI 패널은 뒤로 미뤘다(2026-11-18 기준 Phase 7, 8).
 
 - [x] ADR 0005: 장치 목록 수집(lsblk JSON), 마운트 방식(sudo mount), 핫플러그 감지 방식
 - [x] `internal/devices`: lsblk 파싱, 분류(시스템/이동식/네트워크/숨김), 사용량, 마운트 위치 이름 정리, mount/umount/전원 끄기 명령 생성 — 순수 함수 + 픽스처 테스트(한글 라벨, 신·구 lsblk 출력). WSL Ubuntu 26.04의 실제 lsblk로 목록 확인 (2026-11-12)
@@ -413,12 +437,27 @@ MVP = Phase 0 ~ 3.
   - [ ] `/mnt/offline` 고정 마운트 폴더, Eject 없이 뽑은 뒤 정리
   - [ ] 리눅스 콘솔·Terminal.app에서 My PC와 설정 창 화면
 
-### Phase 6 — MCP 서버 (full 빌드)
+### Phase 6 — 작업 관리자 (2026-11-18 추가)
+
+"OS에 가까운 기능"의 두 번째(7.9). MCP 서버와 AI 패널은 Phase 7, 8로 한 칸씩 미뤘다.
+
+- [x] ADR 0006: 프로세스 정보 수집(`/proc` 직접), 갱신 방식(창 단위 타이머), 신호 보내기
+- [x] `internal/procs`: stat/status/cmdline/meminfo/stat 파싱, 두 스냅샷으로 CPU % 계산, 정렬, 필터, 조상 프로세스, 폴더를 쓰는 프로세스 찾기 — 픽스처 테스트(괄호·공백이 든 이름, 한글 인자, 커널 스레드, 사라진 프로세스)
+- [x] 작업 관리자 창(`internal/apps/taskmgr`): 요약 줄, 목록, 열 정렬, 입력 필터, 내 프로세스/전체, End task·Force quit, Properties, 갱신 주기
+- [x] 안전장치: PID 1·커널 스레드·tuidesk 자신 거부, 자기 세션 경고, 다른 사용자는 `sudo kill`
+- [x] 런처(F9 › Task Manager), 바탕화면 아이콘(`app = "tasks"`), 도움말, 설정값 `task_manager_seconds`
+- [x] My PC: Unmount/Eject가 busy로 실패하면 사용 중인 프로세스 표시(Phase 5에서 미뤄 둔 것)
+- 확인(2026-11-18): 시나리오 테스트 `internal/desktop/taskmgr_test.go`(키보드만, 마우스만, 안전장치, busy 드라이브) 통과, `-race` 통과
+- 확인(2026-11-18, Ubuntu 24.04 QEMU VM, 일반 사용자 tester): 실제 `/proc`으로 목록·요약 표시, 무한 루프 셸이 CPU 100 % 안팎으로 맨 위에 오는 것, `sleep 600`을 필터로 찾아 End task로 종료, 무한 루프를 Force quit으로 종료, Ctrl+A로 전체 사용자 표시
+- **남은 확인**: 다른 사용자 프로세스의 실제 `sudo kill`(테스트 대역으로만 확인), 프로세스가 수천 개인 서버에서의 속도, 리눅스 콘솔·Terminal.app 화면
+- 완료 기준: 키보드만으로, 그리고 마우스만으로 "CPU를 많이 쓰는 프로그램을 찾아 끝내기"를 수행 가능 — ✅ 시나리오 테스트와 VM 확인(2026-11-18)
+
+### Phase 7 — MCP 서버 (full 빌드)
 - [ ] 8.1 도구, 승인 다이얼로그, 감사 로그, 경로 화이트리스트
 - [ ] 터미널 창 안의 MCP 클라이언트 연결 문서
 - 완료 기준: 시나리오 S3에서 editor_open, editor_get_selection 동작
 
-### Phase 7 — AI 패널 (full 빌드)
+### Phase 8 — AI 패널 (full 빌드)
 - [ ] provider 추상화(Anthropic / OpenAI 호환 / 없음)
 - [ ] 컨텍스트 첨부, 도구 호출 승인 흐름
 
@@ -444,6 +483,6 @@ MVP = Phase 0 ~ 3.
 - 아이콘 보기에서 Nerd Font 사용 여부(사용자 맥에 폰트 설치 필요)
 - 같은 서버 다중 사용자 사용 시 설정/휴지통 분리 정책
 - root로 실행했을 때의 정책(경고만 / 차단)
-- My PC 다음에 넣을 "OS에 가까운 기능"의 순서(후보: 작업 관리자(프로세스), systemd 서비스 관리, 시스템 정보, 로그 보기, 네트워크 상태)
+- 작업 관리자 다음에 넣을 "OS에 가까운 기능"의 순서(후보: systemd 서비스 관리, 시스템 정보, 로그 보기, 네트워크 상태)
 - My PC 핫플러그 감지 방식(ADR 0005에서 결정)
 - 리눅스 콘솔에서 한글 표시 방식(`?` 대체 / `\uXXXX` 이스케이프 / 상태줄에 원래 이름 별도 표시 등)
