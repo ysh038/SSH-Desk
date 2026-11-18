@@ -14,6 +14,7 @@ import (
 	"tuidesk/internal/apps/files"
 	"tuidesk/internal/apps/mypc"
 	"tuidesk/internal/apps/settings"
+	"tuidesk/internal/apps/taskmgr"
 	"tuidesk/internal/apps/viewer"
 	"tuidesk/internal/config"
 	"tuidesk/internal/desktop"
@@ -53,6 +54,8 @@ func main() {
 	d.OpenText = func(path string) { openText(d, path) }
 	pcDeps := mypc.SystemDeps()
 	d.NewMyPC = func() wm.App { return mypc.New(d, pcDeps) }
+	taskDeps := taskmgr.SystemDeps()
+	d.NewTaskManager = func() wm.App { return taskmgr.New(d, taskDeps) }
 	// Hot-plug (ADR 0005): the kernel wakes the monitor; nothing polls.
 	mon := mypc.NewMonitor(d, pcDeps.Source)
 	mon.Check()

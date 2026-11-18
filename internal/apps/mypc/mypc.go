@@ -14,6 +14,7 @@ import (
 	"tuidesk/internal/devices"
 	"tuidesk/internal/fsops"
 	"tuidesk/internal/host"
+	"tuidesk/internal/procs"
 	"tuidesk/internal/sudo"
 	"tuidesk/internal/term"
 	"tuidesk/internal/ui"
@@ -29,6 +30,8 @@ type Deps struct {
 	Exists func(path string) bool
 	// MediaBase is where volumes are mounted ("" = /media/<user>).
 	MediaBase string
+	// Users finds the processes that keep a folder busy (nil: not shown).
+	Users func(dir string) []procs.User
 	// IsDir reports an existing folder (the mount folder of Settings ›
 	// Storage & USB); nil = ask the filesystem.
 	IsDir    func(path string) bool
@@ -39,7 +42,7 @@ type Deps struct {
 
 // SystemDeps reads the real machine as the current user.
 func SystemDeps() Deps {
-	d := Deps{Source: devices.System(), Run: sudo.Exec, Usage: devices.Usage, Exists: dirTaken, User: "user"}
+	d := Deps{Source: devices.System(), Run: sudo.Exec, Usage: devices.Usage, Exists: dirTaken, User: "user", Users: procs.System().UsingDir}
 	if u, err := user.Current(); err == nil {
 		d.User, d.Home = u.Username, u.HomeDir
 		d.UID, _ = strconv.Atoi(u.Uid)
@@ -607,7 +610,7 @@ func (a *App) unmount(v devices.Volume) {
 	host.RunSudo(a.h, a.dep.Run, a.dep.User, "Unmounting "+name+" - do not remove the drive", cmds, func(out []byte, err error) {
 		a.h.FilesChanged()
 		if err != nil {
-			a.fail("Cannot unmount "+name, name, out, err)
+			a.fail("Cannot unmount "+name, name, out, err, dirs...)
 			return
 		}
 		a.h.Notify("Unmounted "+name, false)
@@ -663,15 +666,43 @@ func (a *App) eject(v devices.Volume) {
 	host.RunSudo(a.h, a.dep.Run, a.dep.User, "Ejecting "+name+" - do not remove the drive yet", cmds, func(out []byte, err error) {
 		a.h.FilesChanged()
 		if err != nil {
-			a.fail("Cannot eject "+name, name, out, err)
+			a.fail("Cannot eject "+name, name, out, err, dirs...)
 			return
 		}
 		a.h.Notify("Safe to remove "+name, false)
 	})
 }
 
-// fail explains a failed sudo command.
-func (a *App) fail(title, name string, out []byte, err error) {
+// busyBy lists the programs that keep dirs busy, for the "in use" message.
+// Programs of other users cannot be seen without root.
+func (a *App) busyBy(dirs []string) string {
+	if a.dep.Users == nil {
+		return ""
+	}
+	var lines []string
+	seen := map[int]bool{}
+	for _, d := range dirs {
+		for _, u := range a.dep.Users(d) {
+			if seen[u.PID] {
+				continue
+			}
+			seen[u.PID] = true
+			if len(lines) == 6 {
+				lines = append(lines, "- ...and more")
+				break
+			}
+			lines = append(lines, fmt.Sprintf("- %s (PID %d): %s %s", a.display(u.Name), u.PID, u.What, a.display(u.Path)))
+		}
+	}
+	if len(lines) == 0 {
+		return ""
+	}
+	return "\nIn use by:\n" + strings.Join(lines, "\n") + "\nEnd them in the Task Manager (" + term.KeyLabel("F9") + " > Task Manager) or leave that folder."
+}
+
+// fail explains a failed sudo command. dirs are the folders that were
+// being unmounted.
+func (a *App) fail(title, name string, out []byte, err error, dirs ...string) {
 	if err == context.Canceled {
 		a.h.Notify("Cancelled", true)
 		return
@@ -681,7 +712,7 @@ func (a *App) fail(title, name string, out []byte, err error) {
 	switch {
 	case msg != "":
 	case strings.Contains(text, "target is busy"):
-		msg = name + " is in use. Close the programs and files that use it, then try again."
+		msg = name + " is in use. Close the programs and files that use it, then try again." + a.busyBy(dirs)
 	case strings.Contains(text, "unknown filesystem type"):
 		msg = "This server cannot read that filesystem (the driver is not installed)."
 	case text != "":

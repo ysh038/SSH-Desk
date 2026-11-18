@@ -84,6 +84,9 @@ func (d *Desktop) iconText(ic config.DesktopIcon) string {
 		if ic.App == "mypc" {
 			return "[PC ]"
 		}
+		if ic.App == "tasks" {
+			return "[TSK]"
+		}
 		if m, ok := d.findApp(ic.App); ok && m.Icon != "" {
 			icon := []rune(m.Icon)
 			if len(icon) > 3 {
@@ -168,6 +171,8 @@ func (d *Desktop) openIcon(i int) {
 			d.openFolder(d.HomeDir)
 		case "mypc":
 			d.openMyPC()
+		case "tasks":
+			d.openTaskManager()
 		case "help":
 			d.run("help", nil)
 		case "terminal":
@@ -469,6 +474,22 @@ func (d *Desktop) openMyPC() {
 	}
 	d.mypc = d.OpenWindow(d.NewMyPC())
 	d.M.ResizeTo(d.mypc, min(88, d.Area().W-4), min(20, d.Area().H-2))
+}
+
+// openTaskManager shows the Task Manager (SPEC 7.9), raising it when it is
+// already open.
+func (d *Desktop) openTaskManager() {
+	if d.NewTaskManager == nil {
+		return
+	}
+	for _, w := range d.M.Windows() {
+		if w == d.tasks {
+			d.M.Raise(w)
+			return
+		}
+	}
+	d.tasks = d.OpenWindow(d.NewTaskManager())
+	d.M.ResizeTo(d.tasks, min(100, d.Area().W-2), min(24, d.Area().H-1))
 }
 
 // EjectDir ejects the drive that holds dir through the My PC window

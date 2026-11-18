@@ -23,7 +23,7 @@ type Validator struct {
 }
 
 // DesktopIcon is a desktop shortcut (SPEC 7.1): a folder or file (Path,
-// "~" = home), a built-in app (App: "terminal", "editor", "files", "mypc", "help") or
+// "~" = home), a built-in app (App: "terminal", "editor", "files", "mypc", "tasks", "help") or
 // an app manifest by name (SPEC 8.3).
 type DesktopIcon struct {
 	Name string `toml:"name"`
@@ -88,6 +88,10 @@ type Config struct {
 	MountDir      string `toml:"removable_mount_dir"`
 	MountReadOnly bool   `toml:"mount_read_only"`
 
+	// TaskSeconds is how often the Task Manager updates: 1, 2 or 5
+	// seconds, 0 = paused (SPEC 7.9).
+	TaskSeconds int `toml:"task_manager_seconds"`
+
 	// Privacy & Security. Clipboard lets Copy reach the user's own
 	// computer (OSC 52).
 	Clipboard bool `toml:"copy_to_local_clipboard"`
@@ -132,6 +136,9 @@ func (c *Config) Normalize() {
 	c.FilesView = oneOf(c.FilesView, d.FilesView, "list", "icons")
 	c.FilesSort = oneOf(c.FilesSort, d.FilesSort, "name", "size", "date")
 	c.Scrollback = within(c.Scrollback, d.Scrollback, MinScrollback, MaxScrollback)
+	if c.TaskSeconds != 0 && c.TaskSeconds != 1 && c.TaskSeconds != 5 {
+		c.TaskSeconds = 2
+	}
 	c.Shell = strings.TrimSpace(c.Shell)
 	c.MountDir = CleanMountDir(c.MountDir)
 }
@@ -177,6 +184,7 @@ func Default() Config {
 		FilesView:     "list",
 		FilesSort:     "name",
 		Scrollback:    5000,
+		TaskSeconds:   2,
 		Clipboard:     true,
 		WarnRoot:      true,
 		Validators: []Validator{

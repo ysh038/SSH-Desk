@@ -48,6 +48,9 @@ type Desktop struct {
 	OpenText func(path string)
 	// NewMyPC creates the My PC window (SPEC 7.8, set by main).
 	NewMyPC func() wm.App
+	// NewTaskManager creates the Task Manager window (SPEC 7.9, set by main).
+	NewTaskManager func() wm.App
+	tasks          *wm.Window
 	// NewSettings creates the Settings window (SPEC 7.7, set by main).
 	NewSettings func() wm.App
 	settings    *wm.Window
@@ -351,6 +354,7 @@ func (d *Desktop) openLauncher(x, y int) {
 	items := []ui.MenuItem{
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
 		{Label: "My PC", Hotkey: 'm', Action: "mypc", Disabled: d.NewMyPC == nil},
+		{Label: "Task Manager", Hotkey: 'k', Action: "tasks", Disabled: d.NewTaskManager == nil},
 		{Label: "Terminal", Hotkey: 't', Action: "terminal"},
 		{Label: "Text editor", Hotkey: 'e', Action: "editor"},
 		{Label: "Show desktop", Hotkey: 'd', Action: "desktop"},
@@ -444,6 +448,8 @@ func (d *Desktop) run(action string, target *wm.Window) {
 		d.OpenText("")
 	case action == "mypc":
 		d.openMyPC()
+	case action == "tasks":
+		d.openTaskManager()
 	case action == "terminal":
 		d.OpenTerminal(d.selectedDir(), nil, false)
 	case strings.HasPrefix(action, "app:"):
@@ -532,6 +538,7 @@ var helpSections = []struct {
 		{"F9", "Menu (launcher)"}, {"Ctrl+N", "New window (file manager at /)"},
 		{"F9 > Show desktop", "Desktop icons: arrows, Enter opens, Delete removes"},
 		{"F9 > Settings", "All settings; type to search them"},
+		{"F9 > Task Manager", "Running programs: type to filter, Delete ends one"},
 		{"F9 > My PC", "Drives and USB devices: Enter opens (mounts first)"},
 		{"Ctrl+U / Ctrl+E", "In My PC: unmount / eject (safe to remove)"},
 		{"F9 > Terminal", "Shell window (every key goes to the shell)"},
