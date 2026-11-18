@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -13,6 +14,7 @@ import (
 
 	"tuidesk/internal/apps/files"
 	"tuidesk/internal/apps/mypc"
+	"tuidesk/internal/config"
 	"tuidesk/internal/devices"
 	"tuidesk/internal/term"
 	"tuidesk/internal/wm"
@@ -22,14 +24,17 @@ import (
 // vfat). sudo mount/umount act on a temporary media folder, never on real
 // devices (CLAUDE.md rule 6).
 type fakePC struct {
-	mu       sync.Mutex
-	plugged  bool
-	mounted  map[string]string // device → folder
-	opts     string            // options of the last mount
-	calls    []string
-	stdins   []string
-	ejected  []string
-	busy     bool // umount fails with "target is busy"
+	mu      sync.Mutex
+	plugged bool
+	mounted map[string]string // device → folder
+	opts    string            // options of the last mount
+	calls   []string
+	stdins  []string
+	ejected []string
+	busy    bool // umount fails with "target is busy"
+	// stale is a folder still mounted from /dev/sdz1, a drive that was
+	// pulled out without Eject ("" = none).
+	stale    string
 	nopasswd bool
 }
 
@@ -54,6 +59,11 @@ func (p *fakePC) lsblk(context.Context, string, []string, []byte) ([]byte, error
 func (p *fakePC) readFile(path string) ([]byte, error) {
 	if path == "/etc/fstab" {
 		return []byte("UUID=root-uuid / ext4 defaults 0 1\n"), nil
+	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if path == "/proc/self/mountinfo" && p.stale != "" {
+		return []byte("40 25 8:200 / " + p.stale + " rw,nosuid - vfat /dev/sdz1 rw\n"), nil
 	}
 	return nil, errors.New("no such file")
 }
@@ -102,7 +112,16 @@ func (p *fakePC) sudo(_ context.Context, name string, args []string, stdin []byt
 				delete(p.mounted, dev)
 			}
 		}
-		os.RemoveAll(dir)
+		if dir == p.stale {
+			if !strings.Contains(script, "umount -l") {
+				return []byte("umount: " + dir + ": target is busy.\n"), &exitErr{}
+			}
+			p.stale = ""
+		}
+		os.Remove(filepath.Join(dir, "사진.txt"))
+		if strings.HasPrefix(dir, rest[1]+"/") { // like the script: only our own folders
+			os.Remove(dir)
+		}
 	case strings.Contains(script, "mount -o"):
 		dir, opts, dev := rest[0], rest[1], rest[2]
 		if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -459,5 +478,187 @@ func TestFilesEjectThisDrive(t *testing.T) {
 	h.settle()
 	if h.pc.sudoCalls() != before || !h.screenHas("Cannot eject: ") {
 		t.Errorf("system folder: %d sudo calls", h.pc.sudoCalls()-before)
+	}
+}
+
+// fixedDir sets Settings › Storage & USB › "Mount USB drives at" to a
+// folder like the server's /mnt/offline.
+func (h *pcHarness) fixedDir(create bool) string {
+	h.t.Helper()
+	dir := filepath.Join(h.root, "mnt", "offline")
+	if create {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			h.t.Fatal(err)
+		}
+	}
+	h.d.UpdateConfig(func(c *config.Config) { c.MountDir = dir })
+	return dir
+}
+
+func (h *pcHarness) openMyPC() *wm.Window {
+	h.key("F9", 0)
+	h.rune('m', 0)
+	h.settle()
+	w := h.window()
+	w.Rect = wm.Rect{X: 1, Y: 1, W: 98, H: 16}
+	return w
+}
+
+// A fixed mount folder (the server's /mnt/offline): the stick is mounted
+// there, and Eject empties the folder but never removes it.
+func TestMountAtTheConfiguredFolder(t *testing.T) {
+	h := newPC(t)
+	h.pc.nopasswd = true
+	fixed := h.fixedDir(true)
+	h.openMyPC()
+	if !h.screenHas("Removable devices  (mounted at ") {
+		t.Fatal("My PC does not say where drives are mounted")
+	}
+	h.key("End", 0)
+	h.key("Enter", 0)
+	h.settle()
+	if h.pc.mounted["/dev/sdb1"] != fixed {
+		t.Fatalf("mounted %v, want %s", h.pc.mounted, fixed)
+	}
+	fa, _ := h.filesWindow()
+	if fa.Dir() != fixed {
+		t.Fatalf("file window shows %q", fa.Dir())
+	}
+	h.d.M.Raise(h.window())
+	h.rune('e', term.ModCtrl)
+	h.settle()
+	if len(h.pc.mounted) != 0 || len(h.pc.ejected) != 1 {
+		t.Fatalf("after eject: mounted %v, ejected %v", h.pc.mounted, h.pc.ejected)
+	}
+	if fi, err := os.Stat(fixed); err != nil || !fi.IsDir() {
+		t.Fatal("Eject removed the configured mount folder")
+	}
+	for _, c := range h.pc.calls {
+		if strings.Contains(c, "umount") && !strings.HasSuffix(c, " "+fixed+" "+h.media) {
+			t.Errorf("umount must name the folder and the media base: %q", c)
+		}
+	}
+}
+
+// The folder is never created for the user: a typing mistake in the
+// settings file must not make root create folders.
+func TestConfiguredFolderMissing(t *testing.T) {
+	h := newPC(t)
+	h.pc.nopasswd = true
+	fixed := h.fixedDir(false)
+	h.openMyPC()
+	h.key("End", 0)
+	before := h.pc.sudoCalls()
+	h.key("Enter", 0)
+	h.settle()
+	if !h.d.DialogOpen() || !h.screenHas("Cannot mount") || h.pc.sudoCalls() != before {
+		t.Fatalf("missing folder: dialog %v, sudo calls %d -> %d", h.d.DialogOpen(), before, h.pc.sudoCalls())
+	}
+	if _, err := os.Stat(fixed); err == nil {
+		t.Fatal("the folder was created")
+	}
+}
+
+// The user's case: a stick was pulled out while mounted on /mnt/offline, so
+// the folder is still held (and the next stick gets another device name).
+// My PC shows the dead mount, and mounting the next stick cleans it up
+// first, with one password.
+func TestRemovedDriveIsCleanedUpBeforeTheNextMount(t *testing.T) {
+	h := newPC(t)
+	fixed := h.fixedDir(true)
+	h.pc.stale = fixed
+	h.openMyPC()
+	if !h.screenHas("/dev/sdz1") || !h.screenHas("Removed without Eject") {
+		t.Fatal("the dead mount is not shown")
+	}
+
+	y := h.rowY("/dev/sdb1")
+	h.click(h.window().Inner().X+5, y)
+	h.key("Enter", 0)
+	h.settle()
+	if !h.screenHas("Clean up and mount") {
+		t.Fatal("no question about the folder that is still held")
+	}
+	h.key("Enter", 0) // Clean up and mount
+	h.password("pw")
+	if h.pc.stale != "" || h.pc.mounted["/dev/sdb1"] != fixed {
+		t.Fatalf("stale %q, mounted %v, calls %q", h.pc.stale, h.pc.mounted, h.pc.calls)
+	}
+	asked := 0
+	for _, in := range h.pc.stdins {
+		if in == "pw\n" {
+			asked++
+		}
+	}
+	if asked != 2 { // one prompt, used for the two commands
+		t.Errorf("password used %d times, want 2 (clean up, mount)", asked)
+	}
+	if fi, err := os.Stat(fixed); err != nil || !fi.IsDir() {
+		t.Fatal("cleaning up removed the configured folder")
+	}
+}
+
+// Without a new stick: Ctrl+U on the dead mount cleans it up, and the
+// monitor says so when it appears.
+func TestCleanUpByKeyAndNotification(t *testing.T) {
+	h := newPC(t)
+	h.pc.nopasswd = true
+	h.pc.plug(false)
+	src := devices.Source{ReadFile: h.pc.readFile, Run: h.pc.lsblk}
+	mon := mypc.NewMonitor(h.d, src)
+	mon.Check()
+	h.settle()
+	h.d.UpdateConfig(func(c *config.Config) { c.NotifyDrives = false })
+
+	stale := filepath.Join(h.root, "mnt", "old")
+	os.MkdirAll(stale, 0o755)
+	h.pc.mu.Lock()
+	h.pc.stale = stale
+	h.pc.mu.Unlock()
+	mon.Check()
+	h.settle()
+	if !h.screenHas("Drive removed without Eject") {
+		t.Fatal("a dead mount must be announced even with drive notifications off")
+	}
+	h.openMyPC()
+	h.key("End", 0)
+	h.rune('u', term.ModCtrl)
+	h.settle()
+	if h.pc.stale != "" || !h.screenHas("Cleaned up") || h.screenHas("/dev/sdz1") {
+		t.Fatalf("not cleaned up: stale %q", h.pc.stale)
+	}
+	if last := h.pc.calls[len(h.pc.calls)-1]; !strings.Contains(last, "umount -l") {
+		t.Errorf("clean-up call %q", last)
+	}
+
+	// Plugging in is not announced while the setting is off.
+	h.pc.plug(true)
+	mon.Check()
+	h.settle()
+	if h.screenHas("USB drive connected") {
+		t.Fatal("drive notifications are off")
+	}
+}
+
+// Settings › Storage & USB › read-only: Enter mounts read-only, and the
+// menu still offers a writable mount.
+func TestMountReadOnlyByDefault(t *testing.T) {
+	h := newPC(t)
+	h.pc.nopasswd = true
+	h.d.UpdateConfig(func(c *config.Config) { c.MountReadOnly = true })
+	w := h.openMyPC()
+	h.key("End", 0)
+	h.key("Enter", 0)
+	h.settle()
+	if !strings.HasPrefix(h.pc.opts, "ro,") {
+		t.Fatalf("mount options %q", h.pc.opts)
+	}
+	h.d.M.Raise(w)
+	h.rune('u', term.ModCtrl)
+	h.settle()
+	h.d.M.Raise(w)
+	h.key("F10", term.ModShift)
+	if !slices.Contains(menuLabels(h.fmHarness), "Mount for writing") {
+		t.Fatalf("menu: %v", menuLabels(h.fmHarness))
 	}
 }

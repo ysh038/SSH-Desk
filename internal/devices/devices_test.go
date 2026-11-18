@@ -391,3 +391,42 @@ func TestModelName(t *testing.T) {
 		}
 	}
 }
+
+// A drive pulled out while mounted: lsblk no longer lists it, the mount is
+// still in mountinfo (the user's server: /mnt/offline, then sdb1, sdc1...).
+func TestStaleMountOfRemovedDrive(t *testing.T) {
+	lsblk := `{"blockdevices":[
+ {"name":"sda","path":"/dev/sda","type":"disk","size":500000000000,"rm":false,"children":[
+   {"name":"sda2","path":"/dev/sda2","type":"part","size":400000000000,"fstype":"ext4","uuid":"root","mountpoints":["/"]}]},
+ {"name":"sdc","path":"/dev/sdc","type":"disk","size":8000000000,"rm":true,"hotplug":true,"tran":"usb","children":[
+   {"name":"sdc1","path":"/dev/sdc1","type":"part","size":7999000000,"fstype":"vfat","label":"한글 USB","mountpoints":[null]}]}]}`
+	mountinfo := `25 1 8:2 / / rw,relatime shared:1 - ext4 /dev/sda2 rw
+40 25 8:17 / /mnt/offline rw,nosuid,nodev shared:2 - vfat /dev/sdb1 rw,uid=1000
+41 25 0:40 / /run/user/1000/doc rw - fuse /dev/fuse rw
+42 25 0:41 / /mnt/nas rw - nfs4 nas:/export rw
+`
+	vols, err := Build([]byte(lsblk), "UUID=root / ext4 defaults 0 1\n", mountinfo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var stale []Volume
+	for _, v := range vols {
+		if v.Stale {
+			stale = append(stale, v)
+		}
+	}
+	if len(stale) != 1 {
+		t.Fatalf("stale volumes: %+v", stale)
+	}
+	s := stale[0]
+	if s.Dev != "/dev/sdb1" || s.MountPoint() != "/mnt/offline" || s.Kind != Removable || s.Mountable() || s.Ejectable || !s.CanUnmount() {
+		t.Fatalf("stale volume: %+v", s)
+	}
+	if got := StaleDirs(vols); len(got) != 1 || got[0] != "/mnt/offline" {
+		t.Fatalf("StaleDirs = %v", got)
+	}
+	cmd := CleanUpCommand("/mnt/offline", "/media/kim")
+	if !strings.Contains(cmd[2], "umount -l") || cmd[4] != "/mnt/offline" {
+		t.Fatalf("clean-up command: %q", cmd)
+	}
+}

@@ -29,9 +29,12 @@ type Deps struct {
 	Exists func(path string) bool
 	// MediaBase is where volumes are mounted ("" = /media/<user>).
 	MediaBase string
-	User      string
-	UID, GID  int
-	Home      string
+	// IsDir reports an existing folder (the mount folder of Settings ›
+	// Storage & USB); nil = ask the filesystem.
+	IsDir    func(path string) bool
+	User     string
+	UID, GID int
+	Home     string
 }
 
 // SystemDeps reads the real machine as the current user.
@@ -53,6 +56,26 @@ func (a *App) mediaBase() string {
 		return a.dep.MediaBase
 	}
 	return devices.MediaBase(a.dep.User)
+}
+
+func (a *App) isDir(p string) bool {
+	if a.dep.IsDir != nil {
+		return a.dep.IsDir(p)
+	}
+	fi, err := os.Stat(p)
+	return err == nil && fi.IsDir()
+}
+
+// holder returns the volume mounted on dir.
+func (a *App) holder(dir string) (devices.Volume, bool) {
+	for _, v := range a.vols {
+		for _, m := range v.Mounts {
+			if m == dir {
+				return v, true
+			}
+		}
+	}
+	return devices.Volume{}, false
 }
 
 // dirTaken: anything but a missing path or an empty folder (a leftover
@@ -229,7 +252,11 @@ func (a *App) rebuildKeeping(keep string) {
 		rows = append(rows, row{vol: -1}, row{note: "Reading devices...", vol: -1})
 	default:
 		section("Drives", devices.Fixed, "")
-		section("Removable devices", devices.Removable, "None. Plug in a USB drive, then press "+term.KeyLabel("F5")+".")
+		removable := "Removable devices"
+		if dir := a.h.Config().MountDir; dir != "" {
+			removable += "  (mounted at " + a.display(dir) + ")"
+		}
+		section(removable, devices.Removable, "None. Plug in a USB drive, then press "+term.KeyLabel("F5")+".")
 		section("Network", devices.Network, "")
 		if a.showAll {
 			section("System volumes", devices.Virtual, "")
@@ -365,9 +392,9 @@ func (a *App) handleMouse(g term.Gesture) bool {
 	case term.GestureWheel:
 		switch g.Wheel {
 		case term.WheelUp:
-			a.offset -= 3
+			a.offset -= ui.WheelLines
 		case term.WheelDown:
-			a.offset += 3
+			a.offset += ui.WheelLines
 		}
 		a.offset = min(max(a.offset, 0), max(len(a.rows)-max(a.bodyH, 1), 0))
 		return true
@@ -423,9 +450,11 @@ func (a *App) buildCommands() {
 	a.cmds.Add(
 		c("open", "Drive", "Open", "Open", []string{"Enter"}, hasRow, a.open),
 		sep("Drive"),
-		c("mount", "Drive", "Mount", "", nil, vol(devices.Volume.Mountable), withVol(func(v devices.Volume) { a.mount(v, false, nil) })),
+		c("mount", "Drive", "Mount", "", nil, vol(devices.Volume.Mountable), withVol(func(v devices.Volume) { a.mount(v, a.h.Config().MountReadOnly, nil) })),
 		c("mountro", "Drive", "Mount read-only", "", nil, vol(devices.Volume.Mountable), withVol(func(v devices.Volume) { a.mount(v, true, nil) })),
-		c("unmount", "Drive", "Unmount", "Unmount", []string{"Ctrl+U"}, vol(devices.Volume.CanUnmount), withVol(a.unmount)),
+		c("mountrw", "Drive", "Mount for writing", "", nil, vol(func(v devices.Volume) bool { return v.Mountable() && a.h.Config().MountReadOnly }), withVol(func(v devices.Volume) { a.mount(v, false, nil) })),
+		c("unmount", "Drive", "Unmount", "Unmount", []string{"Ctrl+U"}, vol(func(v devices.Volume) bool { return v.CanUnmount() && !v.Stale }), withVol(a.unmount)),
+		c("cleanup", "Drive", "Clean up (drive was removed)", "Clean up", []string{"Ctrl+U"}, vol(func(v devices.Volume) bool { return v.Stale }), withVol(func(v devices.Volume) { a.cleanUp(v, nil) })),
 		c("eject", "Drive", "Eject (safe to remove)", "Eject", []string{"Ctrl+E"}, vol(func(v devices.Volume) bool { return v.Ejectable }), withVol(a.eject)),
 		sep("Drive"),
 		c("props", "Drive", "Properties...", "", []string{"Ctrl+P", "Alt+Enter"}, vol(func(devices.Volume) bool { return true }), withVol(a.properties)),
@@ -440,6 +469,7 @@ func (a *App) buildCommands() {
 			a.showAll = !a.showAll
 			a.rebuild()
 		}),
+		c("mountdir", "View", "Mount location...", "", nil, nil, func() { a.h.OpenSettings("Storage & USB", "mount_dir") }),
 		sep("View"),
 		c("palette", "View", "Command search...", "Commands", []string{"Ctrl+K"}, nil, func() { a.h.ShowPalette(&a.cmds) }),
 	)
@@ -462,10 +492,17 @@ func (a *App) open() {
 	v, _ := a.volume()
 	name := a.display(v.Title())
 	switch {
+	case v.Stale:
+		a.h.Confirm("Drive was removed", name+" was pulled out without Eject. Its files are gone, but "+a.display(v.MountPoint())+
+			" is still held by it.\n\nClean up to free the folder for the next drive.", []string{"Clean up", "Cancel"}, func(c int) {
+			if c == 0 {
+				a.cleanUp(v, nil)
+			}
+		})
 	case v.Mounted():
 		a.h.OpenFolder(v.MountPoint())
 	case v.Mountable():
-		a.mount(v, false, a.h.OpenFolder)
+		a.mount(v, a.h.Config().MountReadOnly, a.h.OpenFolder)
 	case v.FSType == "":
 		a.h.Notify(name+" has no filesystem: it must be formatted before it can hold files", true)
 	default:
@@ -479,10 +516,38 @@ func (a *App) mount(v devices.Volume, readOnly bool, then func(dir string)) {
 	if !v.Mountable() {
 		return
 	}
-	dir := devices.UniqueDir(a.mediaBase(), devices.MountDirName(v), a.dep.Exists)
-	opts := devices.MountOptions(v.FSType, a.dep.UID, a.dep.GID, readOnly)
 	name := a.display(v.Title())
-	host.RunSudo(a.h, a.dep.Run, a.dep.User, "Mounting "+name, [][]string{devices.MountCommand(v.Dev, dir, opts)}, func(out []byte, err error) {
+	dir := devices.UniqueDir(a.mediaBase(), devices.MountDirName(v), a.dep.Exists)
+	// Settings › Storage & USB: removable drives go to one fixed folder
+	// (ADR 0005). It is never created or removed here, and a second drive
+	// falls back to the default place.
+	if fixed := a.h.Config().MountDir; fixed != "" && v.Kind == devices.Removable {
+		if !a.isDir(fixed) {
+			a.h.ShowError("Cannot mount "+name, "The mount folder "+a.display(fixed)+" does not exist.\nCreate it (sudo mkdir -p "+fixed+") or choose another in Settings > Storage & USB.", "")
+			return
+		}
+		switch old, taken := a.holder(fixed); {
+		case !taken:
+			dir = fixed
+		case old.Stale:
+			a.h.Confirm("Mount "+name, a.display(fixed)+" is still held by a drive that was pulled out without Eject ("+a.display(old.Dev)+").\n\nClean it up and mount "+name+" there?",
+				[]string{"Clean up and mount", "Cancel"}, func(c int) {
+					if c == 0 && a.release(a.display(old.Dev), old.Mounts) {
+						// One sudo run, so the password is asked once.
+						a.mountAt(v, fixed, readOnly, a.cleanUpCommands(old), then)
+					}
+				})
+			return
+		}
+	}
+	a.mountAt(v, dir, readOnly, nil, then)
+}
+
+// mountAt mounts v on dir after running the commands in first.
+func (a *App) mountAt(v devices.Volume, dir string, readOnly bool, first [][]string, then func(dir string)) {
+	name := a.display(v.Title())
+	opts := devices.MountOptions(v.FSType, a.dep.UID, a.dep.GID, readOnly)
+	host.RunSudo(a.h, a.dep.Run, a.dep.User, "Mounting "+name, append(first, devices.MountCommand(v.Dev, dir, opts)), func(out []byte, err error) {
 		if err != nil {
 			a.fail("Cannot mount "+name, name, out, err)
 			return
@@ -546,6 +611,36 @@ func (a *App) unmount(v devices.Volume) {
 			return
 		}
 		a.h.Notify("Unmounted "+name, false)
+	})
+}
+
+func (a *App) cleanUpCommands(v devices.Volume) [][]string {
+	var cmds [][]string
+	for _, m := range v.Mounts {
+		cmds = append(cmds, devices.CleanUpCommand(m, a.mediaBase()))
+	}
+	return cmds
+}
+
+// cleanUp removes the mount a removed drive left behind, then runs then.
+func (a *App) cleanUp(v devices.Volume, then func()) {
+	if !v.Stale {
+		return
+	}
+	name := a.display(v.Dev)
+	if !a.release(name, v.Mounts) {
+		return
+	}
+	host.RunSudo(a.h, a.dep.Run, a.dep.User, "Cleaning up "+name, a.cleanUpCommands(v), func(out []byte, err error) {
+		a.h.FilesChanged()
+		if err != nil {
+			a.fail("Cannot clean up "+name, name, out, err)
+			return
+		}
+		a.h.Notify("Cleaned up "+a.display(v.MountPoint())+": it is free for the next drive", false)
+		if then != nil {
+			then()
+		}
 	})
 }
 
@@ -640,6 +735,8 @@ func (a *App) status(v devices.Volume) string {
 		ro = "  read-only"
 	}
 	switch {
+	case v.Stale:
+		return "Removed without Eject - still holds " + a.display(v.MountPoint()) + " (" + term.KeyLabel("Ctrl+U") + " cleans up)"
 	case v.Swap:
 		return "Swap"
 	case v.Mounted():
@@ -738,6 +835,10 @@ func (a *App) EjectPath(dir string) {
 			return
 		}
 		v := a.vols[best]
+		if v.Stale {
+			a.cleanUp(v, nil)
+			return
+		}
 		for i, r := range a.rows {
 			if r.vol == best {
 				a.sel = i

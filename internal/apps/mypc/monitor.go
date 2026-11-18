@@ -27,6 +27,7 @@ type Monitor struct {
 
 	// UI goroutine only.
 	known  map[string]string
+	stale  map[string]bool // folders held by removed drives, already announced
 	primed bool
 	gen    int
 }
@@ -64,7 +65,11 @@ func (m *Monitor) Check() {
 			return
 		}
 		cur := devices.RemovableDisks(vols)
-		if m.primed {
+		stale := map[string]bool{}
+		for _, dir := range devices.StaleDirs(vols) {
+			stale[dir] = true
+		}
+		if m.primed && m.h.Config().NotifyDrives {
 			added, removed := devices.DiffDisks(m.known, cur)
 			for _, n := range added {
 				m.h.Notify("USB drive connected: "+m.display(n)+" - open My PC to use it", false)
@@ -73,7 +78,16 @@ func (m *Monitor) Check() {
 				m.h.Notify("Drive disconnected: "+m.display(n), false)
 			}
 		}
-		m.known, m.primed = cur, true
+		if m.primed {
+			// Always said, whatever the notification setting: files may be
+			// lost and the folder stays blocked until it is cleaned up.
+			for dir := range stale {
+				if !m.stale[dir] {
+					m.h.Notify("Drive removed without Eject: "+m.display(dir)+" is still held - open My PC to clean up", true)
+				}
+			}
+		}
+		m.known, m.stale, m.primed = cur, stale, true
 		for _, app := range m.h.Apps() {
 			if a, ok := app.(*App); ok {
 				a.Refresh()

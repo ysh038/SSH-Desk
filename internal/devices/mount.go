@@ -99,6 +99,20 @@ const unmountScript = `umount -- "$1" || exit $?
 case "$1" in "$2"/*) rmdir -- "$1" 2>/dev/null;; esac
 exit 0`
 
+// cleanUpScript removes the mount $1 of a drive that is already gone. A
+// plain umount does it when nothing has the folder open; otherwise the
+// mount is detached (-l) and disappears when the last program lets go.
+// Only for stale mounts: on a living drive -l would hide unwritten data.
+const cleanUpScript = `umount -- "$1" 2>/dev/null || umount -l -- "$1" || exit $?
+case "$1" in "$2"/*) rmdir -- "$1" 2>/dev/null;; esac
+exit 0`
+
+// CleanUpCommand is the command (to run as root) that removes the stale
+// mount on dir. base is MediaBase of the user.
+func CleanUpCommand(dir, base string) []string {
+	return []string{"sh", "-c", cleanUpScript, "sh", dir, base}
+}
+
 // powerOffScript flushes and detaches the disk $1 ("sdb") so it is safe to
 // pull out. Devices without the control file (SD readers, NVMe) are left
 // alone: unmounting was enough.

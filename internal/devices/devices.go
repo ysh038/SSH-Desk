@@ -47,6 +47,10 @@ type Volume struct {
 	// Ejectable is true when the whole disk can be powered off: removable
 	// and no protected volume on it.
 	Ejectable bool
+	// Stale: the device is gone (pulled out without Eject) but its mount
+	// is still there, holding the folder and the device name. It can only
+	// be cleaned up.
+	Stale bool
 }
 
 // Mounted reports whether the volume is mounted somewhere.
@@ -79,7 +83,7 @@ var containers = map[string]bool{"LVM2_member": true, "crypto_LUKS": true, "linu
 
 // Mountable reports whether Mount can be offered.
 func (v Volume) Mountable() bool {
-	return v.FSType != "" && !v.Swap && !containers[v.FSType] && !v.Mounted() &&
+	return v.FSType != "" && !v.Swap && !containers[v.FSType] && !v.Mounted() && !v.Stale &&
 		(v.Kind == Fixed || v.Kind == Removable)
 }
 
@@ -286,9 +290,56 @@ func Build(lsblk []byte, fstab, mountinfo string) ([]Volume, error) {
 		v := &vols[i]
 		v.Ejectable = v.Kind == Removable && v.Disk != "" && !busy[v.Disk]
 	}
+	vols = append(vols, staleVolumes(vols, mounts)...)
 	vols = append(vols, networkVolumes(mounts)...)
 	sort.SliceStable(vols, func(i, j int) bool { return vols[i].Kind < vols[j].Kind })
 	return vols, nil
+}
+
+// diskFS are the filesystems of real disks: only their mounts can be left
+// behind by a drive that was pulled out.
+var diskFS = map[string]bool{
+	"vfat": true, "msdos": true, "exfat": true, "ntfs": true, "ntfs3": true, "fuseblk": true,
+	"ext2": true, "ext3": true, "ext4": true, "xfs": true, "btrfs": true, "f2fs": true,
+	"iso9660": true, "udf": true, "hfsplus": true,
+}
+
+// staleVolumes finds mounts whose device lsblk no longer lists: the drive
+// was removed while mounted. The kernel keeps such a mount (and the name
+// sda, so the next drive becomes sdb) until it is unmounted.
+func staleVolumes(vols []Volume, mounts []Mount) []Volume {
+	known, claimed := map[string]bool{}, map[string]bool{}
+	for _, v := range vols {
+		known[v.Dev] = true
+		for _, m := range v.Mounts {
+			claimed[m] = true
+		}
+	}
+	var out []Volume
+	seen := map[string]bool{}
+	for _, m := range mounts {
+		if !strings.HasPrefix(m.Source, "/dev/") || m.Source == "/dev/root" || !diskFS[m.FSType] ||
+			known[m.Source] || claimed[m.Dir] || seen[m.Dir] || systemMount([]string{m.Dir}) {
+			continue
+		}
+		seen[m.Dir] = true
+		out = append(out, Volume{
+			Name: strings.TrimPrefix(m.Source, "/dev/"), Dev: m.Source, FSType: m.FSType,
+			Mounts: []string{m.Dir}, Options: m.Options, ReadOnly: m.ReadOnly(), Kind: Removable, Stale: true,
+		})
+	}
+	return out
+}
+
+// StaleDirs returns the folders still held by removed drives.
+func StaleDirs(vols []Volume) []string {
+	var out []string
+	for _, v := range vols {
+		if v.Stale {
+			out = append(out, v.Mounts...)
+		}
+	}
+	return out
 }
 
 // Siblings returns the mounted volumes on the same disk as v (v included):
