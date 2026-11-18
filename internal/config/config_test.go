@@ -87,3 +87,62 @@ func TestLoadApps(t *testing.T) {
 		t.Fatal("missing folder is fine")
 	}
 }
+
+func TestNormalizeRepairsBadValues(t *testing.T) {
+	c := Default()
+	c.Clock, c.Names, c.FilesView, c.FilesSort = "25h", "?", "tiles", "kind"
+	c.DoubleClickMs, c.WheelLines, c.NotifySeconds, c.Scrollback, c.TabSize = 5, 0, 999, -1, 99
+	c.MountDir = "mnt/offline"
+	c.Normalize()
+	d := Default()
+	d.MountDir = ""
+	if c.Clock != d.Clock || c.Names != d.Names || c.FilesView != d.FilesView || c.FilesSort != d.FilesSort ||
+		c.DoubleClickMs != d.DoubleClickMs || c.WheelLines != d.WheelLines || c.NotifySeconds != d.NotifySeconds ||
+		c.Scrollback != d.Scrollback || c.TabSize != d.TabSize || c.MountDir != "" {
+		t.Fatalf("not repaired: %+v", c)
+	}
+}
+
+func TestCleanMountDir(t *testing.T) {
+	for in, want := range map[string]string{
+		"": "", "  /mnt/offline/ ": "/mnt/offline", "/": "", "relative/dir": "", "/mnt//한글 드라이브/.": "/mnt/한글 드라이브",
+		"/mnt/a/../offline": "/mnt/offline",
+	} {
+		if got := CleanMountDir(in); got != want {
+			t.Errorf("CleanMountDir(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+func TestNewSettingsSurviveSaveAndLoad(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.toml")
+	c := Default()
+	c.MountDir, c.Clock, c.ClockSeconds, c.DesktopIcons, c.Shell = "/mnt/offline", "12h", true, false, "/bin/zsh"
+	if err := Save(path, c); err != nil {
+		t.Fatal(err)
+	}
+	got, _, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.MountDir != "/mnt/offline" || got.Clock != "12h" || !got.ClockSeconds || got.DesktopIcons || got.Shell != "/bin/zsh" {
+		t.Fatalf("lost settings: %+v", got)
+	}
+	// An older file without the new keys gets the defaults, not zero values.
+	if err := os.WriteFile(path, []byte("keyboard = \"pc\"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	old, _, _ := Load(path)
+	if !old.DesktopIcons || old.DoubleClickMs != 500 || !old.Clipboard || old.Clock != "24h" {
+		t.Fatalf("defaults missing for an old file: %+v", old)
+	}
+}
+
+func TestResetKeepsIconsAndKeyboard(t *testing.T) {
+	c := Default()
+	c.Keyboard, c.Icons, c.IconsEdited, c.WheelLines, c.MountDir = "mac", nil, true, 9, "/mnt/offline"
+	r := c.Reset()
+	if r.Keyboard != "mac" || r.Icons != nil || !r.IconsEdited || r.WheelLines != 3 || r.MountDir != "" {
+		t.Fatalf("reset: %+v", r)
+	}
+}

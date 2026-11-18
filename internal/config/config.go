@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -47,6 +48,114 @@ type Config struct {
 	// changed them, so an empty list stays empty instead of the defaults.
 	Icons       []DesktopIcon `toml:"desktop_icon"`
 	IconsEdited bool          `toml:"desktop_icons_edited"`
+
+	// ---- Settings window (SPEC 7.7) ----
+
+	// Appearance.
+	DesktopIcons bool `toml:"show_desktop_icons"`
+	ShowHost     bool `toml:"show_host_name"`
+	// Names is how file names with non-ASCII characters (Hangul) are
+	// drawn: "auto" (escaped as \uXXXX on the Linux console only), "show"
+	// or "escape".
+	Names string `toml:"non_ascii_names"`
+
+	// Date & Time: the clock in the top bar. Clock is "24h" or "12h".
+	Clock        string `toml:"clock"`
+	ClockSeconds bool   `toml:"clock_seconds"`
+	ClockDate    bool   `toml:"clock_date"`
+
+	// Mouse.
+	DoubleClickMs int `toml:"double_click_ms"`
+	WheelLines    int `toml:"wheel_lines"`
+
+	// Notifications.
+	NotifySeconds int  `toml:"notify_seconds"`
+	NotifyDrives  bool `toml:"notify_drives"`
+
+	// Files: how a new file window starts. FilesView is "list" or "icons",
+	// FilesSort is "name", "size" or "date".
+	ShowHidden   bool   `toml:"show_hidden"`
+	FilesView    string `toml:"files_view"`
+	FilesSort    string `toml:"files_sort"`
+	ConfirmTrash bool   `toml:"confirm_trash"`
+
+	// Terminal. Shell "" = $SHELL.
+	Shell      string `toml:"shell"`
+	Scrollback int    `toml:"scrollback"`
+
+	// Storage & USB. MountDir is the folder removable drives are mounted
+	// on ("" = /media/<user>/<label>, ADR 0005).
+	MountDir      string `toml:"removable_mount_dir"`
+	MountReadOnly bool   `toml:"mount_read_only"`
+
+	// Privacy & Security. Clipboard lets Copy reach the user's own
+	// computer (OSC 52).
+	Clipboard bool `toml:"copy_to_local_clipboard"`
+	WarnRoot  bool `toml:"warn_root"`
+}
+
+// Limits of the numeric settings.
+const (
+	MinDoubleClickMs, MaxDoubleClickMs = 200, 1500
+	MinWheelLines, MaxWheelLines       = 1, 10
+	MinNotifySeconds, MaxNotifySeconds = 2, 30
+	MinScrollback, MaxScrollback       = 100, 100000
+	MinTabSize, MaxTabSize             = 1, 16
+)
+
+func oneOf(v, def string, allowed ...string) string {
+	for _, a := range allowed {
+		if v == a {
+			return v
+		}
+	}
+	return def
+}
+
+func within(v, def, lo, hi int) int {
+	if v < lo || v > hi {
+		return def
+	}
+	return v
+}
+
+// Normalize replaces values a hand-edited file got wrong with the defaults.
+func (c *Config) Normalize() {
+	d := Default()
+	c.Keyboard = oneOf(c.Keyboard, "", "mac", "pc")
+	c.TabSize = within(c.TabSize, d.TabSize, MinTabSize, MaxTabSize)
+	c.Names = oneOf(c.Names, d.Names, "auto", "show", "escape")
+	c.Clock = oneOf(c.Clock, d.Clock, "24h", "12h")
+	c.DoubleClickMs = within(c.DoubleClickMs, d.DoubleClickMs, MinDoubleClickMs, MaxDoubleClickMs)
+	c.WheelLines = within(c.WheelLines, d.WheelLines, MinWheelLines, MaxWheelLines)
+	c.NotifySeconds = within(c.NotifySeconds, d.NotifySeconds, MinNotifySeconds, MaxNotifySeconds)
+	c.FilesView = oneOf(c.FilesView, d.FilesView, "list", "icons")
+	c.FilesSort = oneOf(c.FilesSort, d.FilesSort, "name", "size", "date")
+	c.Scrollback = within(c.Scrollback, d.Scrollback, MinScrollback, MaxScrollback)
+	c.Shell = strings.TrimSpace(c.Shell)
+	c.MountDir = CleanMountDir(c.MountDir)
+}
+
+// CleanMountDir tidies a mount folder setting; anything that is not an
+// absolute path below / becomes "" (the default location).
+func CleanMountDir(p string) string {
+	p = strings.TrimSpace(p)
+	if !strings.HasPrefix(p, "/") {
+		return ""
+	}
+	p = filepath.Clean(p)
+	if p == "/" {
+		return ""
+	}
+	return p
+}
+
+// Reset returns the defaults but keeps what is not shown in the Settings
+// window: the keyboard choice, validators and desktop icons.
+func (c Config) Reset() Config {
+	d := Default()
+	d.Keyboard, d.Validators, d.Icons, d.IconsEdited = c.Keyboard, c.Validators, c.Icons, c.IconsEdited
+	return d
 }
 
 // Default returns the built-in defaults.
@@ -56,6 +165,20 @@ func Default() Config {
 		Backup:     true,
 		TabSize:    4,
 		ExpandTabs: true,
+
+		DesktopIcons:  true,
+		ShowHost:      true,
+		Names:         "auto",
+		Clock:         "24h",
+		DoubleClickMs: 500, // compat-matrix finding 7
+		WheelLines:    3,
+		NotifySeconds: 4,
+		NotifyDrives:  true,
+		FilesView:     "list",
+		FilesSort:     "name",
+		Scrollback:    5000,
+		Clipboard:     true,
+		WarnRoot:      true,
 		Validators: []Validator{
 			{Pattern: "/etc/nginx/**", Command: "nginx -t", Sudo: true},
 			{Pattern: "/etc/systemd/system/*", Command: "systemd-analyze verify {file}", Sudo: false},
@@ -99,9 +222,7 @@ func Load(path string) (cfg Config, exists bool, err error) {
 	if cfg.IconsEdited && !md.IsDefined("desktop_icon") {
 		cfg.Icons = nil // the user removed every icon
 	}
-	if cfg.TabSize <= 0 || cfg.TabSize > 16 {
-		cfg.TabSize = 4
-	}
+	cfg.Normalize()
 	return cfg, true, nil
 }
 
