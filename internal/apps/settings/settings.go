@@ -491,7 +491,17 @@ func (a *App) Draw(s wm.Surface, focused bool) {
 		textW = paneW - 1
 		ui.DrawScrollbar(s.Sub(wm.Rect{X: w - 1, Y: listY, W: 1, H: a.bodyH}), len(a.shown), a.offset, a.bodyH)
 	}
-	a.valueX = max(textW-min(max(textW*2/5, 16), 34), 1)
+	// The value column starts after the longest name, but always keeps
+	// room for a value.
+	a.valueX = 0
+	for _, idx := range a.shown {
+		lw := term.Width(a.items[idx].Label)
+		if q != "" {
+			lw += term.Width(a.items[idx].Section) + 3
+		}
+		a.valueX = max(a.valueX, lw+4)
+	}
+	a.valueX = max(min(a.valueX, textW-18), 1)
 	if len(a.shown) == 0 && a.bodyH > 0 {
 		s.Sub(wm.Rect{X: a.paneX, Y: listY, W: textW, H: 1}).Text(1, 0, "No setting matches. Try another word, or press Esc.", wm.StyleBodyDim)
 	}

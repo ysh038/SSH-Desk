@@ -72,6 +72,16 @@ scripts/usb-vm.sh stop          # 끝나면 (지울 때는 delete)
 - tuidesk에서 Eject하면 VM 안에서는 장치가 사라지지만 QEMU에는 꽂힌 상태로 남습니다. 다시 꽂으려면 `unplug` 후 `plug` 합니다(실제로도 뽑았다가 다시 꽂는 것과 같습니다).
 - Ubuntu 클라우드 이미지 커널에는 exFAT 드라이버가 없습니다(`linux-modules-extra` 필요). 그래서 `plug exfat`은 "드라이버가 없는 서버"의 에러 흐름("This server cannot read that filesystem")을 확인하는 용도입니다.
 
+### 고정 마운트 폴더와 "Eject 없이 뽑기" 확인 순서
+
+VM에 폴더를 하나 만들어 둡니다(한 번만): `limactl shell tuidesk-usb-2404 sudo mkdir -p /mnt/offline`
+
+1. tuidesk에서 `F9` › `Settings` → `mount`라고 입력 → `Down` → `Enter` → `/mnt/offline` 입력. 없는 폴더를 넣으면 거부되는지도 봅니다.
+2. `scripts/usb-vm.sh plug` → My PC의 Removable devices 제목에 `(mounted at /mnt/offline)` → 스틱에서 `Enter` → 비밀번호 → `/mnt/offline`이 파일 창으로 열림.
+3. Eject 하지 않고 `scripts/usb-vm.sh unplug` → "Removed without Eject" 알림, My PC에 `/dev/sda1  Removed without Eject` 줄.
+4. `scripts/usb-vm.sh plug` → 스틱이 `/dev/sdb1`로 보임 → `Enter` → "Clean up and mount" → 비밀번호 한 번 → `/mnt/offline`에 마운트.
+5. `Ctrl+E`로 Eject → `ls -ld /mnt/offline`으로 폴더가 남아 있는지 확인 → `scripts/usb-vm.sh unplug`.
+
 ### S4 확인 순서
 
 1. `ssh`로 들어가 `~/bin/tuidesk` 실행. 다른 터미널에서 `plug` → 2~3초 뒤 "USB drive connected: ..." 알림.

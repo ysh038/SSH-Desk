@@ -617,7 +617,7 @@ func TestCleanUpByKeyAndNotification(t *testing.T) {
 	h.pc.mu.Unlock()
 	mon.Check()
 	h.settle()
-	if !h.screenHas("Drive removed without Eject") {
+	if !h.screenHas("Removed without Eject - open My PC") {
 		t.Fatal("a dead mount must be announced even with drive notifications off")
 	}
 	h.openMyPC()

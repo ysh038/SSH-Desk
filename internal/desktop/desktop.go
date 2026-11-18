@@ -531,6 +531,7 @@ var helpSections = []struct {
 	{"Desktop", []helpRow{
 		{"F9", "Menu (launcher)"}, {"Ctrl+N", "New window (file manager at /)"},
 		{"F9 > Show desktop", "Desktop icons: arrows, Enter opens, Delete removes"},
+		{"F9 > Settings", "All settings; type to search them"},
 		{"F9 > My PC", "Drives and USB devices: Enter opens (mounts first)"},
 		{"Ctrl+U / Ctrl+E", "In My PC: unmount / eject (safe to remove)"},
 		{"F9 > Terminal", "Shell window (every key goes to the shell)"},

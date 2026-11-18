@@ -83,7 +83,7 @@ func (m *Monitor) Check() {
 			// lost and the folder stays blocked until it is cleaned up.
 			for dir := range stale {
 				if !m.stale[dir] {
-					m.h.Notify("Drive removed without Eject: "+m.display(dir)+" is still held - open My PC to clean up", true)
+					m.h.Notify("Removed without Eject - open My PC to clean up "+m.display(dir), true)
 				}
 			}
 		}

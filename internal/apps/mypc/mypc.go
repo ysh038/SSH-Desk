@@ -736,7 +736,7 @@ func (a *App) status(v devices.Volume) string {
 	}
 	switch {
 	case v.Stale:
-		return "Removed without Eject - still holds " + a.display(v.MountPoint()) + " (" + term.KeyLabel("Ctrl+U") + " cleans up)"
+		return "Removed without Eject - " + term.KeyLabel("Ctrl+U") + " cleans up"
 	case v.Swap:
 		return "Swap"
 	case v.Mounted():

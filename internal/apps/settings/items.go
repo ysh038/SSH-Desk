@@ -89,7 +89,7 @@ func checkFolder(p string) (string, error) {
 	fi, err := Stat(c)
 	switch {
 	case err != nil:
-		return "", errors.New("That folder does not exist. Create it first: sudo mkdir -p " + c)
+		return "", errors.New("That folder does not exist. Create it first.")
 	case !fi.IsDir():
 		return "", errors.New("That is a file, not a folder")
 	}
@@ -208,7 +208,7 @@ func Items(about About) []Item {
 			Keywords: "history buffer scroll", Int: func(c *config.Config) *int { return &c.Scrollback }},
 
 		{ID: "mount_dir", Section: "Storage & USB", Label: "Mount USB drives at", Kind: Text,
-			Empty:    "Default: /media/<user>/<drive name>",
+			Empty:    "Default (/media/<user>)",
 			Help:     "A folder that already exists, e.g. /mnt/offline. One drive at a time uses it; a second drive goes to the default place. Empty = default.",
 			Keywords: "mount point location folder path removable drive disk stick",
 			Str:      func(c *config.Config) *string { return &c.MountDir }, Check: checkFolder},
