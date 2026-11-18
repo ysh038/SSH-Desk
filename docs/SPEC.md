@@ -406,7 +406,12 @@ MVP = Phase 0 ~ 3.
 - [x] Eject 없이 뽑힌 드라이브의 남은 마운트 표시·알림·정리 (2026-11-18)
 - 확인(2026-11-18, QEMU USB): 설정 창에서 "mount"를 검색해 마운트 위치를 `/mnt/offline`으로 지정(없는 폴더는 거부) → 스틱이 `/mnt/offline`에 마운트됨 → Eject 없이 뽑음: lsblk에서는 사라지고 mountinfo에는 `/dev/sda1 on /mnt/offline`이 남는 것, 다시 꽂으면 `sdb1`이 되는 것을 실제 커널에서 확인 → My PC에 `Removed without Eject` 표시와 알림 → 새 스틱에서 Enter → "Clean up and mount" → 비밀번호 한 번 → `/dev/sdb1`이 `/mnt/offline`에 마운트됨 → Ctrl+E Eject 후 `/mnt/offline` 폴더가 그대로 남는 것까지 확인
 - **남은 확인(2026-11-17 기준)**: 실제 서버의 실제 USB 메모리(전원 끄기 후 LED, exFAT 마운트 성공 경로), 리눅스 콘솔·Terminal.app 화면. loop 장치는 "가상"으로 분류되어 My PC에서 마운트를 내놓지 않으므로 완료 기준에서 뺌
-- 완료 기준: 시나리오 S4를 마우스만으로, 그리고 키보드만으로 수행 가능. Ubuntu VM에서 QEMU USB 저장 장치로 확인(✅ 2026-11-17), 실제 서버의 USB 메모리로 확인(대기)
+- 완료 기준: 시나리오 S4를 마우스만으로, 그리고 키보드만으로 수행 가능. Ubuntu VM에서 QEMU USB 저장 장치로 확인(✅ 2026-11-17), 실제 서버의 USB 메모리로 확인(보류)
+- **보류 결정(2026-11-18)**: 실제 서버에 지금 접근할 수 없어 "실제 서버의 USB 메모리로 확인"은 건너뛰고 다음 Phase로 넘어간다. Phase 5는 QEMU USB 확인까지를 완료로 본다. 서버에 갈 수 있게 되면 아래를 확인한다.
+  - [ ] 실제 USB 메모리로 S4(마운트 → 복사 → Eject), Eject 후 전원이 꺼지는지(LED)
+  - [ ] exFAT 마운트 성공 경로
+  - [ ] `/mnt/offline` 고정 마운트 폴더, Eject 없이 뽑은 뒤 정리
+  - [ ] 리눅스 콘솔·Terminal.app에서 My PC와 설정 창 화면
 
 ### Phase 6 — MCP 서버 (full 빌드)
 - [ ] 8.1 도구, 승인 다이얼로그, 감사 로그, 경로 화이트리스트
