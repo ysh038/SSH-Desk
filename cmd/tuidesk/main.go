@@ -13,6 +13,7 @@ import (
 	editorapp "tuidesk/internal/apps/editor"
 	"tuidesk/internal/apps/files"
 	"tuidesk/internal/apps/mypc"
+	"tuidesk/internal/apps/settings"
 	"tuidesk/internal/apps/viewer"
 	"tuidesk/internal/config"
 	"tuidesk/internal/desktop"
@@ -59,6 +60,12 @@ func main() {
 	fw := d.OpenWindow(d.NewFiles(d.HomeDir))
 	d.M.ResizeTo(fw, min(90, w-4), min(24, h-4))
 	d.SetConfig(cfg, cfgPath)
+	about := aboutInfo(s, cfgPath)
+	d.NewSettings = func() wm.App { return settings.New(d, about) }
+	if os.Geteuid() == 0 && cfg.WarnRoot {
+		d.Confirm("Running as root", "tuidesk is running as root: every file on this server can be changed or deleted without a question.\n\nIt is safer to run it as a normal user; it asks for sudo when it is needed.\n(Settings > Privacy & Security turns this warning off.)",
+			[]string{"OK"}, func(int) {})
+	}
 	apps, appErrs := config.LoadApps(config.AppsDir(cfgPath))
 	d.SetApps(apps)
 	for _, err := range appErrs {
@@ -71,6 +78,31 @@ func main() {
 
 	tui.NewLoop(s, d).Run()
 	s.Fini()
+}
+
+// aboutInfo is what Settings › About shows about this build and terminal.
+func aboutInfo(s tcell.Screen, cfgPath string) settings.About {
+	w, h := s.Size()
+	mouse := "yes"
+	if !s.HasMouse() {
+		mouse = "no"
+	}
+	lang := os.Getenv("LC_ALL")
+	for _, k := range []string{"LC_CTYPE", "LANG"} {
+		if lang == "" {
+			lang = os.Getenv(k)
+		}
+	}
+	if lang == "" {
+		lang = "(not set)"
+	}
+	return settings.About{Version: version, Build: buildFlavor, ConfigPath: cfgPath, Details: [][2]string{
+		{"Terminal type", os.Getenv("TERM")},
+		{"Colors", fmt.Sprint(s.Colors())},
+		{"Mouse", mouse},
+		{"Size when started", fmt.Sprintf("%d x %d", w, h)},
+		{"Language (locale)", lang},
+	}}
 }
 
 // openText opens path in the editor: a new tab in an existing editor window,

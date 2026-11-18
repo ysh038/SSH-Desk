@@ -48,6 +48,9 @@ type Desktop struct {
 	OpenText func(path string)
 	// NewMyPC creates the My PC window (SPEC 7.8, set by main).
 	NewMyPC func() wm.App
+	// NewSettings creates the Settings window (SPEC 7.7, set by main).
+	NewSettings func() wm.App
+	settings    *wm.Window
 	// HomeDir is where new file managers start.
 	HomeDir string
 	Quit    bool
@@ -105,6 +108,8 @@ func (d *Desktop) applyConfig() {
 		style = term.LabelMac
 	}
 	term.SetLabelStyle(style)
+	ui.WheelLines = d.cfg.WheelLines
+	d.toasts.Duration = time.Duration(d.cfg.NotifySeconds) * time.Second
 }
 
 func (d *Desktop) saveConfig() {
@@ -123,35 +128,57 @@ func (d *Desktop) setKeyboard(k string) {
 	d.Notify("Shortcuts are now shown for a "+map[string]string{"mac": "Mac", "pc": "PC"}[k]+" keyboard", false)
 }
 
-func (d *Desktop) openSettings(x, y int) {
-	mark := func(on bool) string {
-		if on {
-			return "[x] "
+// UpdateConfig changes the settings, applies them and saves the file
+// (host.Host). Values out of range are put right first.
+func (d *Desktop) UpdateConfig(fn func(c *config.Config)) {
+	fn(&d.cfg)
+	d.cfg.Normalize()
+	d.applyConfig()
+	d.saveConfig()
+}
+
+// MultiClickInterval is the double-click speed (Settings › Mouse); the
+// terminal layer asks for it.
+func (d *Desktop) MultiClickInterval() time.Duration {
+	return time.Duration(d.cfg.DoubleClickMs) * time.Millisecond
+}
+
+// OpenSettings shows the Settings window (SPEC 7.7), raising it when it is
+// already open, on section and setting id ("" = leave as it is).
+func (d *Desktop) OpenSettings(section, id string) {
+	if d.NewSettings == nil {
+		d.Notify("Settings are not available", true)
+		return
+	}
+	open := false
+	for _, w := range d.M.Windows() {
+		if w == d.settings {
+			d.M.Raise(w)
+			open = true
 		}
-		return "[ ] "
 	}
-	items := []ui.MenuItem{
-		{Label: mark(d.cfg.Keyboard == "mac") + "Mac keyboard (⌃ ⌥ fn)", Hotkey: 'm', Action: "kbd-mac"},
-		{Label: mark(d.cfg.Keyboard != "mac") + "PC keyboard (Ctrl Alt)", Hotkey: 'p', Action: "kbd-pc"},
-		{Separator: true},
-		{Label: mark(d.cfg.HintBar) + "Show shortcut hints", Hotkey: 'h', Action: "hints"},
-		{Label: mark(d.cfg.Backup) + "Keep .bak backup when saving", Hotkey: 'b', Action: "backup"},
+	if !open {
+		d.settings = d.OpenWindow(d.NewSettings())
+		d.M.ResizeTo(d.settings, min(96, d.Area().W-2), min(22, d.Area().H-1))
 	}
-	d.openMenu(items, nil, x, y)
-	d.menuFn = func(a string) {
-		switch a {
-		case "kbd-mac":
-			d.setKeyboard("mac")
-		case "kbd-pc":
-			d.setKeyboard("pc")
-		case "hints":
-			d.cfg.HintBar = !d.cfg.HintBar
-			d.saveConfig()
-		case "backup":
-			d.cfg.Backup = !d.cfg.Backup
-			d.saveConfig()
-		}
+	if s, ok := d.settings.App.(interface{ Show(section, id string) }); ok && section != "" {
+		s.Show(section, id)
 	}
+}
+
+// clockText is the clock in the top bar (Settings › Date & Time).
+func (d *Desktop) clockText() string {
+	layout := "15:04"
+	if d.cfg.ClockSeconds {
+		layout = "15:04:05"
+	}
+	if d.cfg.Clock == "12h" {
+		layout = strings.Replace(layout, "15", "3", 1) + " PM"
+	}
+	if d.cfg.ClockDate {
+		layout = "2006-01-02 " + layout
+	}
+	return d.Now.Format(layout)
 }
 
 // Area is the region windows live in (between the two bars).
@@ -194,7 +221,11 @@ func (d *Desktop) OpenWindow(app wm.App) *wm.Window {
 // NextWake is when the desktop next needs a TickEvent: the next clock minute
 // or the earliest toast expiry. Nothing else redraws without input.
 func (d *Desktop) NextWake() time.Time {
-	next := d.Now.Truncate(time.Minute).Add(time.Minute)
+	unit := time.Minute
+	if d.cfg.ClockSeconds {
+		unit = time.Second // only the clock cells change (CLAUDE.md rule 9)
+	}
+	next := d.Now.Truncate(unit).Add(unit)
 	if t := d.toasts.NextDeadline(); !t.IsZero() && t.Before(next) {
 		next = t
 	}
@@ -430,7 +461,7 @@ func (d *Desktop) run(action string, target *wm.Window) {
 			d.M.Raise(wins[len(wins)-1]) // everything minimized: bring one back
 		}
 	case action == "settings":
-		d.openSettings(1, 2)
+		d.OpenSettings("", "")
 	case action == "quit":
 		d.askQuit()
 	case action == "next":
@@ -484,6 +515,9 @@ func (d *Desktop) forceClose(w *wm.Window) {
 	d.M.Remove(w)
 	if d.help == w {
 		d.help = nil
+	}
+	if d.settings == w {
+		d.settings = nil
 	}
 	d.mode = ModeNormal
 }
@@ -782,7 +816,10 @@ func (d *Desktop) drawTopBar(c *wm.Canvas) {
 	s.Clear(wm.StyleBar)
 	d.topItems = d.topItems[:0]
 
-	right := fmt.Sprintf(" %s  %s ", d.HostName, d.Now.Format("15:04"))
+	right := " " + d.clockText() + " "
+	if d.cfg.ShowHost {
+		right = " " + d.HostName + " " + right
+	}
 	limit := d.W - term.Width(right) - 1
 
 	x := 0

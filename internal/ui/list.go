@@ -28,6 +28,9 @@ type List struct {
 	scrolled bool // the wheel moved the view: keep it until the selection moves
 }
 
+// WheelLines is how many rows one wheel step scrolls (Settings › Mouse).
+var WheelLines = 3
+
 // ListResult is what a List reports after handling an event.
 type ListResult int
 
@@ -88,9 +91,9 @@ func (l *List) HandleEvent(ev term.Event) ListResult {
 		case term.GestureWheel:
 			switch g.Wheel {
 			case term.WheelUp:
-				l.Offset -= 3
+				l.Offset -= WheelLines
 			case term.WheelDown:
-				l.Offset += 3
+				l.Offset += WheelLines
 			}
 			l.Offset = min(max(l.Offset, 0), max(n-max(l.Height, 1), 0))
 			l.scrolled = true

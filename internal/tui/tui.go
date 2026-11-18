@@ -33,6 +33,9 @@ type poster interface {
 // clipboarder is implemented by handlers that copy text to the user's clipboard.
 type clipboarder interface{ SetClipboardWriter(func(string)) }
 
+// clickTimer is implemented by handlers with a double-click speed setting.
+type clickTimer interface{ MultiClickInterval() time.Duration }
+
 // Loop owns the tcell screen and the render state.
 type Loop struct {
 	S       tcell.Screen
@@ -129,6 +132,11 @@ func (l *Loop) Dispatch(ev tcell.Event) {
 		}
 		l.H.Handle(term.KeyEvent{Key: l.Profile.Normalize(KeyFromTcell(ev))})
 	case *tcell.EventMouse:
+		if c, ok := l.H.(clickTimer); ok {
+			if iv := c.MultiClickInterval(); iv > 0 {
+				l.Det.MultiClickInterval = iv
+			}
+		}
 		for _, g := range l.Det.Feed(MouseFromTcell(ev)) {
 			l.H.Handle(term.MouseEvent{Gesture: g})
 		}

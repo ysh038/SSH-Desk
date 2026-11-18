@@ -446,13 +446,13 @@ func (a *App) handleMouse(g term.Gesture) bool {
 			if up {
 				key.Name = "Up"
 			}
-			for range 3 {
+			for range ui.WheelLines {
 				a.s.Send(EncodeKey(key, m))
 			}
 		} else if up {
-			a.scrollBy(3)
+			a.scrollBy(ui.WheelLines)
 		} else {
-			a.scrollBy(-3)
+			a.scrollBy(-ui.WheelLines)
 		}
 	case term.GesturePress:
 		a.selecting, a.hasSel = true, false

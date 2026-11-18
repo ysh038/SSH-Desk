@@ -345,6 +345,19 @@ func (a *App) trash() {
 	if len(sel) == 0 {
 		return
 	}
+	if !a.h.Config().ConfirmTrash {
+		a.trashNow(sel)
+		return
+	}
+	a.h.Confirm("Move to Trash", fmt.Sprintf("Move %s to the Trash?", plural(len(sel), "item")),
+		[]string{"Move to Trash", "Cancel"}, func(choice int) {
+			if choice == 0 {
+				a.trashNow(sel)
+			}
+		})
+}
+
+func (a *App) trashNow(sel []fsops.Entry) {
 	rec, err := a.h.FS().Trash(paths(sel))
 	a.h.PushUndo(rec)
 	a.selected = map[string]bool{}

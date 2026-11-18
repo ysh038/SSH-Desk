@@ -414,9 +414,9 @@ func (a *App) handleMouse(g term.Gesture) bool {
 	if g.Kind == term.GestureWheel {
 		switch g.Wheel {
 		case term.WheelUp:
-			d.top = max(d.top-3, 0)
+			d.top = max(d.top-ui.WheelLines, 0)
 		case term.WheelDown:
-			d.top = min(d.top+3, max(len(d.Ed.Lines)-a.textH(), 0))
+			d.top = min(d.top+ui.WheelLines, max(len(d.Ed.Lines)-a.textH(), 0))
 		}
 		d.scrolled = true // Draw must not pull the view back to the cursor
 		return true

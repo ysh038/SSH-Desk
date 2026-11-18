@@ -30,6 +30,10 @@ type Spec struct {
 	Argv []string // empty: the user's shell
 	Dir  string
 	Env  []string // extra KEY=VALUE pairs
+	// Shell replaces the login shell when Argv is empty (Settings ›
+	// Terminal); Scrollback is the number of lines kept (0: the default).
+	Shell      string
+	Scrollback int
 }
 
 // Session is a program on a pseudo-terminal plus its emulator. The emulator
@@ -91,6 +95,9 @@ func Start(spec Spec, w, h int, post func(func())) (*Session, error) {
 	argv := spec.Argv
 	if len(argv) == 0 {
 		argv = []string{Shell()}
+		if _, err := os.Stat(spec.Shell); spec.Shell != "" && err == nil {
+			argv = []string{spec.Shell}
+		}
 	}
 	cmd, f, err := startPty(argv, spec, w, h)
 	if err != nil {
@@ -105,7 +112,10 @@ func Start(spec Spec, w, h int, post func(func())) (*Session, error) {
 		cwd:  spec.Dir,
 	}
 	s.cond = sync.NewCond(&s.mu)
-	s.emu.SetScrollbackSize(scrollbackSz)
+	if spec.Scrollback <= 0 {
+		spec.Scrollback = scrollbackSz
+	}
+	s.emu.SetScrollbackSize(spec.Scrollback)
 	s.emu.SetCallbacks(vt.Callbacks{
 		Title:            func(t string) { s.title = t },
 		WorkingDirectory: func(d string) { s.cwd = d },

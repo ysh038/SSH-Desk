@@ -112,4 +112,10 @@ type Host interface {
 
 	// Config returns the current settings.
 	Config() config.Config
+	// UpdateConfig changes the settings with fn, applies them and saves
+	// the settings file.
+	UpdateConfig(fn func(c *config.Config))
+	// OpenSettings shows the Settings window on a section and, when id is
+	// not "", on one setting of it.
+	OpenSettings(section, id string)
 }

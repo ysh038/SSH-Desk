@@ -99,6 +99,10 @@ const (
 // New opens a file manager on dir.
 func New(h host.Host, dir string) *App {
 	a := &App{h: h, selected: map[string]bool{}, boxStart: -1, dropRow: -1}
+	// Settings › Files: how a new window starts.
+	cfg := h.Config()
+	a.showHidden, a.icons = cfg.ShowHidden, cfg.FilesView == "icons"
+	a.sortKey = map[string]fsops.SortKey{"size": fsops.SortSize, "date": fsops.SortTime}[cfg.FilesSort]
 	a.buildCommands()
 	a.chrome = host.NewChrome(h, a, &a.cmds)
 	a.navigate(dir, "")
@@ -609,7 +613,7 @@ func (a *App) nearestItem(x, y int) int {
 func (a *App) handleMouse(g term.Gesture) bool {
 	switch g.Kind {
 	case term.GestureWheel:
-		step := max(3/a.itemH(), 1)
+		step := max(ui.WheelLines/a.itemH(), 1)
 		switch g.Wheel {
 		case term.WheelUp:
 			a.scrollRows(-step)

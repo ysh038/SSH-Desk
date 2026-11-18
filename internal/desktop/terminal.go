@@ -24,7 +24,7 @@ func (d *Desktop) openTerminal(dir string, argv []string, hold bool, name string
 	if dir == "" {
 		dir = d.HomeDir
 	}
-	t := terminal.New(d, terminal.Spec{Argv: argv, Dir: dir}, name)
+	t := terminal.New(d, terminal.Spec{Argv: argv, Dir: dir, Shell: d.cfg.Shell, Scrollback: d.cfg.Scrollback}, name)
 	t.Hold = hold
 	w := d.OpenWindow(t)
 	a := d.Area()

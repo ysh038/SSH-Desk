@@ -137,7 +137,7 @@ func (d *Desktop) ShowPalette(cmds *ui.Commands) { d.ShowModal(ui.NewPalette(cmd
 
 func (d *Desktop) SetClipboardText(s string) {
 	d.svc.text = s
-	if d.svc.clipText != nil {
+	if d.svc.clipText != nil && d.cfg.Clipboard {
 		d.svc.clipText(s)
 	}
 }
@@ -159,6 +159,9 @@ func (d *Desktop) CloseApp(app wm.App) {
 			if d.help == w {
 				d.help = nil
 			}
+			if d.settings == w {
+				d.settings = nil
+			}
 			_ = app.Close()
 			return
 		}
@@ -167,8 +170,19 @@ func (d *Desktop) CloseApp(app wm.App) {
 
 func (d *Desktop) Files() *host.Clipboard { return &d.svc.files }
 func (d *Desktop) Config() config.Config  { return d.cfg }
-func (d *Desktop) Console() bool          { return d.svc.console }
-func (d *Desktop) FS() *fsops.FS          { return d.svc.fs }
+
+// Console reports that names with non-ASCII letters must be shown as codes:
+// on the Linux console, unless Settings › Appearance says otherwise.
+func (d *Desktop) Console() bool {
+	switch d.cfg.Names {
+	case "show":
+		return false
+	case "escape":
+		return true
+	}
+	return d.svc.console
+}
+func (d *Desktop) FS() *fsops.FS { return d.svc.fs }
 
 func (d *Desktop) PushUndo(rec *fsops.Record) {
 	if rec.Len() == 0 {

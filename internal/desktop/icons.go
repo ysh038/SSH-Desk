@@ -36,6 +36,9 @@ func (d *Desktop) iconRect(i int) wm.Rect {
 
 // iconAt returns the icon under screen (x, y), or -1.
 func (d *Desktop) iconAt(x, y int) int {
+	if !d.cfg.DesktopIcons {
+		return -1
+	}
 	for i := range d.cfg.Icons {
 		if d.iconRect(i).Contains(x, y) {
 			return i
@@ -110,13 +113,16 @@ func (d *Desktop) iconText(ic config.DesktopIcon) string {
 }
 
 func (d *Desktop) display(s string) string {
-	if d.svc.console {
+	if d.Console() {
 		return term.EscapeNonASCII(s)
 	}
 	return s
 }
 
 func (d *Desktop) drawIcons(c *wm.Canvas) {
+	if !d.cfg.DesktopIcons {
+		return
+	}
 	area := d.Area()
 	focused := d.M.Focused() == nil
 	for i, ic := range d.cfg.Icons {
@@ -292,6 +298,9 @@ func (d *Desktop) AddToDesktop(paths []string) {
 		d.iconSel = len(d.cfg.Icons) - 1
 		added++
 	}
+	if added > 0 {
+		d.cfg.DesktopIcons = true // adding one to hidden icons shows them again
+	}
 	if added == 0 {
 		d.Notify("Already on the desktop", false)
 		return
@@ -314,7 +323,7 @@ func (d *Desktop) showDesktop() {
 // handleIconKey handles keys while no window is focused.
 func (d *Desktop) handleIconKey(k term.Key) bool {
 	n := len(d.cfg.Icons)
-	if n == 0 {
+	if n == 0 || !d.cfg.DesktopIcons {
 		return false
 	}
 	per := max((d.Area().H-1)/iconH, 1)
