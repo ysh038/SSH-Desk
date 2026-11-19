@@ -22,11 +22,14 @@ type Cell struct {
 type Canvas struct {
 	W, H  int
 	cells []Cell
+	// Where the mouse pointer is while drawing, for hover highlights; off
+	// the canvas when whatever is being drawn is not under the pointer.
+	px, py int
 }
 
 // NewCanvas returns a w×h canvas filled with blanks in style 0.
 func NewCanvas(w, h int) *Canvas {
-	c := &Canvas{}
+	c := &Canvas{px: -1, py: -1}
 	c.Resize(w, h)
 	return c
 }
@@ -143,4 +146,31 @@ func (c *Canvas) CopyFrom(o *Canvas) {
 		c.cells = make([]Cell, len(o.cells))
 	}
 	copy(c.cells, o.cells)
+}
+
+// SetPointer tells the widgets drawn from now on where the mouse pointer
+// is. Pass (-1, -1) while drawing something the pointer is not over, such
+// as a window behind another one, so it does not light up.
+func (c *Canvas) SetPointer(x, y int) { c.px, c.py = x, y }
+
+// Pointer returns the position given to SetPointer.
+func (c *Canvas) Pointer() (x, y int) { return c.px, c.py }
+
+// Restyle gives the cells of r (clipped to clip) another style and keeps
+// their text: hover highlights and shadows.
+func (c *Canvas) Restyle(clip, r Rect, st StyleID) {
+	r = r.Intersect(clip).Intersect(Rect{0, 0, c.W, c.H})
+	for y := r.Y; y < r.Y+r.H; y++ {
+		for x := r.X; x < r.X+r.W; x++ {
+			p := c.raw(x, y)
+			p.Style, p.T = st, TermStyle{}
+		}
+	}
+}
+
+// Shadow darkens the cells to the right of and below r, as if r floated
+// above them. Nothing outside clip is touched.
+func (c *Canvas) Shadow(clip, r Rect) {
+	c.Restyle(clip, Rect{r.X + r.W, r.Y + 1, 2, r.H}, StyleShadow)
+	c.Restyle(clip, Rect{r.X + 2, r.Y + r.H, r.W - 2, 1}, StyleShadow)
 }

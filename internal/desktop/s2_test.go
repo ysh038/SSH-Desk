@@ -350,10 +350,11 @@ func TestPermissionsDialog(t *testing.T) {
 	// Mouse: open from the context menu and toggle Others/Write (o+w → warning).
 	f.rclick(w.Inner().X+5, row(w, 0))
 	f.clickMenuItem("Permissions...")
-	x0, y0, ok := findText(f.draw(), "┌─ Permissions")
+	x0, y0, ok := findText(f.draw(), " Permissions") // the title band, one cell in
 	if !ok {
 		t.Fatal("dialog not found")
 	}
+	x0--
 	dlg := wm.Rect{X: x0, Y: y0}
 	// Others row is gridY+2, Write column is gridX+8.
 	f.click(dlg.X+21+8+1, dlg.Y+2+2)

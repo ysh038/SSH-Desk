@@ -151,6 +151,9 @@ func (d *Desktop) drawIcons(c *wm.Canvas) {
 		}
 		s.Text((iconW-term.Width(icon))/2, 0, icon, st)
 		s.Text((iconW-term.Width(name))/2, 1, name, st)
+		if st == wm.StyleDesktop {
+			s.Hot(wm.Rect{X: 0, Y: 0, W: iconW, H: 2}, wm.StyleHover)
+		}
 	}
 }
 

@@ -190,7 +190,11 @@ func (b *MenuBar) Draw(s wm.Surface, menus []string) {
 			st = wm.StyleMenuSelected
 		}
 		b.xs = append(b.xs, x)
+		x0 := x
 		x = row.Text(x, 0, " "+m+" ", st)
+		if i != b.Open {
+			row.Hot(wm.Rect{X: x0, Y: 0, W: x - x0, H: 1}, wm.StyleBarHover)
+		}
 	}
 	label := term.KeyLabel("F10") + " menu · " + term.KeyLabel("Ctrl+K") + " commands"
 	if lx := w - term.Width(label) - 1; lx > x+2 {
@@ -334,6 +338,7 @@ func (p *Palette) Draw(c *wm.Canvas) {
 	s := wm.NewSurface(c, p.Rect)
 	s.Clear(wm.StyleMenu)
 	s.Box(wm.Rect{X: 0, Y: 0, W: p.Rect.W, H: p.Rect.H}, wm.StyleMenu)
+	shadow(c, p.Rect)
 	s.Sub(wm.Rect{X: 1, Y: 0, W: p.Rect.W - 2, H: 1}).Text(1, 0, " Commands ", wm.StyleMenu)
 	s.Text(2, 1, "Search:", wm.StyleMenu)
 	p.Input.Draw(wm.NewSurface(c, wm.Rect{X: p.Rect.X + 10, Y: p.Rect.Y + 1, W: p.Rect.W - 12, H: 1}), true)

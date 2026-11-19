@@ -168,7 +168,8 @@ func (p *Prompt) Draw(c *wm.Canvas) {
 	s := wm.NewSurface(c, p.Rect)
 	s.Clear(wm.StyleDialog)
 	s.Box(wm.Rect{X: 0, Y: 0, W: p.Rect.W, H: p.Rect.H}, wm.StyleDialog)
-	s.Sub(wm.Rect{X: 1, Y: 0, W: p.Rect.W - 2, H: 1}).Text(1, 0, " "+p.Title+" ", wm.StyleDialog)
+	shadow(c, p.Rect)
+	titleBand(c, p.Rect, p.Title, wm.StyleTitleFocused)
 	s.Sub(wm.Rect{X: 2, Y: 2, W: p.Rect.W - 4, H: 1}).Text(0, 0, p.Label, wm.StyleDialog)
 	f := p.fieldRect()
 	p.Input.Draw(wm.NewSurface(c, f), p.focus == 0)
@@ -181,6 +182,9 @@ func (p *Prompt) Draw(c *wm.Canvas) {
 	}
 }
 
+// drawButton paints a push button: a block of colour, brighter when it has
+// the keyboard focus (the >< marks say the same without colour) and when
+// the mouse is over it.
 func drawButton(c *wm.Canvas, r wm.Rect, label string, focused bool) {
 	st := wm.StyleDialogButton
 	text := "[ " + label + " ]"
@@ -188,7 +192,11 @@ func drawButton(c *wm.Canvas, r wm.Rect, label string, focused bool) {
 		st = wm.StyleDialogButtonFocused
 		text = "[>" + label + "<]"
 	}
-	c.Text(wm.Rect{X: 0, Y: 0, W: c.W, H: c.H}, r.X, r.Y, text, st)
+	s := wm.NewSurface(c, wm.Rect{X: r.X, Y: r.Y, W: term.Width(text), H: 1})
+	s.Text(0, 0, text, st)
+	if !focused {
+		s.Hot(wm.Rect{X: 0, Y: 0, W: term.Width(text), H: 1}, wm.StyleDialogButtonHover)
+	}
 }
 
 // ---- Progress ----
@@ -247,7 +255,8 @@ func (p *ProgressModal) Draw(c *wm.Canvas) {
 	s := wm.NewSurface(c, p.Rect)
 	s.Clear(wm.StyleDialog)
 	s.Box(wm.Rect{X: 0, Y: 0, W: p.Rect.W, H: p.Rect.H}, wm.StyleDialog)
-	s.Sub(wm.Rect{X: 1, Y: 0, W: p.Rect.W - 2, H: 1}).Text(1, 0, " "+p.Title+" ", wm.StyleDialog)
+	shadow(c, p.Rect)
+	titleBand(c, p.Rect, p.Title, wm.StyleTitleFocused)
 	s.Sub(wm.Rect{X: 2, Y: 1, W: p.Rect.W - 4, H: 1}).Text(0, 0, p.Current, wm.StyleDialog)
 	barW := p.Rect.W - 4
 	filled := 0

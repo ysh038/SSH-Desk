@@ -31,6 +31,40 @@ type List struct {
 // WheelLines is how many rows one wheel step scrolls (Settings › Mouse).
 var WheelLines = 3
 
+// Shadows makes menus and dialogs cast a drop shadow (the Appearance
+// setting, applied by the desktop).
+var Shadows = true
+
+// titleBand paints a dialog's title as a band of colour across its top
+// row, like a window's title bar.
+func titleBand(c *wm.Canvas, r wm.Rect, title string, st wm.StyleID) {
+	s := wm.NewSurface(c, wm.Rect{X: r.X, Y: r.Y, W: r.W, H: 1})
+	s.Clear(st)
+	s.Text(1, 0, " "+title, st)
+}
+
+// TitleBand is titleBand for dialogs drawn by the apps.
+func TitleBand(c *wm.Canvas, r wm.Rect, title string) {
+	titleBand(c, r, title, wm.StyleTitleFocused)
+	shadow(c, r)
+}
+
+// ShadowClip is where those shadows may fall: the desktop without the
+// taskbar. Empty means the whole screen.
+var ShadowClip wm.Rect
+
+// shadow darkens the cells beside r when shadows are on.
+func shadow(c *wm.Canvas, r wm.Rect) {
+	if !Shadows {
+		return
+	}
+	clip := ShadowClip
+	if clip.Empty() {
+		clip = wm.Rect{X: 0, Y: 0, W: c.W, H: c.H}
+	}
+	c.Shadow(clip, r)
+}
+
 // ListResult is what a List reports after handling an event.
 type ListResult int
 
@@ -144,6 +178,9 @@ func (l *List) Draw(s wm.Surface, focused bool) {
 		row := s.Sub(wm.Rect{X: 0, Y: y, W: textW, H: 1})
 		row.Clear(st)
 		row.Text(0, 0, l.Src.Item(i), st)
+		if i != l.Selected {
+			row.Hot(wm.Rect{X: 0, Y: 0, W: textW, H: 1}, wm.StyleHover)
+		}
 	}
 }
 

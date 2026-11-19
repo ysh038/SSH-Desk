@@ -152,15 +152,21 @@ func TestDrawOverlapAndHangulTitles(t *testing.T) {
 	c := NewCanvas(30, 8)
 	m.Draw(c)
 
-	if got := c.Row(0); !strings.HasPrefix(got, "┌─ 파일 ─────┐") {
+	// The title bar is a band of colour, not a line.
+	if got := c.Row(0); !strings.HasPrefix(got, "  파일        ") {
 		t.Fatalf("row0 = %q", got)
+	}
+	for x := 0; x < 14; x++ {
+		if st := c.At(x, 0).Style; st != StyleTitle {
+			t.Fatalf("title bar cell %d has style %d", x, st)
+		}
 	}
 	// Row 1: A's body "한글 파일명.txt" clipped to 12 inner cols; nothing splits.
 	if got := c.Row(1); !strings.HasPrefix(got, "│한글 파일명.│") {
 		t.Fatalf("row1 = %q", got)
 	}
 	// Row 2: B's title bar covers A from col 7.
-	if got := c.Row(2); !strings.HasPrefix(got, "│      ┌─ 메모 ─────┐") {
+	if got := c.Row(2); !strings.HasPrefix(got, "│        메모        ") || c.At(7, 2).Style != StyleTitleFocused {
 		t.Fatalf("row2 = %q", got)
 	}
 	// Row 3: B's body: 12 inner cols hold six syllables.
@@ -253,8 +259,84 @@ func TestTitleShownBesideButtons(t *testing.T) {
 	m, _, _ := wideManager()
 	c := NewCanvas(80, 23)
 	m.Draw(c)
-	if got := c.Row(6); !strings.Contains(got, "┌─ B ") || !strings.Contains(got, "[_][^][x]┐") {
+	if got := c.Row(6); !strings.Contains(got, "  B ") || !strings.Contains(got, " _  ^  x  ") {
 		t.Fatalf("row6 = %q", got)
+	}
+}
+
+// A window that is not maximized darkens two columns to its right and one
+// row below it, inside the desktop only, and keeps the text that is there.
+func TestWindowShadow(t *testing.T) {
+	m := &Manager{Desktop: Rect{0, 0, 30, 8}, Shadows: true}
+	m.Add(&Window{ID: 1, Title: "A", Rect: Rect{0, 0, 14, 5}, Body: []string{"under the shadow"}})
+	b := &Window{ID: 2, Title: "한글", Rect: Rect{2, 2, 10, 4}}
+	m.Add(b)
+	c := NewCanvas(30, 9)
+	m.Draw(c)
+	// Right of B (x 12,13 on rows 3..6) and below it (row 6, x 4..11).
+	for _, p := range [][2]int{{12, 3}, {13, 5}, {12, 6}, {13, 6}, {4, 6}, {11, 6}} {
+		if st := c.At(p[0], p[1]).Style; st != StyleShadow {
+			t.Errorf("(%d,%d) style %d, want shadow", p[0], p[1], st)
+		}
+	}
+	// Not above the window's top edge, not left of the offset.
+	for _, p := range [][2]int{{12, 2}, {13, 2}, {2, 6}, {3, 6}, {16, 3}} {
+		if st := c.At(p[0], p[1]).Style; st == StyleShadow {
+			t.Errorf("(%d,%d) must not be in the shadow", p[0], p[1])
+		}
+	}
+	// A's right border lies in B's shadow and is still drawn.
+	if cell := c.At(13, 3); cell.Rune != '│' {
+		t.Errorf("shadowed cell lost its text: %q", cell.Rune)
+	}
+	// Nothing leaves the desktop (row 8 is outside it).
+	m.MoveTo(b, 2, 4)
+	m.Draw(c)
+	for x := 0; x < 30; x++ {
+		if c.At(x, 8).Style == StyleShadow {
+			t.Fatalf("shadow outside the desktop at x=%d", x)
+		}
+	}
+	// A maximized window has none.
+	m.ToggleMaximize(b)
+	m.Draw(c)
+	for y := 0; y < 9; y++ {
+		for x := 0; x < 30; x++ {
+			if c.At(x, y).Style == StyleShadow {
+				t.Fatalf("maximized window casts a shadow at (%d,%d)", x, y)
+			}
+		}
+	}
+}
+
+// Title-bar buttons light up under the pointer, but only on the window
+// that is really under it.
+func TestTitleButtonHover(t *testing.T) {
+	m, a, b := wideManager()
+	c := NewCanvas(80, 23)
+	style := func(w *Window, off int) StyleID { return c.At(w.buttonsX()+off, w.Rect.Y).Style }
+
+	m.Draw(c)
+	if style(b, 7) != StyleClose || style(a, 7) == StyleClose {
+		t.Fatalf("only the focused window has a red close button: a=%d b=%d", style(a, 7), style(b, 7))
+	}
+	m.PointerOn, m.PointerX, m.PointerY = true, b.buttonsX()+7, b.Rect.Y
+	m.Draw(c)
+	if style(b, 6) != StyleCloseHover || style(b, 8) != StyleCloseHover || style(b, 4) == StyleButtonHover {
+		t.Fatalf("close hover: %d %d %d", style(b, 6), style(b, 8), style(b, 4))
+	}
+	m.PointerX = b.buttonsX() + 1
+	m.Draw(c)
+	if style(b, 0) != StyleButtonHover || style(b, 7) != StyleClose {
+		t.Fatalf("minimize hover: %d %d", style(b, 0), style(b, 7))
+	}
+	m.PointerOn = false
+	m.Draw(c)
+	if style(b, 0) == StyleButtonHover {
+		t.Fatal("no highlight without a pointer")
+	}
+	if x, y := c.Pointer(); x != -1 || y != -1 {
+		t.Fatalf("pointer left on the canvas: %d,%d", x, y)
 	}
 }
 

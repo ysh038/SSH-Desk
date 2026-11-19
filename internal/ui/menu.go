@@ -185,6 +185,7 @@ func (m *Menu) Draw(c *wm.Canvas) {
 	s := wm.NewSurface(c, m.Rect)
 	s.Clear(wm.StyleMenu)
 	s.Box(wm.Rect{X: 0, Y: 0, W: m.Rect.W, H: m.Rect.H}, wm.StyleMenu)
+	shadow(c, m.Rect)
 	inner := m.Rect.W - 2
 	for i, it := range m.Items {
 		y := i + 1

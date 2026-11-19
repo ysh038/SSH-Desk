@@ -81,3 +81,19 @@ func (s Surface) Box(r Rect, st StyleID) {
 	s.Set(r.X, y1, '└', st)
 	s.Set(x1, y1, '┘', st)
 }
+
+// Hovered reports whether the mouse pointer is over this surface, for a
+// row that wants to pick its style before drawing.
+func (s Surface) Hovered() bool { return s.clip.Contains(s.c.Pointer()) }
+
+// Hot marks the local rectangle r as something the mouse can act on: when
+// the pointer is over it, its cells get style st and Hot returns true. Call
+// it after drawing the control.
+func (s Surface) Hot(r Rect, st StyleID) bool {
+	abs := Rect{s.area.X + r.X, s.area.Y + r.Y, r.W, r.H}.Intersect(s.clip)
+	if px, py := s.c.Pointer(); !abs.Contains(px, py) {
+		return false
+	}
+	s.c.Restyle(s.clip, abs, st)
+	return true
+}

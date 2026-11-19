@@ -6,6 +6,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
+	"tuidesk/internal/config"
 	"tuidesk/internal/desktop"
 	"tuidesk/internal/term"
 )
@@ -177,5 +178,19 @@ func TestNotificationIsTimedFromTheEvent(t *testing.T) {
 	l.Dispatch(tcell.NewEventInterrupt(flushData{}))
 	if want := now.Add(4 * time.Second); !d.NextWake().Equal(want) {
 		t.Fatalf("notification ends at %v, want %v", d.NextWake(), want)
+	}
+}
+
+// Movement reports follow the hover setting: on while it is on, off again
+// as soon as it is turned off.
+func TestMouseMotionFollowsSetting(t *testing.T) {
+	l, d, _ := newSim(t)
+	if !l.motion {
+		t.Fatal("hover is on by default: movement reports must be on after the first frame")
+	}
+	d.UpdateConfig(func(c *config.Config) { c.Hover = false })
+	l.render()
+	if l.motion {
+		t.Fatal("movement reports must stop when hover is turned off")
 	}
 }

@@ -70,6 +70,11 @@ type Desktop struct {
 	cfgPath    string
 	mode       Mode
 	barItems   []barItem
+	// Where the mouse pointer is, for hover highlights. ptrOn is false
+	// until the mouse moves and again once a key is pressed, so keyboard
+	// users never see a stray highlight.
+	ptrX, ptrY int
+	ptrOn      bool
 	created    int
 	help       *wm.Window
 	iconSel    int // selected desktop icon (-1: none)
@@ -83,6 +88,7 @@ func New(w, h int, host string, now time.Time) *Desktop {
 	d.M.Background = d.drawIcons
 	d.svc.init()
 	d.cfg = config.Default()
+	ui.Shadows, d.M.Shadows = d.cfg.Shadows, d.cfg.Shadows
 	d.NewApp = func(n int) wm.App { return blank.New(n) }
 	d.Resize(w, h)
 	return d
@@ -112,6 +118,7 @@ func (d *Desktop) applyConfig() {
 	}
 	term.SetLabelStyle(style)
 	ui.WheelLines = d.cfg.WheelLines
+	ui.Shadows, d.M.Shadows = d.cfg.Shadows, d.cfg.Shadows
 	d.toasts.Duration = time.Duration(d.cfg.NotifySeconds) * time.Second
 }
 
@@ -139,6 +146,10 @@ func (d *Desktop) UpdateConfig(fn func(c *config.Config)) {
 	d.applyConfig()
 	d.saveConfig()
 }
+
+// MouseMotion reports whether the terminal should report pointer movement
+// with no button held (the hover setting).
+func (d *Desktop) MouseMotion() bool { return d.cfg.Hover }
 
 // MultiClickInterval is the double-click speed (Settings › Mouse); the
 // terminal layer asks for it.
@@ -241,6 +252,20 @@ func (d *Desktop) Handle(ev term.Event) {
 		d.Now = t.Now
 		d.toasts.Tick(t.Now)
 		return
+	}
+	switch ev := ev.(type) {
+	case term.KeyEvent:
+		d.ptrOn = false
+	case term.MouseEvent:
+		d.ptrX, d.ptrY, d.ptrOn = ev.Gesture.X, ev.Gesture.Y, d.cfg.Hover
+		if ev.Gesture.Kind == term.GestureMove {
+			// Moving the pointer only changes what is lit up, except in an
+			// open menu, where the selection follows it.
+			if d.menu != nil && len(d.modals) == 0 && d.cfg.Hover {
+				d.menu.HandleMouse(ev.Gesture)
+			}
+			return
+		}
 	}
 	if me, ok := ev.(term.MouseEvent); ok && d.svc.swallowDragEnd {
 		d.svc.swallowDragEnd = false
@@ -574,7 +599,7 @@ var helpSections = []struct {
 func helpLines() []string {
 	lines := []string{
 		"Mouse: drag a title bar to move, drag the bottom-right corner to resize,",
-		"[_] minimize  [^] maximize  [x] close, double-click a title to maximize.",
+		"Title bar: _ minimize  ^ maximize  x close, double-click the title to maximize.",
 		"Type to filter files; drag selected files onto a folder to move or copy.",
 		"Desktop icons: double-click opens; drop files on a folder icon to move/copy,",
 		"on empty desktop to add shortcuts. View > Icon view switches the file list.",
@@ -807,14 +832,27 @@ func (d *Desktop) barAction(action string, r wm.Rect) {
 
 // Draw paints the whole desktop.
 func (d *Desktop) Draw(c *wm.Canvas) {
+	ui.ShadowClip = d.Area()
+	// Hover: only the top layer under the pointer lights up.
+	covered := d.menu != nil || len(d.modals) > 0
+	d.M.PointerX, d.M.PointerY = d.ptrX, d.ptrY
+	d.M.PointerOn = d.ptrOn && !covered && d.ptrY < d.H-1
 	d.M.Draw(c)
+	if d.ptrOn && !covered {
+		c.SetPointer(d.ptrX, d.ptrY)
+	}
 	d.drawBar(c)
+	c.SetPointer(-1, -1)
 	if d.menu != nil {
 		d.menu.Draw(c)
 	}
-	for _, m := range d.modals {
+	for i, m := range d.modals {
+		if d.ptrOn && i == len(d.modals)-1 {
+			c.SetPointer(d.ptrX, d.ptrY)
+		}
 		m.Draw(c)
 	}
+	c.SetPointer(-1, -1)
 	d.drawDrag(c)
 	a := d.Area()
 	d.toasts.Draw(c, wm.Rect{X: a.X + a.W/3, Y: a.Y, W: a.W - a.W/3, H: a.H})
@@ -851,6 +889,7 @@ func (d *Desktop) drawBar(c *wm.Canvas) {
 			return false
 		}
 		s.Sub(wm.Rect{X: x, Y: 0, W: w, H: 1}).Text(0, 0, label, st)
+		s.Hot(wm.Rect{X: x, Y: 0, W: w, H: 1}, wm.StyleBarHover)
 		d.barItems = append(d.barItems, barItem{r: wm.Rect{X: x, Y: y, W: w, H: 1}, action: action})
 		x += w + 1
 		return true

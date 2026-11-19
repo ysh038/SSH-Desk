@@ -121,21 +121,16 @@ func (d *Dialog) Draw(c *wm.Canvas) {
 	s := wm.NewSurface(c, d.Rect)
 	s.Clear(wm.StyleDialog)
 	s.Box(wm.Rect{X: 0, Y: 0, W: d.Rect.W, H: d.Rect.H}, wm.StyleDialog)
-	titleStyle := wm.StyleDialog
+	shadow(c, d.Rect)
+	titleStyle := wm.StyleTitleFocused
 	if d.Error {
-		titleStyle = wm.StyleDialogError
+		titleStyle = wm.StyleToastError
 	}
-	s.Sub(wm.Rect{X: 1, Y: 0, W: d.Rect.W - 2, H: 1}).Text(1, 0, " "+d.Title+" ", titleStyle)
+	titleBand(c, d.Rect, d.Title, titleStyle)
 	for i, l := range d.lines() {
 		s.Sub(wm.Rect{X: 2, Y: 2 + i, W: d.Rect.W - 4, H: 1}).Text(0, 0, l, wm.StyleDialog)
 	}
 	for i, r := range d.buttonRects() {
-		st := wm.StyleDialogButton
-		label := "[ " + d.Buttons[i] + " ]"
-		if i == d.Focused {
-			st = wm.StyleDialogButtonFocused
-			label = "[>" + d.Buttons[i] + "<]"
-		}
-		c.Text(wm.Rect{X: 0, Y: 0, W: c.W, H: c.H}, r.X, r.Y, label, st)
+		drawButton(c, r, d.Buttons[i], i == d.Focused)
 	}
 }

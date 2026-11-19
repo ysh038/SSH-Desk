@@ -43,6 +43,13 @@ const (
 	StyleSynVar
 	StyleSynKey
 	StyleSynHeader
+	StyleShadow            // what lies in the shadow of a window, menu or dialog
+	StyleHover             // list row or icon under the mouse pointer
+	StyleBarHover          // bar item or menu title under the pointer
+	StyleButtonHover       // title-bar button under the pointer
+	StyleClose             // close button of the focused window
+	StyleCloseHover        // close button under the pointer
+	StyleDialogButtonHover // dialog button under the pointer
 	// StyleTerm cells carry their own colors in Cell.T (terminal windows).
 	StyleTerm
 

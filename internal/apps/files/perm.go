@@ -402,7 +402,7 @@ func (d *permDialog) Draw(c *wm.Canvas) {
 	s := wm.NewSurface(c, d.Rect)
 	s.Clear(wm.StyleDialog)
 	s.Box(wm.Rect{X: 0, Y: 0, W: d.Rect.W, H: d.Rect.H}, wm.StyleDialog)
-	s.Sub(wm.Rect{X: 1, Y: 0, W: d.Rect.W - 2, H: 1}).Text(1, 0, " "+d.title()+" ", wm.StyleDialog)
+	ui.TitleBand(c, d.Rect, d.title())
 
 	s.Text(gridX-1, 1, "Read    Write   Execute", wm.StyleDialog)
 	owner, group := "", ""

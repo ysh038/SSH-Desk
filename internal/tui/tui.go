@@ -47,6 +47,7 @@ type Loop struct {
 
 	canvas  *wm.Canvas
 	prev    *wm.Canvas
+	motion  bool // movement reports are on
 	pasting bool
 	paste   strings.Builder
 	timer   *time.Timer
@@ -169,8 +170,29 @@ func (l *Loop) collectPaste(ev *tcell.EventKey) {
 	}
 }
 
+// motionWanter is a handler that wants to hear about pointer movement
+// with no button held (hover highlights). It costs traffic: the terminal
+// reports every cell the pointer crosses.
+type motionWanter interface{ MouseMotion() bool }
+
+// syncMouse switches movement reports on or off to match the handler.
+func (l *Loop) syncMouse() {
+	m, ok := l.H.(motionWanter)
+	if !ok || m.MouseMotion() == l.motion {
+		return
+	}
+	l.motion = !l.motion
+	flags := tcell.MouseButtonEvents | tcell.MouseDragEvents
+	if l.motion {
+		flags |= tcell.MouseMotionEvents
+	}
+	l.S.DisableMouse()
+	l.S.EnableMouse(flags)
+}
+
 // render draws the handler into the canvas and writes only changed cells.
 func (l *Loop) render() {
+	l.syncMouse()
 	l.H.Draw(l.canvas)
 	c := l.canvas
 	for y := 0; y < c.H; y++ {
@@ -364,8 +386,34 @@ func StylesFor(colors int) [wm.NumStyles]tcell.Style {
 	st[wm.StyleSynVar] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorYellow)
 	st[wm.StyleSynKey] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorAqua)
 	st[wm.StyleSynHeader] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorYellow).Bold(true)
+	// Depth and hover (SPEC 7.1): a title bar is a band of colour, the
+	// close button is red, shadows are darker than anything else.
+	st[wm.StyleTitle] = b.Background(tcell.ColorGray).Foreground(tcell.ColorSilver)
+	st[wm.StyleClose] = b.Background(tcell.ColorMaroon).Foreground(tcell.ColorWhite).Bold(true)
+	st[wm.StyleCloseHover] = b.Background(tcell.ColorRed).Foreground(tcell.ColorWhite).Bold(true)
+	st[wm.StyleButtonHover] = b.Background(tcell.ColorSilver).Foreground(tcell.ColorBlack)
+	st[wm.StyleShadow] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorGray)
+	st[wm.StyleHover] = b.Background(tcell.ColorGray).Foreground(tcell.ColorWhite)
+	st[wm.StyleBarHover] = b.Background(tcell.ColorWhite).Foreground(tcell.ColorBlack)
+	st[wm.StyleDialogButton] = b.Background(tcell.ColorGray).Foreground(tcell.ColorWhite)
+	st[wm.StyleDialogButtonHover] = b.Background(tcell.ColorNavy).Foreground(tcell.ColorWhite)
 	if colors < 256 {
 		st[wm.StyleCurLine] = st[wm.StyleBody] // no subtle grey on 8/16 colors
+	} else {
+		// With 256 colours a window is dark grey, not black, so that its
+		// black shadow shows beside it. Palette entries above 15 are the
+		// same in every terminal, unlike the 16 named colours.
+		body, black := tcell.PaletteColor(235), tcell.PaletteColor(16)
+		for i := range st {
+			if _, bg, _ := st[i].Decompose(); bg == tcell.ColorBlack {
+				st[i] = st[i].Background(body)
+			}
+		}
+		st[wm.StyleCurLine] = b.Background(tcell.PaletteColor(237)).Foreground(tcell.ColorSilver)
+		st[wm.StyleShadow] = b.Background(black).Foreground(tcell.PaletteColor(240))
+		st[wm.StyleHover] = b.Background(tcell.PaletteColor(239)).Foreground(tcell.ColorWhite)
+		st[wm.StyleTitle] = b.Background(tcell.PaletteColor(240)).Foreground(tcell.PaletteColor(252))
+		st[wm.StyleDialogButton] = b.Background(tcell.PaletteColor(244)).Foreground(tcell.ColorWhite)
 	}
 	if colors < 16 {
 		// Bright colors render as bold/blink on 8-color consoles; keep to the base 8.
@@ -374,6 +422,13 @@ func StylesFor(colors int) [wm.NumStyles]tcell.Style {
 		st[wm.StyleMenuDisabled] = b.Background(tcell.ColorSilver).Foreground(tcell.ColorNavy)
 		st[wm.StyleScrollbar] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorWhite)
 		st[wm.StyleSynComment] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorOlive) // grey is invisible here
+		st[wm.StyleTitle] = b.Background(tcell.ColorSilver).Foreground(tcell.ColorBlack)
+		st[wm.StyleShadow] = b.Background(tcell.ColorBlack).Foreground(tcell.ColorBlack)
+		st[wm.StyleHover] = b.Background(tcell.ColorNavy).Foreground(tcell.ColorWhite)
+		st[wm.StyleBarHover] = b.Background(tcell.ColorTeal).Foreground(tcell.ColorBlack)
+		st[wm.StyleDialogButton] = b.Background(tcell.ColorNavy).Foreground(tcell.ColorWhite)
+		st[wm.StyleDialogButtonHover] = b.Background(tcell.ColorTeal).Foreground(tcell.ColorBlack)
+		st[wm.StyleCloseHover] = st[wm.StyleClose]
 	}
 	return st
 }

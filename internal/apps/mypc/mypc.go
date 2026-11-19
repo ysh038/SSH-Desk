@@ -838,6 +838,8 @@ func (a *App) Draw(s wm.Surface, focused bool) {
 				if focused {
 					st = wm.StyleSelected
 				}
+			} else if line.Hovered() {
+				st = wm.StyleHover
 			}
 			line.Clear(st)
 			line.Text(0, 0, a.line(r, textW), st)

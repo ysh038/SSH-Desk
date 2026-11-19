@@ -970,10 +970,11 @@ func (a *App) drawRows(s wm.Surface, focused bool) {
 			st = wm.StyleSelected
 		case a.selected[e.Name]:
 			st = wm.StyleMarked
-		case e.IsDir:
-			st = wm.StyleTitle
 		}
 		row := list.Sub(wm.Rect{X: 0, Y: y, W: a.vw - 1, H: 1})
+		if st == wm.StyleBody && row.Hovered() {
+			st = wm.StyleHover
+		}
 		row.Clear(st)
 		mark := " "
 		if a.selected[e.Name] {
@@ -1076,10 +1077,11 @@ func (a *App) drawIcons(list wm.Surface, focused bool) {
 				st = wm.StyleSelected
 			case a.selected[e.Name]:
 				st = wm.StyleMarked
-			case e.IsDir:
-				st = wm.StyleTitle
 			}
 			cell := list.Sub(wm.Rect{X: c * cellW, Y: r * cellH, W: cellW - 1, H: cellH})
+			if st == wm.StyleBody && cell.Hovered() {
+				st = wm.StyleHover
+			}
 			cell.Clear(st)
 			icon := entryIcon(e)
 			if a.selected[e.Name] {

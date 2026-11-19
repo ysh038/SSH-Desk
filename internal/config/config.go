@@ -54,6 +54,8 @@ type Config struct {
 	// Appearance.
 	DesktopIcons bool `toml:"show_desktop_icons"`
 	ShowHost     bool `toml:"show_host_name"`
+	// Shadows draws a drop shadow beside windows, menus and dialogs.
+	Shadows bool `toml:"window_shadows"`
 	// Names is how file names with non-ASCII characters (Hangul) are
 	// drawn: "auto" (escaped as \uXXXX on the Linux console only), "show"
 	// or "escape".
@@ -67,6 +69,9 @@ type Config struct {
 	// Mouse.
 	DoubleClickMs int `toml:"double_click_ms"`
 	WheelLines    int `toml:"wheel_lines"`
+	// Hover lights up what the mouse pointer is over. It makes the
+	// terminal report every pointer movement, not only clicks and drags.
+	Hover bool `toml:"mouse_hover"`
 
 	// Notifications.
 	NotifySeconds int  `toml:"notify_seconds"`
@@ -175,6 +180,8 @@ func Default() Config {
 
 		DesktopIcons:  true,
 		ShowHost:      true,
+		Shadows:       true,
+		Hover:         true,
 		Names:         "auto",
 		Clock:         "24h",
 		DoubleClickMs: 500, // compat-matrix finding 7

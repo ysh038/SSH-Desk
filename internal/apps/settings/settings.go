@@ -476,6 +476,9 @@ func (a *App) Draw(s wm.Surface, focused bool) {
 			}
 		}
 		row := s.Sub(wm.Rect{X: 0, Y: listY + i, W: sectionW, H: 1})
+		if st == wm.StyleBody && row.Hovered() {
+			st = wm.StyleHover
+		}
 		row.Clear(st)
 		row.Text(1, 0, name, st)
 	}
@@ -516,6 +519,9 @@ func (a *App) Draw(s wm.Surface, focused bool) {
 			}
 		}
 		row := s.Sub(wm.Rect{X: a.paneX, Y: listY + y, W: textW, H: 1})
+		if st == wm.StyleBody && row.Hovered() {
+			st = wm.StyleHover
+		}
 		row.Clear(st)
 		label := it.Label
 		if q != "" {

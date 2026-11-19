@@ -31,9 +31,9 @@ const (
 
 // Title-bar buttons, drawn right-aligned on the top border.
 const (
-	btnMin   = "[_]"
-	btnMax   = "[^]"
-	btnClose = "[x]"
+	btnMin   = " _ "
+	btnMax   = " ^ "
+	btnClose = " x "
 )
 
 // Window is a framed rectangle. Rect includes the frame.
@@ -92,6 +92,12 @@ type Manager struct {
 	Desktop Rect
 	// Background draws on the desktop under the windows (desktop icons).
 	Background func(c *Canvas)
+	// Shadows draws a drop shadow beside windows that are not maximized.
+	Shadows bool
+	// PointerX/Y is where the mouse is, for hover highlights; PointerOn is
+	// false when it is over something drawn above the windows.
+	PointerX, PointerY int
+	PointerOn          bool
 
 	wins  []*Window // bottom to top, minimized ones included
 	focus *Window
@@ -354,14 +360,29 @@ func (m *Manager) Dragging() bool { return m.grabActive }
 // Draw paints the desktop background and all visible windows back to front.
 func (m *Manager) Draw(c *Canvas) {
 	c.Fill(m.Desktop, ' ', StyleDesktop)
+	// Only what is directly under the pointer may light up.
+	var over *Window
+	if m.PointerOn {
+		over, _ = m.HitTest(m.PointerX, m.PointerY)
+	}
+	point := func(on bool) {
+		if on && m.PointerOn {
+			c.SetPointer(m.PointerX, m.PointerY)
+		} else {
+			c.SetPointer(-1, -1)
+		}
+	}
 	if m.Background != nil {
+		point(over == nil)
 		m.Background(c)
 	}
 	for _, w := range m.wins {
 		if !w.Minimized {
+			point(w == over)
 			m.drawWindow(c, w, w == m.focus)
 		}
 	}
+	point(false)
 }
 
 func (m *Manager) drawWindow(c *Canvas, w *Window, focused bool) {
@@ -393,20 +414,32 @@ func (m *Manager) drawWindow(c *Canvas, w *Window, focused bool) {
 		outer.Set(r.W-1, r.H-1, '┘', frame) // resize handle stays a corner glyph
 	}
 
-	// Title, clipped before the buttons so it never overwrites them.
+	// The title bar is a band of colour across the whole top row, with the
+	// title at the left and the buttons at the right.
+	outer.Fill(Rect{0, 0, r.W, 1}, ' ', title)
 	titleEnd := r.W - 1
 	if bx := w.buttonsX(); bx >= 0 {
 		titleEnd = bx - r.X
-		outer.Text(titleEnd, 0, btnMin, StyleButton)
 		maxBtn := btnMax
 		if w.Maximized {
-			maxBtn = "[v]"
+			maxBtn = " v "
 		}
-		outer.Text(titleEnd+3, 0, maxBtn, StyleButton)
-		outer.Text(titleEnd+6, 0, btnClose, StyleButton)
+		closeSt := title
+		if focused {
+			closeSt = StyleClose
+		}
+		outer.Text(titleEnd, 0, btnMin, title)
+		outer.Text(titleEnd+3, 0, maxBtn, title)
+		outer.Text(titleEnd+6, 0, btnClose, closeSt)
+		outer.Hot(Rect{titleEnd, 0, 3, 1}, StyleButtonHover)
+		outer.Hot(Rect{titleEnd + 3, 0, 3, 1}, StyleButtonHover)
+		outer.Hot(Rect{titleEnd + 6, 0, 3, 1}, StyleCloseHover)
 	}
 	if titleEnd > 2 {
-		outer.Sub(Rect{1, 0, titleEnd - 1, 1}).Text(1, 0, " "+w.Name()+" ", title)
+		outer.Sub(Rect{1, 0, titleEnd - 1, 1}).Text(0, 0, " "+w.Name()+" ", title)
+	}
+	if m.Shadows && !w.Maximized {
+		c.Shadow(m.Desktop, r)
 	}
 }
 
