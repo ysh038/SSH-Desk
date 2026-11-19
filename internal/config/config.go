@@ -70,7 +70,8 @@ type Config struct {
 	DoubleClickMs int `toml:"double_click_ms"`
 	WheelLines    int `toml:"wheel_lines"`
 	// Hover lights up what the mouse pointer is over. It makes the
-	// terminal report every pointer movement, not only clicks and drags.
+	// terminal report every pointer movement, not only clicks and drags,
+	// so it is off unless the user turns it on.
 	Hover bool `toml:"mouse_hover"`
 
 	// Notifications.
@@ -181,7 +182,6 @@ func Default() Config {
 		DesktopIcons:  true,
 		ShowHost:      true,
 		Shadows:       true,
-		Hover:         true,
 		Names:         "auto",
 		Clock:         "24h",
 		DoubleClickMs: 500, // compat-matrix finding 7

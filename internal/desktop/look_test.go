@@ -18,9 +18,18 @@ func styleAt(c *wm.Canvas, x, y int) wm.StyleID { return c.At(x, y).Style }
 // again, and the setting turns the whole thing off.
 func TestHoverTaskbarAndButtons(t *testing.T) {
 	h := newHarness(t, 2)
-	if !h.d.MouseMotion() {
-		t.Fatal("hover is on by default, so the terminal must report movement")
+	if h.d.MouseMotion() {
+		t.Fatal("hover is off by default: the terminal must not report movement")
 	}
+	h.move(2, h.d.H-1)
+	if styleAt(h.draw(), 2, h.d.H-1) == wm.StyleBarHover {
+		t.Fatal("nothing lights up while hover is off")
+	}
+	h.d.UpdateConfig(func(c *config.Config) { c.Hover = true })
+	if !h.d.MouseMotion() {
+		t.Fatal("turning hover on must ask the terminal for movement reports")
+	}
+	h.key("Esc", 0) // forget the pointer position from above
 	bar := h.draw().Row(h.d.H - 1)
 	x := len([]rune(bar[:strings.Index(bar, "Window 1")]))
 	y := h.d.H - 1
@@ -73,6 +82,7 @@ func TestHoverTaskbarAndButtons(t *testing.T) {
 // under an open menu or dialog does.
 func TestHoverOnlyTopLayer(t *testing.T) {
 	h := newHarness(t, 2)
+	h.d.UpdateConfig(func(c *config.Config) { c.Hover = true })
 	var back, front *wm.Window
 	for _, w := range h.d.M.Windows() {
 		if w == h.d.M.Focused() {
@@ -113,6 +123,7 @@ func TestHoverOnlyTopLayer(t *testing.T) {
 // interrupts keyboard move mode.
 func TestHoverMenuAndMoveMode(t *testing.T) {
 	h := newHarness(t, 1)
+	h.d.UpdateConfig(func(c *config.Config) { c.Hover = true })
 	h.key("F9", 0)
 	m := h.d.menu
 	for i, it := range m.Items {

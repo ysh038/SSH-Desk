@@ -185,8 +185,13 @@ func TestNotificationIsTimedFromTheEvent(t *testing.T) {
 // as soon as it is turned off.
 func TestMouseMotionFollowsSetting(t *testing.T) {
 	l, d, _ := newSim(t)
+	if l.motion {
+		t.Fatal("hover is off by default: no movement reports")
+	}
+	d.UpdateConfig(func(c *config.Config) { c.Hover = true })
+	l.render()
 	if !l.motion {
-		t.Fatal("hover is on by default: movement reports must be on after the first frame")
+		t.Fatal("movement reports must start when hover is turned on")
 	}
 	d.UpdateConfig(func(c *config.Config) { c.Hover = false })
 	l.render()
