@@ -122,7 +122,7 @@ func TestMouseOnlyWindowOperations(t *testing.T) {
 	if !strings.Contains(c.Row(h.d.H-1), "[Window 1]") {
 		t.Fatalf("taskbar = %q", c.Row(h.d.H-1))
 	}
-	h.click(2, h.d.H-1)
+	h.click(len([]rune(c.Row(h.d.H - 1)[:strings.Index(c.Row(h.d.H-1), "[Window 1]")]))+1, h.d.H-1)
 	h.wait()
 	if w1.Minimized || h.d.M.Focused() != w1 {
 		t.Fatal("restore from taskbar failed")
@@ -169,16 +169,37 @@ func TestRightClickOpensWindowMenu(t *testing.T) {
 	}
 }
 
-func TestLauncherFromTopBar(t *testing.T) {
+func TestLauncherFromTaskbar(t *testing.T) {
 	h := newHarness(t, 0)
 	h.draw()
-	h.click(2, 0) // "≡ Menu"
+	h.click(2, h.d.H-1) // "≡ Menu"
 	if !h.d.MenuOpen() {
 		t.Fatal("launcher should open")
 	}
+	// It opens upwards, above the bar, and its groups are separated by lines.
+	c := h.draw()
+	if strings.Contains(c.Row(h.d.H-1), "Quit") || !strings.Contains(c.Row(h.d.H-3), "Quit") {
+		t.Fatalf("launcher must end just above the taskbar:\n%s\n%s", c.Row(h.d.H-3), c.Row(h.d.H-1))
+	}
+	y := 0
+	for ; !strings.Contains(c.Row(y), "New window"); y++ {
+	}
+	var got []string
+	for ; y < h.d.H-2; y++ {
+		row := c.Row(y)
+		switch {
+		case strings.Contains(row, "───"):
+			got = append(got, "-")
+		default:
+			got = append(got, strings.TrimSpace(strings.Trim(strings.TrimSpace(row), "│"))[:4])
+		}
+	}
+	if want := "New  Term Text - My P Task Sett - Show Help - Quit"; strings.Join(got, " ") != want {
+		t.Fatalf("launcher groups = %q, want %q", strings.Join(got, " "), want)
+	}
 	// First item is "New window": click it.
 	h.wait()
-	h.click(4, 2)
+	h.click(4, h.d.H-2-len(got))
 	if h.d.MenuOpen() || len(h.d.M.Windows()) != 1 {
 		t.Fatalf("new window from launcher: open=%v windows=%d", h.d.MenuOpen(), len(h.d.M.Windows()))
 	}
@@ -297,14 +318,14 @@ func TestHelpWindowSingleInstance(t *testing.T) {
 func TestBarsShowHostClockAndWindows(t *testing.T) {
 	h := newHarness(t, 2)
 	c := h.draw()
-	top := c.Row(0)
-	for _, want := range []string{"≡ Menu", "Window 1", "Window 2", "dev-server", "09:30"} {
-		if !strings.Contains(top, want) {
-			t.Errorf("top bar missing %q: %q", want, top)
+	bar := c.Row(h.d.H - 1)
+	for _, want := range []string{"≡ Menu", "Window 1", "Window 2", "F9 Menu", "dev-server", "09:30"} {
+		if !strings.Contains(bar, want) {
+			t.Errorf("taskbar missing %q: %q", want, bar)
 		}
 	}
-	if !strings.Contains(c.Row(h.d.H-1), "F9 Menu") {
-		t.Errorf("taskbar = %q", c.Row(h.d.H-1))
+	if a := h.d.Area(); a.Y != 0 || a.H != h.d.H-1 {
+		t.Errorf("windows get every row above the taskbar, area = %+v", a)
 	}
 }
 
@@ -389,5 +410,50 @@ func TestFirstRunAsksKeyboardAndShowsMacLabels(t *testing.T) {
 	h2.d.SetConfig(cfg, path)
 	if h2.d.DialogOpen() || term.CurrentLabelStyle() != term.LabelPC {
 		t.Fatal("console: no question, PC labels")
+	}
+}
+
+// The taskbar keeps one tab per window, like Windows: a click on another
+// window's tab brings it forward, a click on the focused one minimizes it.
+func TestTaskbarTabs(t *testing.T) {
+	h := newHarness(t, 2)
+	var w1, w2 *wm.Window
+	for _, w := range h.d.M.Windows() {
+		if w.Name() == "Window 1" {
+			w1 = w
+		} else {
+			w2 = w
+		}
+	}
+	tab := func(label string) int {
+		t.Helper()
+		bar := h.draw().Row(h.d.H - 1)
+		i := strings.Index(bar, label)
+		if i < 0 {
+			t.Fatalf("taskbar has no %q: %q", label, bar)
+		}
+		return len([]rune(bar[:i])) + 1
+	}
+	h.click(tab("Window 1"), h.d.H-1)
+	h.wait()
+	if h.d.M.Focused() != w1 {
+		t.Fatal("a click on a tab must focus that window")
+	}
+	h.click(tab("Window 1"), h.d.H-1)
+	h.wait()
+	if !w1.Minimized {
+		t.Fatal("a click on the focused tab must minimize it")
+	}
+	if h.d.M.Focused() != w2 {
+		t.Fatal("the window behind takes the focus")
+	}
+	h.click(tab("[Window 1]"), h.d.H-1)
+	h.wait()
+	if w1.Minimized || h.d.M.Focused() != w1 {
+		t.Fatal("a click on a minimized tab must restore it")
+	}
+	// Tabs keep the order the windows were opened in, whichever is in front.
+	if bar := h.draw().Row(h.d.H - 1); strings.Index(bar, "Window 1") > strings.Index(bar, "Window 2") {
+		t.Fatalf("tabs must not move: %q", bar)
 	}
 }

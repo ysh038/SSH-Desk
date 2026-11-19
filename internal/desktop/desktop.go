@@ -1,10 +1,11 @@
-// Package desktop is the shell: top bar, taskbar, launcher, window menu,
+// Package desktop is the shell: taskbar, launcher, window menu,
 // keyboard move/resize modes, dialogs and toasts around a wm.Manager.
 // It consumes term events and draws onto a wm.Canvas; it does not use tcell.
 package desktop
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -68,8 +69,7 @@ type Desktop struct {
 	cfg        config.Config
 	cfgPath    string
 	mode       Mode
-	topItems   []barItem
-	taskItems  []barItem
+	barItems   []barItem
 	created    int
 	help       *wm.Window
 	iconSel    int // selected desktop icon (-1: none)
@@ -185,7 +185,7 @@ func (d *Desktop) clockText() string {
 }
 
 // Area is the region windows live in (between the two bars).
-func (d *Desktop) Area() wm.Rect { return wm.Rect{X: 0, Y: 1, W: d.W, H: max(d.H-2, 1)} }
+func (d *Desktop) Area() wm.Rect { return wm.Rect{X: 0, Y: 0, W: d.W, H: max(d.H-1, 1)} }
 
 // Resize adapts to a new terminal size.
 func (d *Desktop) Resize(w, h int) {
@@ -351,24 +351,24 @@ func (d *Desktop) openMenu(items []ui.MenuItem, target *wm.Window, x, y int) {
 }
 
 func (d *Desktop) openLauncher(x, y int) {
+	sep := ui.MenuItem{Separator: true}
 	items := []ui.MenuItem{
+		// Programs.
 		{Label: "New window", Hotkey: 'n', Shortcut: "Ctrl+N", Action: "new"},
-		{Label: "My PC", Hotkey: 'm', Action: "mypc", Disabled: d.NewMyPC == nil},
-		{Label: "Task Manager", Hotkey: 'k', Action: "tasks", Disabled: d.NewTaskManager == nil},
 		{Label: "Terminal", Hotkey: 't', Action: "terminal"},
 		{Label: "Text editor", Hotkey: 'e', Action: "editor"},
-		{Label: "Show desktop", Hotkey: 'd', Action: "desktop"},
-		{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
-		{Label: "Settings", Hotkey: 's', Action: "settings"},
 	}
-	if len(d.apps) > 0 {
-		items = append(items, ui.MenuItem{Separator: true})
-		for i, a := range d.apps {
-			items = append(items, ui.MenuItem{Label: d.display(a.Name), Action: "app:" + strconv.Itoa(i)})
-		}
+	for i, a := range d.apps {
+		items = append(items, ui.MenuItem{Label: d.display(a.Name), Action: "app:" + strconv.Itoa(i)})
 	}
+	items = append(items, sep,
+		// This computer.
+		ui.MenuItem{Label: "My PC", Hotkey: 'm', Action: "mypc", Disabled: d.NewMyPC == nil},
+		ui.MenuItem{Label: "Task Manager", Hotkey: 'k', Action: "tasks", Disabled: d.NewTaskManager == nil},
+		ui.MenuItem{Label: "Settings", Hotkey: 's', Action: "settings"},
+	)
 	if wins := d.M.Windows(); len(wins) > 0 {
-		items = append(items, ui.MenuItem{Separator: true})
+		items = append(items, sep)
 		for _, w := range wins {
 			label := w.Name()
 			if w.Minimized {
@@ -377,7 +377,12 @@ func (d *Desktop) openLauncher(x, y int) {
 			items = append(items, ui.MenuItem{Label: label, Action: "raise:" + strconv.Itoa(w.ID)})
 		}
 	}
-	items = append(items, ui.MenuItem{Separator: true}, ui.MenuItem{Label: "Quit", Hotkey: 'q', Shortcut: "Ctrl+Q", Action: "quit"})
+	items = append(items, sep,
+		ui.MenuItem{Label: "Show desktop", Hotkey: 'd', Action: "desktop"},
+		ui.MenuItem{Label: "Help", Hotkey: 'h', Shortcut: "F1", Action: "help"},
+		sep,
+		ui.MenuItem{Label: "Quit", Hotkey: 'q', Shortcut: "Ctrl+Q", Action: "quit"},
+	)
 	d.openMenu(items, nil, x, y)
 }
 
@@ -636,7 +641,7 @@ func (d *Desktop) handleKey(k term.Key) {
 
 	switch name {
 	case "F9", "Ctrl+Space":
-		d.openLauncher(0, 1)
+		d.openLauncher(0, d.H-2)
 	case "F6", "Tab":
 		d.run("next", nil)
 	case "Shift+F6", "Shift+Tab":
@@ -645,7 +650,7 @@ func (d *Desktop) handleKey(k term.Key) {
 		if f != nil {
 			d.openWindowMenu(f, f.Rect.X+1, f.Rect.Y+1)
 		} else {
-			d.openLauncher(0, 1)
+			d.openLauncher(0, d.H-2)
 		}
 	case "F7":
 		d.run("move", nil)
@@ -681,14 +686,10 @@ func (d *Desktop) forward(w *wm.Window, g term.Gesture) {
 func (d *Desktop) handleMouse(g term.Gesture) {
 	d.mode = ModeNormal
 
-	// Bars react to clicks.
-	if g.Y == 0 || g.Y == d.H-1 {
+	// The taskbar reacts to clicks.
+	if g.Y == d.H-1 {
 		if g.Kind == term.GestureClick && g.Button == term.ButtonLeft {
-			items := d.topItems
-			if g.Y == d.H-1 {
-				items = d.taskItems
-			}
-			for _, it := range items {
+			for _, it := range d.barItems {
 				if it.r.Contains(g.X, g.Y) {
 					d.barAction(it.action, it.r)
 				}
@@ -785,18 +786,19 @@ func (d *Desktop) clickDesktop(g term.Gesture) {
 func (d *Desktop) barAction(action string, r wm.Rect) {
 	switch {
 	case action == "launcher":
-		d.openLauncher(r.X, r.Y+1)
+		d.openLauncher(r.X, r.Y-1)
 	case strings.HasPrefix(action, "raise:"):
 		id, _ := strconv.Atoi(strings.TrimPrefix(action, "raise:"))
 		for _, w := range d.M.Windows() {
 			if w.ID != id {
 				continue
 			}
-			if w == d.M.Focused() && !w.Minimized && r.Y == 0 {
+			if w == d.M.Focused() && !w.Minimized {
 				d.M.Minimize(w) // clicking the focused tab minimizes, like a taskbar
 			} else {
 				d.M.Raise(w)
 			}
+			return // Raise reorders the windows being ranged over
 		}
 	}
 }
@@ -806,8 +808,7 @@ func (d *Desktop) barAction(action string, r wm.Rect) {
 // Draw paints the whole desktop.
 func (d *Desktop) Draw(c *wm.Canvas) {
 	d.M.Draw(c)
-	d.drawTopBar(c)
-	d.drawTaskbar(c)
+	d.drawBar(c)
 	if d.menu != nil {
 		d.menu.Draw(c)
 	}
@@ -819,10 +820,23 @@ func (d *Desktop) Draw(c *wm.Canvas) {
 	d.toasts.Draw(c, wm.Rect{X: a.X + a.W/3, Y: a.Y, W: a.W - a.W/3, H: a.H})
 }
 
-func (d *Desktop) drawTopBar(c *wm.Canvas) {
-	s := wm.NewSurface(c, wm.Rect{X: 0, Y: 0, W: d.W, H: 1})
+// drawBar paints the taskbar on the bottom row, laid out like the Windows
+// one: the menu button, one tab per window (minimized ones in brackets),
+// then the host name and the clock. Key hints fill whatever room is left.
+func (d *Desktop) drawBar(c *wm.Canvas) {
+	y := d.H - 1
+	s := wm.NewSurface(c, wm.Rect{X: 0, Y: y, W: d.W, H: 1})
 	s.Clear(wm.StyleBar)
-	d.topItems = d.topItems[:0]
+	d.barItems = d.barItems[:0]
+
+	switch d.mode {
+	case ModeMove:
+		s.Text(1, 0, "MOVE: arrow keys move the window · Enter/Esc to finish", wm.StyleBarActive)
+		return
+	case ModeResize:
+		s.Text(1, 0, "SIZE: arrow keys resize the window · Enter/Esc to finish", wm.StyleBarActive)
+		return
+	}
 
 	right := " " + d.clockText() + " "
 	if d.cfg.ShowHost {
@@ -837,7 +851,7 @@ func (d *Desktop) drawTopBar(c *wm.Canvas) {
 			return false
 		}
 		s.Sub(wm.Rect{X: x, Y: 0, W: w, H: 1}).Text(0, 0, label, st)
-		d.topItems = append(d.topItems, barItem{r: wm.Rect{X: x, Y: 0, W: w, H: 1}, action: action})
+		d.barItems = append(d.barItems, barItem{r: wm.Rect{X: x, Y: y, W: w, H: 1}, action: action})
 		x += w + 1
 		return true
 	}
@@ -846,54 +860,36 @@ func (d *Desktop) drawTopBar(c *wm.Canvas) {
 		st = wm.StyleBarActive
 	}
 	add(" ≡ Menu ", "launcher", st)
-	for _, w := range d.M.Windows() {
-		if w.Minimized {
-			continue
-		}
-		st := wm.StyleBar
-		if w == d.M.Focused() {
+	// Tabs stay in the order the windows were opened; the manager's own
+	// order is front-to-back and would shuffle them on every click.
+	wins := append([]*wm.Window(nil), d.M.Windows()...)
+	sort.Slice(wins, func(i, j int) bool { return wins[i].ID < wins[j].ID })
+	for _, w := range wins {
+		st, label := wm.StyleBar, " "+clip(w.Name(), 16)+" "
+		switch {
+		case w.Minimized:
+			label = " [" + clip(w.Name(), 14) + "] "
+		case w == d.M.Focused():
 			st = wm.StyleBarActive
 		}
-		if !add(" "+clip(w.Name(), 16)+" ", "raise:"+strconv.Itoa(w.ID), st) {
+		if !add(label, "raise:"+strconv.Itoa(w.ID), st) {
 			break
 		}
 	}
 	s.Text(d.W-term.Width(right), 0, right, wm.StyleBar)
-}
 
-func (d *Desktop) drawTaskbar(c *wm.Canvas) {
-	y := d.H - 1
-	s := wm.NewSurface(c, wm.Rect{X: 0, Y: y, W: d.W, H: 1})
-	s.Clear(wm.StyleBar)
-	d.taskItems = d.taskItems[:0]
-
-	switch d.mode {
-	case ModeMove:
-		s.Text(1, 0, "MOVE: arrow keys move the window · Enter/Esc to finish", wm.StyleBarActive)
-		return
-	case ModeResize:
-		s.Text(1, 0, "SIZE: arrow keys resize the window · Enter/Esc to finish", wm.StyleBarActive)
-		return
-	}
-
-	x := 0
-	for _, w := range d.M.Windows() {
-		if !w.Minimized {
-			continue
-		}
-		label := " [" + clip(w.Name(), 14) + "] "
-		lw := term.Width(label)
-		if x+lw > d.W {
+	// Key hints, the longest version that fits between the tabs and the clock.
+	for _, hint := range []string{
+		term.KeyLabel("F9") + " Menu · " + term.KeyLabel("F6") + " Next window · " +
+			term.KeyLabel("Shift+F10") + " Window menu · " + term.KeyLabel("F1") + " Help",
+		term.KeyLabel("F9") + " Menu · " + term.KeyLabel("F6") + " Next window · " + term.KeyLabel("F1") + " Help",
+		term.KeyLabel("F9") + " Menu · " + term.KeyLabel("F1") + " Help",
+		term.KeyLabel("F9") + " Menu",
+	} {
+		if hx := limit - term.Width(hint); hx > x {
+			s.Text(hx, 0, hint, wm.StyleBar)
 			break
 		}
-		s.Text(x, 0, label, wm.StyleBarActive)
-		d.taskItems = append(d.taskItems, barItem{r: wm.Rect{X: x, Y: y, W: lw, H: 1}, action: "raise:" + strconv.Itoa(w.ID)})
-		x += lw + 1
-	}
-	hint := " " + term.KeyLabel("F9") + " Menu · " + term.KeyLabel("F6") + " Next window · " +
-		term.KeyLabel("Shift+F10") + " Window menu · " + term.KeyLabel("F1") + " Help "
-	if hx := d.W - term.Width(hint); hx > x {
-		s.Text(hx, 0, hint, wm.StyleBar)
 	}
 }
 

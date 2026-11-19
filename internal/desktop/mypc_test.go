@@ -217,7 +217,7 @@ func (h *pcHarness) password(pw string) {
 func TestScenarioS4MouseMountAndEject(t *testing.T) {
 	h := newPC(t)
 	h.draw()
-	h.click(2, 0) // ≡ Menu
+	h.click(2, h.d.H-1) // ≡ Menu
 	h.clickMenuItem("My PC")
 	h.settle()
 	w := h.window()

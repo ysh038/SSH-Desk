@@ -96,7 +96,7 @@ func TestSettingsKeyboardSearchAndChange(t *testing.T) {
 		t.Fatalf("clock = %q, file:\n%s", h.d.Config().Clock, h.saved())
 	}
 	if !h.screenHas("9:30 AM") {
-		t.Fatalf("top bar: %q", h.draw().Row(0))
+		t.Fatalf("taskbar: %q", h.draw().Row(h.d.H-1))
 	}
 
 	// Esc leaves the search; sections with Up/Down, a number with + and -.
@@ -144,7 +144,7 @@ func TestSettingsKeyboardSearchAndChange(t *testing.T) {
 func TestSettingsMouse(t *testing.T) {
 	h := newSettings(t)
 	h.draw()
-	h.click(2, 0) // ≡ Menu
+	h.click(2, h.d.H-1) // ≡ Menu
 	h.clickMenuItem("Settings")
 	a, w := h.app()
 	in := w.Inner()
@@ -160,7 +160,7 @@ func TestSettingsMouse(t *testing.T) {
 		t.Fatalf("a clock with seconds must wake every second, next wake in %v", next.Sub(h.d.Now))
 	}
 	if !h.screenHas("09:30:15") {
-		t.Fatalf("top bar: %q", h.draw().Row(0))
+		t.Fatalf("taskbar: %q", h.draw().Row(h.d.H-1))
 	}
 	// A click on the label only selects.
 	h.wait()
@@ -256,8 +256,8 @@ func TestSettingsAreApplied(t *testing.T) {
 	}
 
 	h.d.UpdateConfig(func(c *config.Config) { c.ShowHost, c.ClockDate = false, true })
-	if top := h.draw().Row(0); strings.Contains(top, "dev-server") || !strings.Contains(top, "2026-11-04 09:30") {
-		t.Fatalf("top bar: %q", top)
+	if top := h.draw().Row(h.d.H - 1); strings.Contains(top, "dev-server") || !strings.Contains(top, "2026-11-04 09:30") {
+		t.Fatalf("taskbar: %q", top)
 	}
 	if h.d.MultiClickInterval() != 500*time.Millisecond {
 		t.Fatalf("double-click speed %v", h.d.MultiClickInterval())

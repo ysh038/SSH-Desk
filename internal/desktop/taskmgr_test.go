@@ -275,7 +275,7 @@ func TestTaskManagerSafety(t *testing.T) {
 func TestTaskManagerMouse(t *testing.T) {
 	h := newTM(t)
 	h.draw()
-	h.click(2, 0)
+	h.click(2, h.d.H-1)
 	h.clickMenuItem("Task Manager")
 	var a *taskmgr.App
 	var w *wm.Window

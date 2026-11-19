@@ -105,13 +105,13 @@ func TestTickUpdatesClock(t *testing.T) {
 	if d.Now.Format("15:04") != "09:01" {
 		t.Fatalf("now = %v", d.Now)
 	}
-	cells, w, _ := s.GetContents()
+	cells, w, h := s.GetContents()
 	row := ""
 	for x := 0; x < w; x++ {
-		row += string(cells[x].Runes)
+		row += string(cells[(h-1)*w+x].Runes)
 	}
 	if want := "09:01"; !contains(row, want) {
-		t.Fatalf("top bar = %q", row)
+		t.Fatalf("taskbar = %q", row)
 	}
 }
 
